@@ -1,6 +1,6 @@
 ---
 name: write-docs
-description: 設計書・機能仕様書・実装計画などのドキュメントを作成/更新するときの手順。docs配下やtmp配下の計画文書を書く、仕様変更を各文書に波及させる等のドキュメント作業で使う。
+description: docs/・tmp/の設計書(design)・機能仕様書(specification)・実装計画(implementation-plan)を作成/更新する手順。「設計/仕様を書いて・直して」「仕様変更を各文書に反映して」「実装計画を更新して」「design→spec→planに波及させて」「用語/名称を統一して」等のドキュメントタスクで使う。コード実装はimplement-codeを使う。
 ---
 
 # スキル：ドキュメント作成
