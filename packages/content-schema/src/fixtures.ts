@@ -1,21 +1,25 @@
-import articlesJson from "../fixtures/articles.json";
-import collectionsJson from "../fixtures/collections.json";
-import graphJson from "../fixtures/graph.json";
-import pagesJson from "../fixtures/pages.json";
-import pathsJson from "../fixtures/paths.json";
-import searchIndexJson from "../fixtures/search-index.json";
-import type { Article } from "./article";
-import { articlesSchema } from "./article";
-import type { Collections } from "./collection";
-import { collectionsSchema } from "./collection";
-import type { Graph } from "./graph";
-import { graphSchema } from "./graph";
-import type { Pages } from "./pages";
-import { pagesSchema } from "./pages";
-import type { PathItem } from "./path";
-import { pathsSchema } from "./path";
-import type { SearchIndex } from "./search";
-import { searchIndexSchema } from "./search";
+import articlesJson from "../fixtures/articles.json" with { type: "json" };
+import collectionsJson from "../fixtures/collections.json" with {
+	type: "json",
+};
+import graphJson from "../fixtures/graph.json" with { type: "json" };
+import pagesJson from "../fixtures/pages.json" with { type: "json" };
+import pathsJson from "../fixtures/paths.json" with { type: "json" };
+import searchIndexJson from "../fixtures/search-index.json" with {
+	type: "json",
+};
+import type { Article } from "./article.ts";
+import { articlesSchema } from "./article.ts";
+import type { Collections } from "./collection.ts";
+import { collectionsSchema } from "./collection.ts";
+import type { Graph } from "./graph.ts";
+import { graphSchema } from "./graph.ts";
+import type { Pages } from "./pages.ts";
+import { pagesSchema } from "./pages.ts";
+import type { PathItem } from "./path.ts";
+import { pathsSchema } from "./path.ts";
+import type { SearchIndex } from "./search.ts";
+import { searchIndexSchema } from "./search.ts";
 
 export const fixtureArticles: Article[] = articlesSchema.parse(articlesJson);
 export const fixtureGraph: Graph = graphSchema.parse(graphJson);

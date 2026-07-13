@@ -12,7 +12,7 @@ import {
 	pagesSchema,
 	pathsSchema,
 	searchIndexSchema,
-} from "./index";
+} from "./index.ts";
 
 describe("fixtures がスキーマ検証を通過する", () => {
 	it("articles.json", () => {

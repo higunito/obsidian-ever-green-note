@@ -1,0 +1,31 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`generateContent（reference/obsidian ゴールデンテスト） > 出力全体のスナップショット（将来ノートが publish:true になった際の回帰検知用） 1`] = `
+{
+  "articles": [],
+  "collections": {
+    "items": [],
+  },
+  "graph": {
+    "edges": [],
+    "nodes": [],
+    "topics": [],
+  },
+  "pages": {
+    "about": {
+      "bodyHtml": "",
+      "topics": [],
+      "updated": "",
+    },
+    "now": {
+      "bodyHtml": "",
+      "topics": [],
+      "updated": "",
+    },
+  },
+  "paths": [],
+  "searchIndex": {
+    "items": [],
+  },
+}
+`;

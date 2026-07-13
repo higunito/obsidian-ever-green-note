@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { articleLayerSchema } from "./article";
+import { articleLayerSchema } from "./article.ts";
 
 export const searchItemSchema = z.object({
 	slug: z.string(),

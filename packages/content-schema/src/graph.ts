@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { articleLayerSchema, noteStatusSchema } from "./article";
+import { articleLayerSchema, noteStatusSchema } from "./article.ts";
 
 export const graphTopicSchema = z.object({
 	id: z.string(),

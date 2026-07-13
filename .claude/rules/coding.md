@@ -14,6 +14,7 @@
 - 生成 JSON の型・zod スキーマは **`packages/content-schema` を単一の情報源**にする。`apps/web` と `packages/content-gen` は **実ワークスペース名 `content-schema`** から import し、型を二重定義しない（`import { articleSchema } from "content-schema"`）。
   - パッケージをまたぐ参照は **tsconfig の paths エイリアスを使わない**。`@schema` 等のエイリアスは tsc とバンドラ（Next.js）でしか解決されず、素の Node で実行する `content-gen` の CLI／vitest では実行時に解決できないため。pnpm ワークスペースの実パッケージ名なら全経路で解決できる。
   - `@web/*` は **`apps/web` 内のパス短縮専用**（Next.js が解決）。cross-package には使わない。
+  - `content-schema`・`content-gen` パッケージ内の **相対 import には `.ts` 拡張子を明記**する（`from "./article.ts"` のように）。tsc（`moduleResolution: Bundler`）や Next.js は拡張子なしでも解決できるが、`content-gen` の CLI が使う素の Node ESM ローダーは拡張子なしの相対 import を解決できない。同様に **JSON import には `with { type: "json" }` を付ける**（`import x from "./y.json" with { type: "json" }`）。付けないと `tsc`/vitest では通っても `node ./bin/content-gen.ts` の実行時にだけ落ちるため、変更時は `pnpm --filter content-gen gen --vault reference/obsidian --out ./content` で素の Node 実行を確認すること。
 - 外部境界（生成物の読み込み・パース）では **zod で検証**してから使う。
 - コンテンツ取得は **`lib/content.ts` の `ContentStore` 経由のみ**。コンポーネントは Store 実体（Remote/Local）を意識しない。GitHub へ直接アクセスするコードを書かない。
 

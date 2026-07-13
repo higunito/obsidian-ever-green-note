@@ -12,10 +12,20 @@
 		"test": "vitest run"
 	},
 	"dependencies": {
-		"content-schema": "workspace:*"
+		"content-schema": "workspace:*",
+		"gray-matter": "^4.0.3",
+		"rehype-stringify": "^10.0.1",
+		"remark-gfm": "^4.0.1",
+		"remark-parse": "^11.0.0",
+		"remark-rehype": "^11.1.2",
+		"unified": "^11.0.5",
+		"unist-util-visit": "^5.1.0",
+		"zod": "^4.4.3"
 	},
 	"devDependencies": {
+		"@types/mdast": "^4.0.4",
 		"@types/node": "^24",
+		"@types/unist": "^3.0.3",
 		"typescript": "^5",
 		"vitest": "^4"
 	}
