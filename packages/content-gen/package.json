@@ -1,0 +1,22 @@
+{
+	"name": "content-gen",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"bin": {
+		"content-gen": "./bin/content-gen.ts"
+	},
+	"scripts": {
+		"gen": "node ./bin/content-gen.ts",
+		"typecheck": "tsc --noEmit",
+		"test": "vitest run"
+	},
+	"dependencies": {
+		"content-schema": "workspace:*"
+	},
+	"devDependencies": {
+		"@types/node": "^24",
+		"typescript": "^5",
+		"vitest": "^4"
+	}
+}
