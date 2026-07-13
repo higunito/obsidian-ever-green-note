@@ -1,0 +1,13 @@
+[
+	{
+		"slug": "path-narrative-inquiry",
+		"title": "物語と媒体を辿る道筋",
+		"summary": "物語と現実、因果、メディウムの問いを順に辿るための束ねノート。",
+		"topics": ["物語論", "美学"],
+		"steps": [
+			"narrative-and-reality",
+			"causality-and-chance",
+			"medium-specificity"
+		]
+	}
+]

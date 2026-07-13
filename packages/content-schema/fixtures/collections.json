@@ -1,0 +1,50 @@
+{
+	"items": [
+		{
+			"slug": "book-invisible-cities",
+			"title": "見えない都市",
+			"creator": "イタロ・カルヴィーノ",
+			"year": 1972,
+			"kind": "book",
+			"external_url": "https://example.com/books/invisible-cities",
+			"topics": ["文学"],
+			"summary": "都市の姿を借りて記憶と欲望を語る掌編集。",
+			"publish": true
+		},
+		{
+			"slug": "album-in-a-silent-way",
+			"title": "In a Silent Way",
+			"creator": "Miles Davis",
+			"year": 1969,
+			"kind": "album",
+			"cover": "/images/covers/in-a-silent-way.jpg",
+			"external_url": "https://example.com/albums/in-a-silent-way",
+			"topics": ["音楽"],
+			"summary": "静けさの中で音が生まれる瞬間を捉えた一枚。",
+			"publish": true
+		},
+		{
+			"slug": "film-stalker",
+			"title": "ストーカー",
+			"creator": "アンドレイ・タルコフスキー",
+			"year": 1979,
+			"kind": "film",
+			"external_url": "https://example.com/films/stalker",
+			"topics": ["映画", "美学"],
+			"summary": "ゾーンへの旅を通して信仰と欲望を描く。",
+			"publish": true
+		},
+		{
+			"slug": "link-the-marginalian",
+			"title": "The Marginalian",
+			"creator": "Maria Popova",
+			"year": 2006,
+			"kind": "link",
+			"cover": "/images/covers/the-marginalian.jpg",
+			"external_url": "https://example.com/links/the-marginalian",
+			"topics": ["エッセイ"],
+			"summary": "読書と思索を横断する個人メディア。",
+			"publish": true
+		}
+	]
+}

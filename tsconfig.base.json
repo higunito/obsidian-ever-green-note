@@ -11,11 +11,7 @@
 		"strict": true,
 		"forceConsistentCasingInFileNames": true,
 		"paths": {
-			"@web/*": ["./apps/web/src/*"],
-			"@schema": ["./packages/content-schema/src/index.ts"],
-			"@schema/*": ["./packages/content-schema/src/*"],
-			"@content-gen": ["./packages/content-gen/src/index.ts"],
-			"@content-gen/*": ["./packages/content-gen/src/*"]
+			"@web/*": ["./apps/web/src/*"]
 		}
 	}
 }

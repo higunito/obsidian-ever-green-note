@@ -10,7 +10,9 @@
 
 ## 型とデータ
 
-- 生成 JSON の型・zod スキーマは **`packages/content-schema` を単一の情報源**にする。`apps/web` と `packages/content-gen` は `@schema` から import し、型を二重定義しない。
+- 生成 JSON の型・zod スキーマは **`packages/content-schema` を単一の情報源**にする。`apps/web` と `packages/content-gen` は **実ワークスペース名 `content-schema`** から import し、型を二重定義しない（`import { articleSchema } from "content-schema"`）。
+  - パッケージをまたぐ参照は **tsconfig の paths エイリアスを使わない**。`@schema` 等のエイリアスは tsc とバンドラ（Next.js）でしか解決されず、素の Node で実行する `content-gen` の CLI／vitest では実行時に解決できないため。pnpm ワークスペースの実パッケージ名なら全経路で解決できる。
+  - `@web/*` は **`apps/web` 内のパス短縮専用**（Next.js が解決）。cross-package には使わない。
 - 外部境界（生成物の読み込み・パース）では **zod で検証**してから使う。
 - コンテンツ取得は **`lib/content.ts` の `ContentStore` 経由のみ**。コンポーネントは Store 実体（Remote/Local）を意識しない。GitHub へ直接アクセスするコードを書かない。
 

@@ -1,0 +1,120 @@
+{
+	"topics": [
+		{ "id": "美学", "x": 555, "y": 118, "count": 2 },
+		{ "id": "物語論", "x": 660, "y": 300, "count": 2 },
+		{ "id": "音楽", "x": 555, "y": 482, "count": 2 },
+		{ "id": "記憶", "x": 345, "y": 482, "count": 1 }
+	],
+	"nodes": [
+		{
+			"id": "narrative-and-reality",
+			"layer": "garden",
+			"status": "growing",
+			"topics": ["美学", "物語論"],
+			"title": "物語と現実の違い",
+			"file": "NARRATIVE.EXE",
+			"x": 598,
+			"y": 208
+		},
+		{
+			"id": "causality-and-chance",
+			"layer": "garden",
+			"status": "seed",
+			"topics": ["物語論"],
+			"title": "因果と偶然",
+			"file": "CAUSAL.DAT",
+			"x": 618,
+			"y": 345
+		},
+		{
+			"id": "medium-specificity",
+			"layer": "garden",
+			"status": "growing",
+			"topics": ["美学"],
+			"title": "メディウム固有性",
+			"file": "MEDIUM.DAT",
+			"x": 516,
+			"y": 146
+		},
+		{
+			"id": "chime-and-place",
+			"layer": "garden",
+			"status": "evergreen",
+			"topics": ["記憶", "音楽"],
+			"title": "防災無線チャイムと場所の記憶",
+			"file": "CHIME.DAT",
+			"x": 432,
+			"y": 450
+		},
+		{
+			"id": "jacket-speaks",
+			"layer": "garden",
+			"status": "growing",
+			"topics": ["音楽"],
+			"title": "ジャケットが語る音楽",
+			"file": "JACKET.DAT",
+			"x": 500,
+			"y": 464
+		},
+		{
+			"id": "path-narrative-inquiry",
+			"layer": "garden",
+			"status": "evergreen",
+			"topics": [],
+			"title": "物語と媒体を辿る道筋",
+			"file": "PATHNARR.EXE",
+			"x": 460,
+			"y": 300
+		}
+	],
+	"edges": [
+		{
+			"source": "narrative-and-reality",
+			"target": "causality-and-chance",
+			"kind": "note"
+		},
+		{
+			"source": "narrative-and-reality",
+			"target": "medium-specificity",
+			"kind": "note"
+		},
+		{
+			"source": "causality-and-chance",
+			"target": "narrative-and-reality",
+			"kind": "note"
+		},
+		{
+			"source": "medium-specificity",
+			"target": "narrative-and-reality",
+			"kind": "note"
+		},
+		{ "source": "chime-and-place", "target": "jacket-speaks", "kind": "note" },
+		{
+			"source": "jacket-speaks",
+			"target": "medium-specificity",
+			"kind": "note"
+		},
+		{
+			"source": "path-narrative-inquiry",
+			"target": "narrative-and-reality",
+			"kind": "note"
+		},
+		{
+			"source": "path-narrative-inquiry",
+			"target": "causality-and-chance",
+			"kind": "note"
+		},
+		{
+			"source": "path-narrative-inquiry",
+			"target": "medium-specificity",
+			"kind": "note"
+		},
+		{ "source": "narrative-and-reality", "target": "美学", "kind": "topic" },
+		{ "source": "narrative-and-reality", "target": "物語論", "kind": "topic" },
+		{ "source": "causality-and-chance", "target": "物語論", "kind": "topic" },
+		{ "source": "medium-specificity", "target": "美学", "kind": "topic" },
+		{ "source": "chime-and-place", "target": "記憶", "kind": "topic" },
+		{ "source": "chime-and-place", "target": "音楽", "kind": "topic" },
+		{ "source": "jacket-speaks", "target": "音楽", "kind": "topic" }
+	]
+}
