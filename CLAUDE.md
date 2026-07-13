@@ -38,14 +38,16 @@ pnpm モノレポ。実装は本リポジトリのルートに置く。
 ## 技術スタック
 
 - **フレームワーク**: Next.js（App Router）/ React / TypeScript（`strict: true`）
+- **バージョンマネージャ**: mise（Node.js / pnpm の版を `mise.toml` で固定）
 - **パッケージマネージャ**: pnpm（workspace）
+- **UI**: shadcn/ui（Radix UI + Tailwind CSS）。配色/書体はデザイントークンで上書き
 - **Markdown**: unified + remark/rehype、gray-matter、自作 `[[wikilink]]` プラグイン
 - **スキーマ検証**: zod（`packages/content-schema` に一元化）
 - **グラフ/マップ**: 自前座標計算 ＋ React/SVG（Sigma.js は不採用）
 - **全文検索**: minisearch（クライアント側）
 - **中間ストア**: Cloudflare R2（r2.dev 公開 URL）
-- **ホスティング**: Vercel（ISR / revalidateTag）
-- **Lint/Format / テスト**: ESLint + Prettier / vitest
+- **ホスティング**: Cloudflare（Workers ＋ `@opennextjs/cloudflare`、ISR / revalidateTag）
+- **Lint/Format / テスト**: Biome / vitest
 
 ## ルール（常時適用）
 
