@@ -121,10 +121,120 @@
 	* {
 		@apply border-border outline-ring/50;
 	}
-	body {
-		@apply bg-background text-foreground;
-	}
+	/* サイト全体が常時 ADV（夜景）。本文は明朝（§10.3）を既定書体にする。 */
 	html {
-		@apply font-sans;
+		font-family: var(--font-min);
 	}
+	body {
+		background: var(--color-arch-bg);
+		color: var(--color-arch-text);
+		overflow-x: hidden;
+	}
+}
+
+/* ── ADV デザイントークン（配色 §10.2 / 書体 §10.3）─────────────────────────────
+   実体値はここに一元定義し、tokens.ts は var(--color-arch-*) / var(--font-*) で参照する。
+   @theme に置くことで CSS 変数と Tailwind ユーティリティ（bg-arch-*, text-arch-*, font-dot 等）を同時に得る。 */
+@theme {
+	--color-arch-bg: #0a0a0c;
+	--color-arch-bg-top: #0b1a2b;
+	--color-arch-bg-mid: #07080f;
+	--color-arch-panel-dark: rgba(7, 22, 34, 0.94);
+	--color-arch-panel: rgba(20, 50, 58, 0.88);
+	--color-arch-text: #e7e1ce;
+	--color-arch-muted: #8a836e;
+	--color-arch-cyan: #7fe3e0;
+	--color-arch-cyan-dim: rgba(127, 227, 224, 0.32);
+	--color-arch-cyan-faint: rgba(127, 227, 224, 0.07);
+	--color-arch-border: rgba(127, 227, 224, 0.28);
+	--color-arch-border-faint: rgba(127, 227, 224, 0.09);
+	--color-arch-fragment: #b08030;
+	--color-arch-developing: #7fe3e0;
+	--color-arch-archived: #5dbf6a;
+
+	--font-dot: var(--font-dot-gothic), "DotGothic16", monospace;
+	--font-min: var(--font-noto-serif), "Noto Serif JP", Georgia, serif;
+	--font-mon:
+		var(--font-share-tech), "Share Tech Mono", "Courier New", monospace;
+}
+
+/* ── 装飾アニメーション（背景・演出限定。本文には一切かけない = §10.4/§10.6）──────── */
+@keyframes archRain {
+	0% {
+		transform: translateY(-24px);
+		opacity: 0;
+	}
+	6% {
+		opacity: 1;
+	}
+	94% {
+		opacity: 1;
+	}
+	100% {
+		transform: translateY(108vh);
+		opacity: 0;
+	}
+}
+
+@keyframes archGlow {
+	0%,
+	100% {
+		opacity: 0.88;
+		text-shadow: 0 0 8px rgba(127, 227, 224, 0.4);
+	}
+	50% {
+		opacity: 1;
+		text-shadow:
+			0 0 18px rgba(127, 227, 224, 0.8),
+			0 0 36px rgba(127, 227, 224, 0.3);
+	}
+}
+
+@keyframes archFadeIn {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes archBlink {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0;
+	}
+}
+
+/* 演出低減：OS 設定 prefers-reduced-motion、または Config の「アニメーション低減」
+   （<html data-reduced-motion="true">、Phase 9 で付与）を尊重して雨・点滅・演出を止める（§10.6）。 */
+@media (prefers-reduced-motion: reduce) {
+	.arch-rain {
+		display: none;
+	}
+	.arch-animated {
+		animation: none !important;
+	}
+}
+:root[data-reduced-motion="true"] .arch-rain {
+	display: none;
+}
+:root[data-reduced-motion="true"] .arch-animated {
+	animation: none !important;
+}
+
+::-webkit-scrollbar {
+	width: 4px;
+	height: 4px;
+}
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+::-webkit-scrollbar-thumb {
+	background: var(--color-arch-cyan-dim);
 }

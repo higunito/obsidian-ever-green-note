@@ -6,6 +6,7 @@
 		"moduleResolution": "Bundler",
 		"resolveJsonModule": true,
 		"esModuleInterop": true,
+		"allowImportingTsExtensions": true,
 		"isolatedModules": true,
 		"skipLibCheck": true,
 		"strict": true,
