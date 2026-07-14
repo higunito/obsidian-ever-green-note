@@ -158,6 +158,23 @@
 		var(--font-share-tech), "Share Tech Mono", "Courier New", monospace;
 }
 
+/* ── NoteBody 内部リンク装飾（spec SC-004）─────────────────────────────────────
+   bodyHtml は content-gen が生成した静的 HTML（<a data-wikilink>）のため、
+   dangerouslySetInnerHTML 配下の要素はここでスタイルする（コンポーネント側では個々の <a> に触れない）。 */
+.note-body p {
+	margin: 0 0 16px;
+}
+.note-body a[data-wikilink] {
+	color: var(--color-arch-cyan);
+	border-bottom: 1px solid var(--color-arch-cyan-dim);
+	text-decoration: none;
+	text-shadow: 0 0 6px rgba(127, 227, 224, 0.18);
+}
+.note-body a[data-wikilink]::before {
+	content: "▶";
+	margin-right: 2px;
+}
+
 /* ── 装飾アニメーション（背景・演出限定。本文には一切かけない = §10.4/§10.6）──────── */
 @keyframes archRain {
 	0% {

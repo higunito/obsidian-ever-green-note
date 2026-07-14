@@ -1,0 +1,14 @@
+interface TagProps {
+	label: string;
+}
+
+/**
+ * トピック/技術タグ（design §9.2、figma `Tag` を正準）。NoteCard 等の topics と ProjectCard の技術タグで共用する。
+ */
+export function Tag({ label }: TagProps) {
+	return (
+		<span className="border border-arch-border-faint bg-arch-cyan-faint px-[5px] py-px font-dot text-[10px] text-arch-muted">
+			{label}
+		</span>
+	);
+}
