@@ -1,6 +1,6 @@
 import { InvestigationMap, LensFilter } from "@web/components/garden";
 import { NoteCard } from "@web/components/notes";
-import { Footer, NavBack } from "@web/components/system";
+import { Footer, Nav, NavBack } from "@web/components/system";
 import { getContentStore } from "@web/lib/content";
 import {
 	applyGardenFilters,
@@ -91,6 +91,7 @@ export default async function GardenIndexPage({
 						</Link>
 					</div>
 				</div>
+				<Nav />
 
 				<Suspense fallback={null}>
 					<LensFilter topics={allTopics} />

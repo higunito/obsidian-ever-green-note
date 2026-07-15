@@ -1,5 +1,5 @@
 import { EssayCard } from "@web/components/cards";
-import { Footer, NavBack } from "@web/components/system";
+import { Footer, Nav, NavBack } from "@web/components/system";
 import { getContentStore } from "@web/lib/content";
 import Link from "next/link";
 
@@ -47,6 +47,7 @@ export default async function EssaysPage({ searchParams }: EssaysPageProps) {
 					<NavBack label="◀ HOME" href="/" />
 					<h1 className="font-dot text-sm text-arch-text">ARTICLE / Essays</h1>
 				</div>
+				<Nav />
 
 				{allTopics.length > 0 ? (
 					<div className="flex flex-wrap items-center gap-1.5">

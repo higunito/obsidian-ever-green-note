@@ -1,7 +1,19 @@
 import { SceneBackground } from "@web/components/system";
 import type { Metadata } from "next";
 import { DotGothic16, Noto_Serif_JP, Share_Tech_Mono } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
+
+// Config の「アニメーション低減」（lib/config.ts）を初回ペイント前に <html> へ反映する。
+// クライアント側 Effect だけだと一瞬 OS 既定のまま演出が動いてしまうため（FOUC 対策）、
+// hydration 前に実行される beforeInteractive スクリプトで先に属性を立てる。
+// キー名 "ta_reduced_motion" は lib/config.ts の REDUCED_MOTION_KEY と一致させること。
+const REDUCED_MOTION_INIT_SCRIPT = `
+try {
+	var v = localStorage.getItem("ta_reduced_motion");
+	if (v === "true") document.documentElement.setAttribute("data-reduced-motion", "true");
+} catch (e) {}
+`;
 
 // 用途別書体（§10.3）を CSS 変数として提供し、globals.css の @theme（--font-dot/min/mon）が参照する。
 // DotGothic16 / Noto Serif JP は日本語グリフを含み重いため preload しない（初期ペイロード抑制、§12.1）。
@@ -48,6 +60,9 @@ export default function RootLayout({
 			className={`${fontDot.variable} ${fontMin.variable} ${fontMon.variable} h-full antialiased`}
 		>
 			<body className="min-h-full">
+				<Script id="reduced-motion-init" strategy="beforeInteractive">
+					{REDUCED_MOTION_INIT_SCRIPT}
+				</Script>
 				{/* 最背面に固定する差し替え可能な夜景レイヤー（§9.1）。本文コンテンツは z-1 以上に載せる。 */}
 				<SceneBackground />
 				<div className="relative z-[1] flex min-h-full flex-col">
