@@ -1,4 +1,4 @@
-import { LensFilter } from "@web/components/garden";
+import { InvestigationMap, LensFilter } from "@web/components/garden";
 import { NoteCard } from "@web/components/notes";
 import { Footer, NavBack } from "@web/components/system";
 import { getContentStore } from "@web/lib/content";
@@ -6,11 +6,28 @@ import {
 	applyGardenFilters,
 	buildGardenIndexHref,
 	type GardenSearchParams,
+	gardenFilterMatchesNode,
 	hasActiveGardenFilter,
 	parseGardenFilters,
 } from "@web/lib/garden-filters";
 import Link from "next/link";
 import { Suspense } from "react";
+
+function EmptyState({ clearHref }: { clearHref?: string }) {
+	return (
+		<div className="p-8 text-center font-min text-[13px] text-arch-muted">
+			<p>該当する記録がありません</p>
+			{clearHref ? (
+				<Link
+					href={clearHref}
+					className="mt-2 inline-block font-mon text-[10px] text-arch-cyan underline"
+				>
+					フィルタを解除
+				</Link>
+			) : null}
+		</div>
+	);
+}
 
 interface GardenIndexPageProps {
 	searchParams: Promise<GardenSearchParams>;
@@ -22,8 +39,7 @@ function viewTabClass(active: boolean): string {
 	}`;
 }
 
-// SC-002 Garden 入口（Index / Map 切替、design §5.4、spec SC-002）。
-// Map View の実体化は Phase 7（本 Phase では ?view=map はプレースホルダー表示）。
+// SC-002 Garden 入口（Index / Map 切替、design §5.4、spec SC-002）＋ SC-003 調査マップ（design §9.3・§9.5、spec SC-003）。
 export default async function GardenIndexPage({
 	searchParams,
 }: GardenIndexPageProps) {
@@ -32,7 +48,10 @@ export default async function GardenIndexPage({
 	const filters = parseGardenFilters(sp);
 
 	const store = getContentStore();
-	const articles = await store.getArticles();
+	const [articles, graph] = await Promise.all([
+		store.getArticles(),
+		store.getGraph(),
+	]);
 	const gardenArticles = articles.filter((a) => a.layer === "garden");
 	const allTopics = Array.from(
 		new Set(gardenArticles.flatMap((a) => a.topics)),
@@ -41,6 +60,13 @@ export default async function GardenIndexPage({
 		b.updated.localeCompare(a.updated),
 	);
 	const isFiltered = hasActiveGardenFilter(filters);
+	const clearFiltersHref = buildGardenIndexHref({
+		view,
+		filters: { topics: [], statuses: [], period: undefined },
+	});
+	const visibleMapNodeCount = graph.nodes.filter((n) =>
+		gardenFilterMatchesNode(n, filters),
+	).length;
 
 	return (
 		<>
@@ -71,21 +97,17 @@ export default async function GardenIndexPage({
 				</Suspense>
 
 				{view === "map" ? (
-					<p className="p-8 text-center font-min text-[13px] text-arch-muted">
-						MAP は Phase 7 で実装します。
-					</p>
+					visibleMapNodeCount === 0 ? (
+						<EmptyState clearHref={isFiltered ? clearFiltersHref : undefined} />
+					) : (
+						<InvestigationMap
+							graph={graph}
+							articles={gardenArticles}
+							filters={filters}
+						/>
+					)
 				) : filtered.length === 0 ? (
-					<div className="p-8 text-center font-min text-[13px] text-arch-muted">
-						<p>該当する記録がありません</p>
-						{isFiltered ? (
-							<Link
-								href="/garden"
-								className="mt-2 inline-block font-mon text-[10px] text-arch-cyan underline"
-							>
-								フィルタを解除
-							</Link>
-						) : null}
-					</div>
+					<EmptyState clearHref={isFiltered ? clearFiltersHref : undefined} />
 				) : (
 					<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
 						{filtered.map((note) => (

@@ -6,6 +6,7 @@ import {
 } from "@web/lib/garden-filters";
 import { STATUS_LABEL } from "@web/styles/tokens";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useState } from "react";
 
 interface LensFilterProps {
 	/** 絞り込み前の Garden 全体から算出した topic 候補一覧（design §5.4）。 */
@@ -23,11 +24,13 @@ function pill(active: boolean): string {
 /**
  * Lens フィルタ（spec SC-002 §2.3、design §5.4）。topic/status は複数選択（OR）、
  * 更新時期は単一のプリセット期間。選択状態は URL クエリに保持し、Index/Map で共通適用する。
+ * モバイル（<768px）は `FILTER ▼` トリガー＋ボトムシート化する（spec SC-002 §2.6 / SC-003 §3.2・§3.7）。
  */
 export function LensFilter({ topics }: LensFilterProps) {
 	const router = useRouter();
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
+	const [sheetOpen, setSheetOpen] = useState(false);
 
 	const selectedTopics = new Set(
 		(searchParams.get("topic") ?? "").split(",").filter(Boolean),
@@ -57,8 +60,8 @@ export function LensFilter({ topics }: LensFilterProps) {
 		selectedStatuses.size > 0 ||
 		selectedPeriod !== "";
 
-	return (
-		<div className="flex flex-wrap items-center gap-1.5">
+	const pills = (
+		<>
 			<span className="font-mon text-[9px] text-arch-muted">LENS:</span>
 			{topics.map((topic) => (
 				<button
@@ -106,6 +109,37 @@ export function LensFilter({ topics }: LensFilterProps) {
 					フィルタ解除
 				</button>
 			) : null}
-		</div>
+		</>
+	);
+
+	return (
+		<>
+			<div className="hidden flex-wrap items-center gap-1.5 md:flex">
+				{pills}
+			</div>
+			<div className="md:hidden">
+				<button
+					type="button"
+					onClick={() => setSheetOpen(true)}
+					className="font-mon text-[10px] text-arch-cyan"
+				>
+					FILTER ▼{hasActiveFilter ? " •" : ""}
+				</button>
+			</div>
+			{sheetOpen ? (
+				<div className="fixed inset-x-0 bottom-0 z-50 border border-arch-border border-b-0 bg-arch-panel p-4 backdrop-blur-md">
+					<div className="flex flex-wrap items-center gap-1.5">{pills}</div>
+					<div className="mt-3 text-right">
+						<button
+							type="button"
+							onClick={() => setSheetOpen(false)}
+							className="font-mon text-[10px] text-arch-cyan"
+						>
+							▲ CLOSE
+						</button>
+					</div>
+				</div>
+			) : null}
+		</>
 	);
 }

@@ -1,7 +1,7 @@
 // Garden の Lens フィルタ（design §5.4、spec SC-002 §2.3）。topic/status は OR、更新時期は期間指定。
 // 選択状態は URL クエリ（`?topic=&status=&period=`）に保持し、Index/Map で共通適用する（design §11.1）。
 
-import type { Article, NoteStatus } from "@web/types/content";
+import type { Article, GraphNode, NoteStatus } from "@web/types/content";
 
 export type GardenPeriod = "7d" | "30d" | "90d";
 
@@ -67,6 +67,27 @@ function periodCutoff(period: GardenPeriod, now: Date): Date {
 	const cutoff = new Date(now);
 	cutoff.setDate(cutoff.getDate() - days);
 	return cutoff;
+}
+
+/**
+ * Map（graph.json）のノードに Lens フィルタを適用する（spec SC-003 §3.4）。
+ * GraphNode は `updated` を持たないため、period フィルタは対象外（topic/status のみで判定）。
+ */
+export function gardenFilterMatchesNode(
+	node: Pick<GraphNode, "topics" | "status">,
+	filters: GardenFilters,
+): boolean {
+	if (
+		filters.topics.length > 0 &&
+		!node.topics.some((t) => filters.topics.includes(t))
+	)
+		return false;
+	if (
+		filters.statuses.length > 0 &&
+		(!node.status || !filters.statuses.includes(node.status))
+	)
+		return false;
+	return true;
 }
 
 /** Lens フィルタを OR/期間条件で適用する（design §5.4）。並び順は呼び出し側の責務。 */

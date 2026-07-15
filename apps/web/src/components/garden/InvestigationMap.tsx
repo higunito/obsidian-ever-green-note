@@ -1,0 +1,519 @@
+"use client";
+
+import { Badge } from "@web/components/notes";
+import type { GardenFilters } from "@web/lib/garden-filters";
+import { gardenFilterMatchesNode } from "@web/lib/garden-filters";
+import { C, font, statusColor } from "@web/styles/tokens";
+import type {
+	Article,
+	Graph,
+	GraphEdge,
+	GraphNode,
+	GraphTopic,
+} from "@web/types/content";
+import Link from "next/link";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+
+interface InvestigationMapProps {
+	graph: Graph;
+	/** ツールチップの summary 表示用（graph.json は summary を持たないため articles.json と結合する）。 */
+	articles: readonly Article[];
+	filters: GardenFilters;
+}
+
+// design §9.5：トピックは生成時に中心 (450,300) を基準に円周配置される。クライアントはこの基準点だけ共有し、座標自体は再計算しない。
+const CENTER = { x: 450, y: 300 };
+const MIN_ZOOM = 0.3;
+const MAX_ZOOM = 3.5;
+const ZOOM_STEP = 0.25;
+
+function clampZoom(zoom: number): number {
+	return Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, zoom));
+}
+
+function pointerDistance(
+	a: { x: number; y: number },
+	b: { x: number; y: number },
+): number {
+	return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
+// CENTER はコンテナ左上からの絶対ピクセル位置ではなく、コンテナの実サイズから中央寄せする
+// （狭いモバイル幅で CENTER.x=450 のまま固定すると、コンテンツがキャンバス外に押し出されて何も見えなくなるため）。
+function computeCenteredPan(el: HTMLDivElement | null): {
+	x: number;
+	y: number;
+} {
+	if (!el) return { x: 0, y: 0 };
+	const rect = el.getBoundingClientRect();
+	return { x: rect.width / 2 - CENTER.x, y: rect.height / 2 - CENTER.y };
+}
+
+/** kind:"note" の辺は生成時に双方向（source⇄target）で重複するため、無向辺として重複排除する。 */
+function dedupeNoteEdges(edges: readonly GraphEdge[]): GraphEdge[] {
+	const seen = new Set<string>();
+	const result: GraphEdge[] = [];
+	for (const edge of edges) {
+		if (edge.kind !== "note") continue;
+		const key =
+			edge.source < edge.target
+				? `${edge.source}|${edge.target}`
+				: `${edge.target}|${edge.source}`;
+		if (seen.has(key)) continue;
+		seen.add(key);
+		result.push(edge);
+	}
+	return result;
+}
+
+const zoomButtonClass =
+	"flex h-7 w-7 items-center justify-center border border-arch-border bg-arch-panel-dark font-mon text-sm text-arch-cyan";
+
+/**
+ * SC-003 調査マップ（design §9.3・§9.5、spec SC-003、figma `MapScreen` を正準）。
+ * `graph.json` の座標を読むだけで、パン／ズーム／Lens フィルタによる dim／ツールチップ／
+ * ノードクリック遷移（`/garden/[slug]` への直リンク、Stack は経由しない）を担う。
+ */
+export function InvestigationMap({
+	graph,
+	articles,
+	filters,
+}: InvestigationMapProps) {
+	const containerRef = useRef<HTMLDivElement>(null);
+	const pointers = useRef(new Map<number, { x: number; y: number }>());
+	const dragStart = useRef<{
+		x: number;
+		y: number;
+		panX: number;
+		panY: number;
+	} | null>(null);
+	const pinchStart = useRef<{ dist: number; zoom: number } | null>(null);
+	const hasInteractedRef = useRef(false);
+
+	const [pan, setPan] = useState({ x: 0, y: 0 });
+	const [zoom, setZoom] = useState(1);
+	const [dragging, setDragging] = useState(false);
+	const [hoverId, setHoverId] = useState<string | null>(null);
+	const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+
+	const nodesById = useMemo(
+		() => new Map<string, GraphNode>(graph.nodes.map((n) => [n.id, n])),
+		[graph.nodes],
+	);
+	const topicsById = useMemo(
+		() => new Map<string, GraphTopic>(graph.topics.map((t) => [t.id, t])),
+		[graph.topics],
+	);
+	const summaryBySlug = useMemo(
+		() => new Map(articles.map((a) => [a.slug, a.summary])),
+		[articles],
+	);
+	const topicEdges = useMemo(
+		() => graph.edges.filter((e) => e.kind === "topic"),
+		[graph.edges],
+	);
+	const noteEdges = useMemo(() => dedupeNoteEdges(graph.edges), [graph.edges]);
+	const nodeVisibility = useMemo(() => {
+		const map = new Map<string, boolean>();
+		for (const node of graph.nodes)
+			map.set(node.id, gardenFilterMatchesNode(node, filters));
+		return map;
+	}, [graph.nodes, filters]);
+
+	// ホイールは preventDefault が必要（ページスクロールと競合するため）。
+	// React の onWheel は passive 扱いになりうるため、ref 経由でネイティブリスナーを張る。
+	useEffect(() => {
+		const el = containerRef.current;
+		if (!el) return;
+		function handleWheel(e: WheelEvent) {
+			e.preventDefault();
+			setZoom((z) => clampZoom(z * (1 - e.deltaY * 0.001)));
+		}
+		el.addEventListener("wheel", handleWheel, { passive: false });
+		return () => el.removeEventListener("wheel", handleWheel);
+	}, []);
+
+	// 初期表示はコンテナ中央にマップの原点が来るよう pan を補正する（狭いモバイル幅対応）。
+	// ユーザーが一度でも操作したら、以降のリサイズでは中央寄せし直さない。
+	useLayoutEffect(() => {
+		function recenter() {
+			if (hasInteractedRef.current) return;
+			setPan(computeCenteredPan(containerRef.current));
+		}
+		recenter();
+		window.addEventListener("resize", recenter);
+		return () => window.removeEventListener("resize", recenter);
+	}, []);
+
+	function handlePointerDown(e: React.PointerEvent<HTMLDivElement>) {
+		hasInteractedRef.current = true;
+		e.currentTarget.setPointerCapture(e.pointerId);
+		pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+		if (pointers.current.size === 2) {
+			const [p1, p2] = Array.from(pointers.current.values());
+			pinchStart.current = { dist: pointerDistance(p1, p2), zoom };
+			dragStart.current = null;
+		} else if (pointers.current.size === 1) {
+			setDragging(true);
+			dragStart.current = {
+				x: e.clientX,
+				y: e.clientY,
+				panX: pan.x,
+				panY: pan.y,
+			};
+		}
+	}
+
+	function handlePointerMove(e: React.PointerEvent<HTMLDivElement>) {
+		if (!pointers.current.has(e.pointerId)) return;
+		pointers.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+		if (pointers.current.size === 2 && pinchStart.current) {
+			const [p1, p2] = Array.from(pointers.current.values());
+			const dist = pointerDistance(p1, p2);
+			setZoom(
+				clampZoom(pinchStart.current.zoom * (dist / pinchStart.current.dist)),
+			);
+			return;
+		}
+		if (pointers.current.size === 1 && dragStart.current) {
+			setPan({
+				x: dragStart.current.panX + e.clientX - dragStart.current.x,
+				y: dragStart.current.panY + e.clientY - dragStart.current.y,
+			});
+		}
+	}
+
+	function handlePointerUp(e: React.PointerEvent<HTMLDivElement>) {
+		pointers.current.delete(e.pointerId);
+		pinchStart.current = null;
+		if (pointers.current.size === 1) {
+			const remaining = Array.from(pointers.current.values())[0];
+			dragStart.current = {
+				x: remaining.x,
+				y: remaining.y,
+				panX: pan.x,
+				panY: pan.y,
+			};
+			setDragging(true);
+		} else {
+			dragStart.current = null;
+			setDragging(false);
+		}
+	}
+
+	const hoverNode = hoverId ? nodesById.get(hoverId) : undefined;
+	const hoverTopic =
+		hoverId && !hoverNode ? topicsById.get(hoverId) : undefined;
+
+	return (
+		<div
+			ref={containerRef}
+			className="relative h-[70vh] min-h-[420px] overflow-hidden border border-arch-border bg-arch-panel-dark"
+			style={{ touchAction: "none", cursor: dragging ? "grabbing" : "grab" }}
+			onPointerDown={handlePointerDown}
+			onPointerMove={handlePointerMove}
+			onPointerUp={handlePointerUp}
+			onPointerCancel={handlePointerUp}
+		>
+			<svg width="100%" height="100%" style={{ userSelect: "none" }}>
+				<title>調査マップ</title>
+				<defs>
+					<pattern
+						id="map-grid"
+						width={50}
+						height={50}
+						patternUnits="userSpaceOnUse"
+					>
+						<path
+							d="M 50 0 L 0 0 0 50"
+							fill="none"
+							stroke="rgba(127,227,224,0.025)"
+							strokeWidth={0.5}
+						/>
+					</pattern>
+					<filter id="map-glow" x="-60%" y="-60%" width="220%" height="220%">
+						<feGaussianBlur stdDeviation={4} result="b" />
+						<feMerge>
+							<feMergeNode in="b" />
+							<feMergeNode in="SourceGraphic" />
+						</feMerge>
+					</filter>
+				</defs>
+
+				<g
+					transform={`translate(${CENTER.x + pan.x} ${CENTER.y + pan.y}) scale(${zoom})`}
+				>
+					<rect
+						x={-600}
+						y={-450}
+						width={1200}
+						height={900}
+						fill="url(#map-grid)"
+					/>
+
+					{graph.topics.map((topic, i) => {
+						const next = graph.topics[(i + 1) % graph.topics.length];
+						if (!next || next.id === topic.id) return null;
+						return (
+							<line
+								key={`ring-${topic.id}`}
+								x1={topic.x - CENTER.x}
+								y1={topic.y - CENTER.y}
+								x2={next.x - CENTER.x}
+								y2={next.y - CENTER.y}
+								stroke="rgba(127,227,224,0.05)"
+								strokeWidth={0.7}
+								strokeDasharray="6,14"
+							/>
+						);
+					})}
+
+					{graph.topics.map((topic) => (
+						<line
+							key={`radial-${topic.id}`}
+							x1={0}
+							y1={0}
+							x2={topic.x - CENTER.x}
+							y2={topic.y - CENTER.y}
+							stroke="rgba(127,227,224,0.04)"
+							strokeWidth={0.5}
+						/>
+					))}
+
+					{topicEdges.map((edge) => {
+						const node = nodesById.get(edge.source);
+						const topic = topicsById.get(edge.target);
+						if (!node || !topic) return null;
+						const dimmed = !nodeVisibility.get(node.id);
+						return (
+							<line
+								key={`nt-${edge.source}-${edge.target}`}
+								x1={node.x - CENTER.x}
+								y1={node.y - CENTER.y}
+								x2={topic.x - CENTER.x}
+								y2={topic.y - CENTER.y}
+								stroke="rgba(127,227,224,0.16)"
+								strokeWidth={0.8}
+								opacity={
+									dimmed
+										? 0.15
+										: hoverId === node.id || hoverId === topic.id
+											? 1
+											: 0.7
+								}
+							/>
+						);
+					})}
+
+					{noteEdges.map((edge) => {
+						const a = nodesById.get(edge.source);
+						const b = nodesById.get(edge.target);
+						if (!a || !b) return null;
+						const dimmed =
+							!nodeVisibility.get(a.id) || !nodeVisibility.get(b.id);
+						return (
+							<line
+								key={`ll-${edge.source}-${edge.target}`}
+								x1={a.x - CENTER.x}
+								y1={a.y - CENTER.y}
+								x2={b.x - CENTER.x}
+								y2={b.y - CENTER.y}
+								stroke="rgba(127,227,224,0.28)"
+								strokeWidth={1}
+								strokeDasharray="2,6"
+								opacity={dimmed ? 0.15 : 1}
+							/>
+						);
+					})}
+
+					<circle cx={0} cy={0} r={2.5} fill="rgba(127,227,224,0.12)" />
+
+					{graph.topics.map((topic) => {
+						const x = topic.x - CENTER.x;
+						const y = topic.y - CENTER.y;
+						const isHover = hoverId === topic.id;
+						const dimmed =
+							filters.topics.length > 0 && !filters.topics.includes(topic.id);
+						return (
+							// biome-ignore lint/a11y/noStaticElementInteractions: トピックはリンク先を持たずクリック不可（hover ツールチップのみ）。マウス専用の補助表示のため、キーボード等価は設けない
+							<g
+								key={topic.id}
+								onMouseEnter={(e) => {
+									setHoverId(topic.id);
+									setTooltipPos({ x: e.clientX, y: e.clientY });
+								}}
+								onMouseLeave={() => setHoverId(null)}
+							>
+								<circle
+									cx={x}
+									cy={y}
+									r={isHover ? 27 : 23}
+									fill="rgba(7,22,34,0.75)"
+									stroke={dimmed ? C.borderFaint : isHover ? C.cyan : C.border}
+									strokeWidth={isHover ? 1.5 : 1}
+									opacity={dimmed ? 0.3 : 1}
+									filter={isHover ? "url(#map-glow)" : undefined}
+								/>
+								<circle
+									cx={x}
+									cy={y}
+									r={5}
+									fill={dimmed ? C.cyanFaint : isHover ? C.cyan : C.cyanDim}
+									opacity={dimmed ? 0.3 : 1}
+								/>
+								<text
+									x={x}
+									y={y + 38}
+									textAnchor="middle"
+									fill={dimmed ? C.borderFaint : isHover ? C.text : C.muted}
+									style={{
+										fontFamily: font.dot,
+										fontSize: "11px",
+										pointerEvents: "none",
+									}}
+								>
+									{topic.id}
+								</text>
+								{topic.count > 0 && !dimmed ? (
+									<text
+										x={x + 15}
+										y={y - 18}
+										fill={C.cyan}
+										opacity={0.6}
+										style={{
+											fontFamily: font.mon,
+											fontSize: "9px",
+											pointerEvents: "none",
+										}}
+									>
+										×{topic.count}
+									</text>
+								) : null}
+							</g>
+						);
+					})}
+
+					{graph.nodes.map((node) => {
+						const x = node.x - CENTER.x;
+						const y = node.y - CENTER.y;
+						const visible = nodeVisibility.get(node.id) ?? true;
+						const isHover = hoverId === node.id;
+						const color = node.status ? statusColor(node.status) : C.muted;
+						return (
+							<Link
+								key={node.id}
+								href={`/garden/${node.id}`}
+								aria-label={node.title}
+								onPointerDown={(e) => e.stopPropagation()}
+								onMouseEnter={(e) => {
+									setHoverId(node.id);
+									setTooltipPos({ x: e.clientX, y: e.clientY });
+								}}
+								onMouseLeave={() => setHoverId(null)}
+								style={{ cursor: "pointer", opacity: visible ? 1 : 0.15 }}
+							>
+								{/* あたり判定用の透明な広めの円。可視の点(r=6〜9)だけだとクリック/タップ判定が小さすぎるため（design §10.6 モバイル操作性）。 */}
+								<circle cx={x} cy={y} r={16} fill="transparent" />
+								<circle
+									cx={x}
+									cy={y}
+									r={isHover ? 9 : 6}
+									fill="rgba(7,22,34,0.8)"
+									stroke={color}
+									strokeWidth={isHover ? 1.5 : 1}
+									filter={isHover ? "url(#map-glow)" : undefined}
+								/>
+								<circle cx={x} cy={y} r={2.5} fill={color} opacity={0.9} />
+								<text
+									x={x}
+									y={y - 13}
+									textAnchor="middle"
+									fill={isHover ? C.text : C.muted}
+									opacity={isHover ? 0.9 : 0.45}
+									style={{
+										fontFamily: font.mon,
+										fontSize: "8px",
+										pointerEvents: "none",
+									}}
+								>
+									{node.file}
+								</text>
+							</Link>
+						);
+					})}
+				</g>
+			</svg>
+
+			{hoverNode ? (
+				<div
+					className="pointer-events-none fixed z-[100] max-w-[220px] border border-arch-border bg-arch-panel p-3 backdrop-blur-md"
+					style={{ left: tooltipPos.x + 14, top: tooltipPos.y - 8 }}
+				>
+					<div className="mb-1 font-mon text-[9px] text-arch-cyan">
+						{hoverNode.file}
+					</div>
+					<div className="mb-1.5 font-dot text-xs text-arch-text">
+						{hoverNode.title}
+					</div>
+					{hoverNode.status ? (
+						<div className="mb-1.5">
+							<Badge status={hoverNode.status} />
+						</div>
+					) : null}
+					<div className="font-min text-[11px] text-arch-muted leading-relaxed">
+						{summaryBySlug.get(hoverNode.id) ?? ""}
+					</div>
+					<div className="mt-1.5 font-mon text-[8px] text-arch-cyan-dim tracking-wide">
+						クリックで詳細を開く →
+					</div>
+				</div>
+			) : hoverTopic ? (
+				<div
+					className="pointer-events-none fixed z-[100] max-w-[220px] border border-arch-border bg-arch-panel p-3 backdrop-blur-md"
+					style={{ left: tooltipPos.x + 14, top: tooltipPos.y - 8 }}
+				>
+					<div className="mb-1 font-dot text-sm text-arch-cyan">
+						{hoverTopic.id}
+					</div>
+					<div className="font-mon text-[9px] text-arch-muted">
+						{hoverTopic.count} notes
+					</div>
+				</div>
+			) : null}
+
+			<div className="absolute right-4 bottom-4 z-10 flex flex-col gap-1">
+				<button
+					type="button"
+					onClick={() => setZoom((z) => clampZoom(z + ZOOM_STEP))}
+					className={zoomButtonClass}
+					aria-label="ズームイン"
+				>
+					+
+				</button>
+				<button
+					type="button"
+					onClick={() => setZoom((z) => clampZoom(z - ZOOM_STEP))}
+					className={zoomButtonClass}
+					aria-label="ズームアウト"
+				>
+					−
+				</button>
+				<button
+					type="button"
+					onClick={() => {
+						setZoom(1);
+						setPan(computeCenteredPan(containerRef.current));
+					}}
+					className={zoomButtonClass}
+					aria-label="表示をリセット"
+				>
+					⌂
+				</button>
+			</div>
+
+			<div className="absolute bottom-4 left-4 font-mon text-[9px] text-arch-muted tracking-wide opacity-35">
+				ドラッグ: パン　スクロール: ズーム
+			</div>
+		</div>
+	);
+}
