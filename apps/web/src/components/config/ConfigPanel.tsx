@@ -6,7 +6,6 @@ import {
 	getReducedMotionPreference,
 	setReducedMotionPreference,
 } from "@web/lib/config";
-import { triggerTitleReplay } from "@web/lib/title";
 import { C, font } from "@web/styles/tokens";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -40,7 +39,6 @@ export function ConfigPanel() {
 	function handleSelect(index: number) {
 		setSelected(index);
 		if (index === 0) {
-			triggerTitleReplay();
 			router.push("/");
 		} else {
 			toggleReducedMotion();
@@ -67,8 +65,8 @@ export function ConfigPanel() {
 				className="flex flex-col gap-1.5 border-t border-arch-border-faint pt-3"
 			>
 				<div>
-					タイトルを見る：SC-000 の演出をもう一度再生します（
-					<span style={{ color: C.cyan }}>/</span> へ移動）。
+					タイトルを見る：TITLE 画面（
+					<span style={{ color: C.cyan }}>/</span>）へ移動します。
 				</div>
 				<div>
 					アニメーション低減：現在{" "}

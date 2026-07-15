@@ -15,7 +15,7 @@ export default async function AboutPage() {
 		<>
 			<main className="mx-auto flex w-full max-w-2xl flex-1 flex-col gap-4 p-5">
 				<div className="flex flex-wrap items-center gap-3">
-					<NavBack label="◀ HOME" href="/" />
+					<NavBack label="◀ HOME" href="/home" />
 					<h1 className="font-dot text-sm text-arch-text">PROFILE / About</h1>
 				</div>
 				<Nav />

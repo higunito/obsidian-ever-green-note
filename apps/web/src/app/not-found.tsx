@@ -23,7 +23,7 @@ export default function NotFound() {
 							記録が見つかりません。指定されたページは存在しないか、非公開です。
 						</p>
 						<div className="mt-2 flex gap-5">
-							<NavBack label="◀ HOME" href="/" />
+							<NavBack label="◀ HOME" href="/home" />
 							<NavBack label="SEARCH ▶" href="/search" />
 						</div>
 					</div>

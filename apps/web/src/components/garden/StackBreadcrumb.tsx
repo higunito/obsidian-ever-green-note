@@ -28,7 +28,7 @@ export function StackBreadcrumb({
 
 	return (
 		<div className="flex flex-wrap items-center gap-1.5 border-b border-arch-border bg-[rgba(7,22,34,0.93)] px-3.5 py-1.5 backdrop-blur-sm">
-			<NavBack label="◀ HOME" href="/" />
+			<NavBack label="◀ HOME" href="/home" />
 			<span className="text-arch-border-faint">│</span>
 			{spine.map((entry) => (
 				<span key={entry.slug} className="flex items-center gap-1">

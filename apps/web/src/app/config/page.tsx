@@ -7,17 +7,16 @@ import { Footer, Nav, NavBack, Window } from "@web/components/system";
 export default function ConfigPage() {
 	return (
 		<>
-			{/* main の幅は他の Nav 設置ページ（/search 等）と揃える（Phase 9 レビュー：以前は
-			    max-w-md で CONFIG ウィンドウ自体の幅に Nav も引きずられて折り返しが窮屈だった）。
-			    CONFIG ウィンドウ自体は従来通りコンパクトに保つため、内側の div で幅を絞る。 */}
-			<main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-4 p-5">
+			{/* main の幅は他の Nav 設置ページ（/essays 等）と完全に揃える（spec SC-013 §13.2）。
+			    CONFIG ウィンドウは mx-auto で中央寄せしつつ、他画面と同じ幅の中で大きく表示する。 */}
+			<main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-4 p-5">
 				<div className="flex flex-wrap items-center gap-3">
-					<NavBack label="◀ HOME" href="/" />
+					<NavBack label="◀ HOME" href="/home" />
 					<h1 className="font-dot text-sm text-arch-text">CONFIG</h1>
 				</div>
 				<Nav />
 
-				<div className="max-w-sm">
+				<div className="mx-auto w-full max-w-xl">
 					<Window title="CONFIG">
 						<div className="p-2">
 							<ConfigPanel />

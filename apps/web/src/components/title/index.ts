@@ -1,1 +1,1 @@
-export { TitleGate } from "./TitleGate";
+export { TitleMenu } from "./TitleMenu";

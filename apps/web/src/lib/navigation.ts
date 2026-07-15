@@ -10,6 +10,7 @@ export interface NavItem {
 }
 
 export const NAV_ITEMS: readonly NavItem[] = [
+	{ gameName: "MAIN MENU", label: "Home", href: "/home" },
 	{ gameName: "FRAGMENTS", label: "Garden", href: "/garden" },
 	{ gameName: "ARTICLE", label: "Essays", href: "/essays" },
 	{ gameName: "MAP", label: "思考マップ", href: "/garden?view=map" },
