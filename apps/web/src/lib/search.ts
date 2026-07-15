@@ -1,4 +1,4 @@
-// クライアント側全文検索（design §4.4、spec SC-013、F-SRCH-001）。
+// クライアント側全文検索（design §4.4、spec SC-012、F-SRCH-001）。
 // search-index.json（title/summary/topics/本文プレーン）を minisearch でインデックス化する。
 // ライブラリ選定は spec 13.3 が実装時の裁量としているため minisearch を採用した。
 

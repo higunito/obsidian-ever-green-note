@@ -2,8 +2,8 @@ import { Footer, NavBack, Window } from "@web/components/system";
 import { C, font } from "@web/styles/tokens";
 
 /**
- * SC-015 404 Not Found（design §10.6、spec SC-015）。存在しない/非公開ページ・
- * `notFound()`（Garden/Essay/Path の slug 不明時、spec §15.3）両方でこのページが使われる。
+ * SC-014 404 Not Found（design §10.6、spec SC-014）。存在しない/非公開ページ・
+ * `notFound()`（Garden/Essay/Path の slug 不明時、spec §14.3）両方でこのページが使われる。
  * 走査線・ノイズ演出は控えめにし、本文は可読なまま維持する（可読性ガードレール §10.6）。
  */
 export default function NotFound() {

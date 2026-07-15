@@ -32,7 +32,7 @@ function layerLabel(layer: SearchItem["layer"]): string {
 }
 
 /**
- * SC-013 Search 本体（design §4.4、spec SC-013、F-SRCH-001）。
+ * SC-012 Search 本体（design §4.4、spec SC-012、F-SRCH-001）。
  * search-index.json をクライアント側で minisearch により検索する（サーバー通信なし）。
  * `?q=` は History API で直接書き換え、Next のナビゲーションを経由しない（サーバー再フェッチを
  * 避け、search-index.json の読み込みをこのページ訪問時の 1 回だけに保つ、design §12.1）。

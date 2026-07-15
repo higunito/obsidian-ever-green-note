@@ -39,9 +39,8 @@ describe("generateContent（reference/obsidian ゴールデンテスト）", () 
 		expect(result.paths).toEqual([]);
 	});
 
-	it("Fleeting/now.md・about.md が無いため pages は空の既定値になる", () => {
+	it("Fleeting/about.md が無いため pages は空の既定値になる", () => {
 		expect(result.pages).toEqual({
-			now: { updated: "", bodyHtml: "", topics: [] },
 			about: { updated: "", bodyHtml: "", topics: [] },
 		});
 	});

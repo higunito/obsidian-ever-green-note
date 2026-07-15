@@ -1,14 +1,11 @@
 import { NoteBody, Tag } from "@web/components/notes";
 import { Footer, Nav, NavBack } from "@web/components/system";
 import { getContentStore } from "@web/lib/content";
-import Link from "next/link";
 
 /**
- * SC-012 About（design §4.6、spec SC-012）。`pages.json.about`（＝Vault `Fleeting/about.md`）から生成する
+ * SC-011 About（design §4.6、spec SC-011）。`pages.json.about`（＝Vault `Fleeting/about.md`）から生成する
  * プロフィール固定ページ。趣旨・世界観・外部リンクは Vault 側の本文（bodyHtml）に含める運用とし、
- * このページ自体は枠組みのみを提供する（design §4.6「Now/About/Paths もすべて Vault から生成」）。
- * `/now`（STATUS）は Nav（design §3.3）に含まれない画面のため、他に到達経路が無い。
- * nownownow 型ページは About からの導線が一般的なため、ここに導線を追加した（実装時に決定）。
+ * このページ自体は枠組みのみを提供する（design §4.6「About/Paths もすべて Vault から生成」）。
  */
 export default async function AboutPage() {
 	const store = getContentStore();
@@ -40,15 +37,6 @@ export default async function AboutPage() {
 						準備中
 					</div>
 				)}
-
-				<div className="mt-4 border-t border-arch-border-faint pt-4">
-					<Link
-						href="/now"
-						className="font-mon text-[10px] tracking-[0.08em] text-arch-cyan transition-colors hover:text-arch-text"
-					>
-						→ STATUS / いま考えていること
-					</Link>
-				</div>
 			</main>
 			<Footer />
 		</>

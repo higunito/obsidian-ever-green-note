@@ -139,8 +139,7 @@ describe("fixtures の相互整合性（後続 Phase が前提にする不変条
 		}
 	});
 
-	it("pages.json の now/about は bodyHtml を持つ", () => {
-		expect(fixturePages.now.bodyHtml.length).toBeGreaterThan(0);
+	it("pages.json の about は bodyHtml を持つ", () => {
 		expect(fixturePages.about.bodyHtml.length).toBeGreaterThan(0);
 	});
 });

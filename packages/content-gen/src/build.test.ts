@@ -154,9 +154,7 @@ describe("generateContent（fixture vault）", () => {
 		expect(path.topics).toEqual(["美学", "物語論"]);
 	});
 
-	it("pages.now / pages.about は Fleeting/now.md・about.md から生成される", () => {
-		expect(result.pages.now.bodyHtml).toContain("物語と現実の違い");
-		expect(result.pages.now.topics).toEqual(["物語論"]);
+	it("pages.about は Fleeting/about.md から生成される", () => {
 		expect(result.pages.about.bodyHtml).toContain("思考アーカイブ");
 	});
 

@@ -8,7 +8,6 @@ export const pageContentSchema = z.object({
 export type PageContent = z.infer<typeof pageContentSchema>;
 
 export const pagesSchema = z.object({
-	now: pageContentSchema,
 	about: pageContentSchema,
 });
 export type Pages = z.infer<typeof pagesSchema>;

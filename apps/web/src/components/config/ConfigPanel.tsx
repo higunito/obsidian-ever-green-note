@@ -14,7 +14,7 @@ import { useEffect, useState } from "react";
 const ITEMS = ["タイトルを見る", "アニメーション低減"] as const;
 
 /**
- * SC-014 Config 本体（design §11.2/§11.3、spec SC-014、F-CFG-001/F-NAV-002）。
+ * SC-013 Config 本体（design §11.2/§11.3、spec SC-013、F-CFG-001/F-NAV-002）。
  * 設定は `localStorage` に保存し即時反映する（spec 14.3）。利用不可時は既定値（OFF）のまま動作する。
  * SSR とクライアント初期表示のずれを避けるため、マウント前はチェック状態を未確定（false）で表示する
  * （layout.tsx の beforeInteractive スクリプトが実際の演出停止自体は先に反映済みのため、

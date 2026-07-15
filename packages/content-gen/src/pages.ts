@@ -13,7 +13,7 @@ import type { WikilinkResolver } from "./wikilink.ts";
 const EMPTY_PAGE: PageContent = { updated: "", bodyHtml: "", topics: [] };
 
 /**
- * Now/About は `Fleeting/now.md` / `Fleeting/about.md`（publish:true）から生成する（design §4.6）。
+ * About は `Fleeting/about.md`（publish:true）から生成する（design §4.6）。
  * 未整備（ファイル無し・publish:false）の場合は空のページ内容にする。
  */
 function loadPage(
@@ -39,9 +39,8 @@ function loadPage(
 export function loadPages(
 	vaultDir: string,
 	resolve: WikilinkResolver,
-): { now: PageContent; about: PageContent } {
+): { about: PageContent } {
 	return {
-		now: loadPage(vaultDir, "now.md", resolve),
 		about: loadPage(vaultDir, "about.md", resolve),
 	};
 }

@@ -1,4 +1,4 @@
-// 表示設定（design §11.2 / §12.2、spec SC-014、F-CFG-001）。localStorage に保存し即時反映する。
+// 表示設定（design §11.2 / §12.2、spec SC-013、F-CFG-001）。localStorage に保存し即時反映する。
 // 「（任意）本文フォントサイズ、行間」（spec 14.2）は spec/plan とも任意注記のため v1 では実装しない。
 
 const REDUCED_MOTION_KEY = "ta_reduced_motion";

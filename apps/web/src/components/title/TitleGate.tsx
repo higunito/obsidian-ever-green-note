@@ -6,26 +6,18 @@ import { C } from "@web/styles/tokens";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
-interface TitleGateProps {
-	/** RANDOM FRAGMENT の遷移先候補（Garden 全ノートの slug）。 */
-	gardenSlugs: readonly string[];
-}
-
-const MENU_ITEMS = [
-	"NEW EXPLORATION",
-	"CONTINUE",
-	"RANDOM FRAGMENT",
-	"FRAGMENTS",
-	"CONFIG",
-] as const;
+const MENU_ITEMS = ["START", "FRAGMENTS", "CONFIG"] as const;
 
 /**
  * SC-000 タイトルオーバーレイ ＋ SC-001 の「◀ TITLE」手動再生導線（design §11.3、spec SC-000）。
  * 初回のみ自動表示、以降は `◀ TITLE` クリックで手動再生できる（spec SC-001 §1.4）。
  * Config（Phase 9）からの再生は `lib/title.ts` の `triggerTitleReplay()` を呼んで `/` へ遷移すればよい
  * （このコンポーネントのマウント時判定と同じ経路で再生される）。
+ * `RANDOM FRAGMENT` は Phase 9 レビューで不要と判断し削除（spec SC-000 §0.2 v1.3）。
+ * 旧 `NEW EXPLORATION`/`CONTINUE` はどちらもホーム表示のみで動きの区別が無く紛らわしかったため、
+ * `START` 1 項目に統合した（同 v1.3）。
  */
-export function TitleGate({ gardenSlugs }: TitleGateProps) {
+export function TitleGate() {
 	const router = useRouter();
 	const [visible, setVisible] = useState(false);
 	const [selected, setSelected] = useState(0);
@@ -42,21 +34,14 @@ export function TitleGate({ gardenSlugs }: TitleGateProps) {
 	const navigateTo = useCallback(
 		(index: number) => {
 			dismiss();
-			if (index === 2) {
-				// RANDOM FRAGMENT：ランダムな Garden ノート詳細へ
-				if (gardenSlugs.length > 0) {
-					const slug =
-						gardenSlugs[Math.floor(Math.random() * gardenSlugs.length)];
-					router.push(`/garden/${encodeURIComponent(slug)}`);
-				}
-			} else if (index === 3) {
+			if (index === 1) {
 				router.push("/garden"); // FRAGMENTS
-			} else if (index === 4) {
+			} else if (index === 2) {
 				router.push("/config"); // CONFIG
 			}
-			// index 0/1（NEW EXPLORATION / CONTINUE）はホーム表示のみで追加の遷移はない
+			// index 0（START）はホーム表示のみで追加の遷移はない
 		},
-		[dismiss, gardenSlugs, router],
+		[dismiss, router],
 	);
 
 	useEffect(() => {
