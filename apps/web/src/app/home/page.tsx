@@ -55,7 +55,7 @@ export default async function HomePage() {
 
 	return (
 		<>
-			<main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-4 p-5">
+			<main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 p-5">
 				<div className="flex flex-wrap items-center gap-3">
 					<NavBack label="◀ TITLE" href="/" />
 					<h1 className="font-dot text-sm text-arch-text">MAIN MENU / Home</h1>

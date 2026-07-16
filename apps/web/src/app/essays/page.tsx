@@ -42,7 +42,7 @@ export default async function EssaysPage({ searchParams }: EssaysPageProps) {
 
 	return (
 		<>
-			<main className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-4 p-5">
+			<main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 p-5">
 				<div className="flex flex-wrap items-center gap-3">
 					<NavBack label="◀ HOME" href="/home" />
 					<h1 className="font-dot text-sm text-arch-text">ARTICLE / Essays</h1>

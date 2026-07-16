@@ -18,14 +18,18 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
 	return (
 		<>
-			<main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-4 p-5">
+			{/* main の幅は他の Nav 設置ページと統一する（Nav の折り返しを避けるため）。
+			    検索パネルは読みやすさのため内側の div で従来通り max-w-3xl に絞る。 */}
+			<main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 p-5">
 				<div className="flex flex-wrap items-center gap-3">
 					<NavBack label="◀ HOME" href="/home" />
 					<h1 className="font-dot text-sm text-arch-text">SEARCH / 検索</h1>
 				</div>
 				<Nav />
 
-				<SearchPanel items={items} initialQuery={q ?? ""} />
+				<div className="mx-auto w-full max-w-3xl">
+					<SearchPanel items={items} initialQuery={q ?? ""} />
+				</div>
 			</main>
 			<Footer />
 		</>
