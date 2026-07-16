@@ -27,7 +27,7 @@ export function StackBreadcrumb({
 	const { open } = useStackNavigation();
 
 	return (
-		<div className="flex flex-wrap items-center gap-1.5 border-b border-arch-border bg-[rgba(7,22,34,0.93)] px-3.5 py-1.5 backdrop-blur-sm">
+		<div className="flex flex-wrap items-center gap-1.5 border-b-2 border-arch-border bg-arch-panel-dark px-3.5 py-1.5">
 			<NavBack label="◀ HOME" href="/home" />
 			<span className="text-arch-border-faint">│</span>
 			{spine.map((entry) => (

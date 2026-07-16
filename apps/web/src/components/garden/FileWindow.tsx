@@ -53,10 +53,10 @@ export function FileWindow({
 
 	return (
 		<div
-			className={`relative h-full w-full overflow-y-auto border backdrop-blur-md transition-all ${
+			className={`relative h-full w-full overflow-y-auto border-2 transition-all ${
 				isActive
-					? "border-arch-cyan bg-[rgba(20,50,58,0.93)] shadow-[0_0_28px_var(--color-arch-cyan-dim)]"
-					: "border-arch-border bg-[rgba(11,26,43,0.86)]"
+					? "border-arch-cyan bg-arch-panel shadow-[inset_1px_1px_0_var(--color-arch-border-hi),inset_-1px_-1px_0_var(--color-arch-border-sh),0_0_28px_var(--color-arch-cyan-dim)]"
+					: "border-arch-border bg-arch-panel-dark shadow-[inset_1px_1px_0_var(--color-arch-border-hi),inset_-1px_-1px_0_var(--color-arch-border-sh)]"
 			} ${className ?? ""}`}
 		>
 			<div

@@ -65,9 +65,13 @@ export default function RootLayout({
 				</Script>
 				{/* 最背面に固定する差し替え可能な夜景レイヤー（§9.1）。本文コンテンツは z-1 以上に載せる。 */}
 				<SceneBackground />
-				<div className="relative z-[1] flex min-h-full flex-col">
-					{children}
-				</div>
+				{/*
+				 * min-h-dvh を使う（min-h-full ではない）：body は min-height のみで height を持たないため
+				 * “height”が未定義な祖先を percentage で継承しようとすると auto 扱いになり、
+				 * ここでの min-h-full が実効高さゼロになって Title 等の justify-center が効かなくなる。
+				 * dvh はビューポート基準で解決されるためこの連鎖に依存しない。
+				 */}
+				<div className="relative z-[1] flex min-h-dvh flex-col">{children}</div>
 			</body>
 		</html>
 	);

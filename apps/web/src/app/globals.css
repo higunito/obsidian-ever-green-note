@@ -139,8 +139,9 @@
 	--color-arch-bg: #0a0a0c;
 	--color-arch-bg-top: #0b1a2b;
 	--color-arch-bg-mid: #07080f;
-	--color-arch-panel-dark: rgba(7, 22, 34, 0.94);
-	--color-arch-panel: rgba(20, 50, 58, 0.88);
+	/* ソリッドパネル（backdrop-filter 全廃、§10.2 v1.7）。すりガラスをやめベタ塗りの重い質感にする。 */
+	--color-arch-panel-dark: #071620;
+	--color-arch-panel: #123038;
 	--color-arch-text: #e7e1ce;
 	--color-arch-muted: #8a836e;
 	--color-arch-cyan: #7fe3e0;
@@ -148,6 +149,11 @@
 	--color-arch-cyan-faint: rgba(127, 227, 224, 0.07);
 	--color-arch-border: rgba(127, 227, 224, 0.28);
 	--color-arch-border-faint: rgba(127, 227, 224, 0.09);
+	/* べベルボーダー（Win95 的な inset ハイライト/シャドウ、§10.2 v1.7）。 */
+	--color-arch-border-hi: rgba(160, 232, 228, 0.55);
+	--color-arch-border-sh: rgba(0, 0, 0, 0.7);
+	/* セレクタ黄色（90年代 ADV の定番、§10.2 v1.7）。 */
+	--color-arch-yellow: #c8b840;
 	--color-arch-fragment: #b08030;
 	--color-arch-developing: #7fe3e0;
 	--color-arch-archived: #5dbf6a;
@@ -228,6 +234,93 @@
 	}
 }
 
+/* セレクタ ▶ の点滅（CommandMenu、§10.2 v1.8）。 */
+@keyframes selBlink {
+	0%,
+	49% {
+		opacity: 1;
+	}
+	50%,
+	100% {
+		opacity: 0;
+	}
+}
+
+/* 遷移確定ボタンのビビビ点滅（CommandMenu、spec SC-000 §0.3 v1.9）。押下から遷移までの一瞬を演出する。 */
+@keyframes navFlash {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	10%,
+	30%,
+	50% {
+		opacity: 0.15;
+	}
+	20%,
+	40%,
+	60% {
+		opacity: 1;
+	}
+}
+
+/* Stack View に新しいカラムが加わった時の登場演出（右から出てくる、spec SC-004 §4.3 v1.9）。
+   カラムは slug をキーに1回だけマウントされるため、既存カラムの再レンダーでは再生されない。 */
+@keyframes stackColumnIn {
+	from {
+		opacity: 0;
+		transform: translateX(24px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+
+/* Title の OTHERS サブパネルの開閉アニメーション（spec SC-000 §0.3、§9.1 v1.7）。 */
+@keyframes othersPanelIn {
+	from {
+		opacity: 0;
+		transform: translateX(-8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateX(0);
+	}
+}
+@keyframes othersPanelOut {
+	from {
+		opacity: 1;
+		transform: translateX(0);
+	}
+	to {
+		opacity: 0;
+		transform: translateX(-8px);
+	}
+}
+
+/* フィルムグレイン（NoiseOverlay）のランダムシフト。0.14 秒ステップで粒感を動かす（§9.1 v1.8）。 */
+@keyframes filmGrainShift {
+	0% {
+		transform: translate(0, 0);
+	}
+	20% {
+		transform: translate(-4%, -3%);
+	}
+	40% {
+		transform: translate(3%, 5%);
+	}
+	60% {
+		transform: translate(-2%, 2%);
+	}
+	80% {
+		transform: translate(5%, -4%);
+	}
+	100% {
+		transform: translate(0, 0);
+	}
+}
+
 /* 演出低減：OS 設定 prefers-reduced-motion、または Config の「アニメーション低減」
    （<html data-reduced-motion="true">、Phase 9 で付与）を尊重して雨・点滅・演出を止める（§10.6）。 */
 @media (prefers-reduced-motion: reduce) {
@@ -245,13 +338,19 @@
 	animation: none !important;
 }
 
+/* 90年代風スクロールバー（幅広・ソリッドカラー、§10.2 v1.8）。 */
 ::-webkit-scrollbar {
-	width: 4px;
-	height: 4px;
+	width: 10px;
+	height: 10px;
 }
 ::-webkit-scrollbar-track {
-	background: transparent;
+	background: var(--color-arch-panel-dark);
+	border-left: 1px solid var(--color-arch-border);
 }
 ::-webkit-scrollbar-thumb {
+	background: var(--color-arch-border-hi);
+	border: 1px solid var(--color-arch-border-sh);
+}
+::-webkit-scrollbar-thumb:hover {
 	background: var(--color-arch-cyan-dim);
 }

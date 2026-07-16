@@ -38,8 +38,11 @@ export function MobileStackBar({ history }: MobileStackBarProps) {
 			</div>
 			{drawerOpen ? (
 				<div
-					className="fixed top-10 right-0 z-30 w-[200px] border border-arch-border py-2 backdrop-blur-md"
-					style={{ background: C.panel }}
+					className="fixed top-10 right-0 z-30 w-[200px] border-2 border-arch-border py-2"
+					style={{
+						background: C.panel,
+						boxShadow: `inset 1px 1px 0 ${C.borderHi}, inset -1px -1px 0 ${C.borderSh}`,
+					}}
 				>
 					{history.map((entry) => (
 						<button

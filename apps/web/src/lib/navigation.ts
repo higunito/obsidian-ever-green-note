@@ -15,9 +15,9 @@ export const NAV_ITEMS: readonly NavItem[] = [
 	{ gameName: "ARTICLE", label: "Essays", href: "/essays" },
 	{ gameName: "MAP", label: "思考マップ", href: "/garden?view=map" },
 	{ gameName: "ROUTE", label: "Paths", href: "/paths" },
+	{ gameName: "SEARCH", label: "検索", href: "/search" },
 	{ gameName: "INFLUENCE", label: "Collections", href: "/collections" },
 	{ gameName: "PROJECTS", label: "Projects", href: "/projects" },
 	{ gameName: "PROFILE", label: "About", href: "/about" },
-	{ gameName: "SEARCH", label: "検索", href: "/search" },
 	{ gameName: "CONFIG", label: "設定", href: "/config" },
 ] as const;

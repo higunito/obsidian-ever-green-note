@@ -8,6 +8,11 @@ interface CommandMenuProps {
 	selected: number;
 	onSelect: (index: number) => void;
 	onHover?: (index: number) => void;
+	/** このメニューが現在キー操作の対象か。false の間は選択カーソル（▶・強調表示）を出さない
+	 * （title の OTHERS 表示中に左メニューへカーソルが残る見た目を避けるため、§9.1 v1.9）。既定 true。 */
+	active?: boolean;
+	/** 遷移確定演出中の項目インデックス。一致する項目をビビビと点滅させる（spec SC-000 §0.3 v1.9）。 */
+	flashingIndex?: number | null;
 }
 
 /**
@@ -19,17 +24,21 @@ export function CommandMenu({
 	selected,
 	onSelect,
 	onHover,
+	active = true,
+	flashingIndex = null,
 }: CommandMenuProps) {
 	return (
 		<div>
 			{items.map((item, i) => {
-				const on = i === selected;
+				const on = active && i === selected;
+				const flashing = flashingIndex === i;
 				return (
 					<button
 						type="button"
 						key={item}
 						onMouseEnter={() => onHover?.(i)}
 						onClick={() => onSelect(i)}
+						className={flashing ? "arch-animated" : undefined}
 						style={{
 							display: "flex",
 							alignItems: "center",
@@ -39,17 +48,26 @@ export function CommandMenu({
 							cursor: "pointer",
 							fontFamily: font.dot,
 							fontSize: "12px",
-							color: on ? C.cyan : C.text,
-							textShadow: on ? `0 0 10px ${C.cyan}` : "none",
-							background: on ? C.cyanFaint : "transparent",
+							color: on || flashing ? C.cyan : C.text,
+							textShadow: on || flashing ? `0 0 10px ${C.cyan}` : "none",
+							background: on || flashing ? C.cyanFaint : "transparent",
 							border: "none",
-							borderLeft: `2px solid ${on ? C.cyan : "transparent"}`,
+							borderLeft: `2px solid ${on || flashing ? C.cyan : "transparent"}`,
 							transition: "all 0.1s",
 							letterSpacing: "0.04em",
+							animation: flashing ? "navFlash 0.3s steps(1) 1" : "none",
 						}}
 					>
-						<span style={{ width: "18px", color: C.cyan, flexShrink: 0 }}>
-							{on ? "▶" : "　"}
+						<span
+							className={on ? "arch-animated" : undefined}
+							style={{
+								width: "18px",
+								color: C.yellow,
+								flexShrink: 0,
+								animation: on ? "selBlink 1s step-end infinite" : "none",
+							}}
+						>
+							{on || flashing ? "▶" : "　"}
 						</span>
 						{item}
 					</button>

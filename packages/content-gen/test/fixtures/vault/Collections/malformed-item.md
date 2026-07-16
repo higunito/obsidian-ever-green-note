@@ -2,7 +2,7 @@
 title: 年が抜けているアイテム
 creator: Someone
 year:
-kind: film
+kind: other
 cover:
 external_url:
 topics:

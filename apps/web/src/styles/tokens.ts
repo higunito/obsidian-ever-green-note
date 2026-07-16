@@ -16,6 +16,11 @@ export const C = {
 	cyanFaint: "var(--color-arch-cyan-faint)",
 	border: "var(--color-arch-border)",
 	borderFaint: "var(--color-arch-border-faint)",
+	// べベルボーダー（Win95 的な浮き彫り枠）のハイライト/シャドウ。Window の inset box-shadow で使う。
+	borderHi: "var(--color-arch-border-hi)",
+	borderSh: "var(--color-arch-border-sh)",
+	// セレクタ黄色（90年代 ADV の定番、CommandMenu の ▶ に使う）。
+	yellow: "var(--color-arch-yellow)",
 	fragment: "var(--color-arch-fragment)",
 	developing: "var(--color-arch-developing)",
 	archived: "var(--color-arch-archived)",

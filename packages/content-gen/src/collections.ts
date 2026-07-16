@@ -9,12 +9,7 @@ import {
 import { basenameNoExt, slugify, uniqueSlug } from "./slug.ts";
 import { scanZone } from "./vault-scan.ts";
 
-const COLLECTION_KINDS: readonly CollectionKind[] = [
-	"book",
-	"album",
-	"film",
-	"link",
-];
+const COLLECTION_KINDS: readonly CollectionKind[] = ["book", "album", "other"];
 
 function toKind(value: unknown): CollectionKind | undefined {
 	return COLLECTION_KINDS.includes(value as CollectionKind)

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const collectionKindSchema = z.enum(["book", "album", "film", "link"]);
+export const collectionKindSchema = z.enum(["book", "album", "other"]);
 export type CollectionKind = z.infer<typeof collectionKindSchema>;
 
 // source_ref（元Literatureノートへの非公開参照）は意図的にフィールドを持たない。

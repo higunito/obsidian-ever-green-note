@@ -1,9 +1,15 @@
 "use client";
 
 import { CommandMenu } from "@web/components/system";
+import { useFlashNavigate } from "@web/lib/use-flash-navigate";
 import { C } from "@web/styles/tokens";
-import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import {
+	type ReactNode,
+	useCallback,
+	useEffect,
+	useRef,
+	useState,
+} from "react";
 
 const MENU_ITEMS = [
 	"START",
@@ -21,6 +27,59 @@ const MENU_HREF: Partial<Record<number, string>> = {
 	4: "/config",
 };
 
+const OTHERS_PANEL_CLOSE_MS = 200;
+
+/**
+ * OTHERS サブパネルの開閉アニメーション（spec SC-000 §0.3）。
+ * `open=false` になっても即座にアンマウントせず、CSS アニメーション（globals.css の
+ * `othersPanelIn`/`othersPanelOut`）が終わる分だけ遅延してから外す。reduced-motion 時は
+ * アニメーションが無効化される（`arch-animated`）ため、`animationend` ではなくタイマーで
+ * アンマウントタイミングを制御する（reduced-motion でも確実に閉じるため）。
+ */
+function OthersPanel({
+	open,
+	children,
+}: {
+	open: boolean;
+	children: ReactNode;
+}) {
+	const [rendered, setRendered] = useState(open);
+
+	useEffect(() => {
+		if (open) {
+			setRendered(true);
+			return;
+		}
+		if (!rendered) return;
+		const timer = window.setTimeout(
+			() => setRendered(false),
+			OTHERS_PANEL_CLOSE_MS,
+		);
+		return () => window.clearTimeout(timer);
+	}, [open, rendered]);
+
+	if (!rendered) return null;
+
+	return (
+		<div
+			className="arch-animated relative min-w-[200px] py-1.5"
+			style={{
+				border: `2px solid ${C.border}`,
+				background: C.panel,
+				boxShadow: `inset 1px 1px 0 ${C.borderHi}, inset -1px -1px 0 ${C.borderSh}`,
+				animation: `${open ? "othersPanelIn" : "othersPanelOut"} 0.18s ease-out forwards`,
+			}}
+		>
+			<div
+				aria-hidden
+				className="pointer-events-none absolute inset-[3px]"
+				style={{ border: `1px solid ${C.borderFaint}` }}
+			/>
+			{children}
+		</div>
+	);
+}
+
 const OTHERS_ITEMS = [
 	{ gameName: "MAP", href: "/garden?view=map" },
 	{ gameName: "ROUTE", href: "/paths" },
@@ -36,10 +95,14 @@ const OTHERS_ITEMS = [
  * サブパネル表示中は ↑↓ の対象がサブパネル側に切り替わる（spec SC-000 §0.3）。
  */
 export function TitleMenu() {
-	const router = useRouter();
+	const rowRef = useRef<HTMLDivElement>(null);
 	const [selected, setSelected] = useState(0);
 	const [othersOpen, setOthersOpen] = useState(false);
 	const [othersSelected, setOthersSelected] = useState(0);
+	// 遷移確定ボタンのビビビ点滅演出（useFlashNavigate、lib/use-flash-navigate.ts）。
+	// 本体メニュー／サブパネルはキー操作対象が別なので、点滅対象の状態も別インスタンスで持つ。
+	const mainFlash = useFlashNavigate();
+	const otherFlash = useFlashNavigate();
 
 	const navigateTo = useCallback(
 		(index: number) => {
@@ -49,17 +112,29 @@ export function TitleMenu() {
 			}
 			setOthersOpen(false);
 			const href = MENU_HREF[index];
-			if (href) router.push(href);
+			if (!href) return;
+			mainFlash.navigate(String(index), href);
 		},
-		[router],
+		[mainFlash],
 	);
 
 	const navigateToOther = useCallback(
 		(index: number) => {
-			router.push(OTHERS_ITEMS[index].href);
+			otherFlash.navigate(String(index), OTHERS_ITEMS[index].href);
 		},
-		[router],
+		[otherFlash],
 	);
+
+	// 右パネル表示中に枠外をクリックしたら閉じる（spec SC-000 §0.3 v1.9）。
+	useEffect(() => {
+		if (!othersOpen) return;
+		function handlePointerDown(e: PointerEvent) {
+			if (rowRef.current?.contains(e.target as Node)) return;
+			setOthersOpen(false);
+		}
+		document.addEventListener("pointerdown", handlePointerDown);
+		return () => document.removeEventListener("pointerdown", handlePointerDown);
+	}, [othersOpen]);
 
 	useEffect(() => {
 		function handleKeyDown(e: KeyboardEvent) {
@@ -132,13 +207,20 @@ export function TitleMenu() {
 				}}
 			/>
 
-			<div className="flex flex-col items-center gap-3.5 min-[640px]:flex-row min-[640px]:items-start">
+			{/*
+			 * rowRef は position:relative のみで、右パネル（OTHERS）は min-[640px]（PC 幅）では
+			 * position:absolute にして通常フローから外す。こうすることで rowRef 自身の幅は常に
+			 * 本体メニューだけで決まり、右パネルの開閉で rowRef の幅（＝親の items-center による
+			 * 水平中央位置）が変わらない＝本体メニューの位置が絶対に動かない。モバイル幅では
+			 * 右パネルは通常フローのまま本体メニューの下に積む（横方向の中央位置には影響しない）。
+			 */}
+			<div ref={rowRef} className="relative flex flex-col items-center">
 				<div
 					className="relative min-w-[clamp(260px,50vw,340px)] py-1.5"
 					style={{
-						border: `1px solid ${C.border}`,
+						border: `2px solid ${C.border}`,
 						background: C.panel,
-						backdropFilter: "blur(10px)",
+						boxShadow: `inset 1px 1px 0 ${C.borderHi}, inset -1px -1px 0 ${C.borderSh}`,
 					}}
 				>
 					<div
@@ -151,31 +233,38 @@ export function TitleMenu() {
 						selected={selected}
 						onSelect={navigateTo}
 						onHover={setSelected}
+						active={!othersOpen}
+						flashingIndex={
+							mainFlash.flashingKey !== null
+								? Number(mainFlash.flashingKey)
+								: null
+						}
 					/>
 				</div>
 
-				{othersOpen ? (
-					<div
-						className="relative min-w-[200px] py-1.5"
-						style={{
-							border: `1px solid ${C.border}`,
-							background: C.panel,
-							backdropFilter: "blur(10px)",
-						}}
-					>
-						<div
-							aria-hidden
-							className="pointer-events-none absolute inset-[3px]"
-							style={{ border: `1px solid ${C.borderFaint}` }}
-						/>
+				{/* max-width/max-height を othersOpen で遷移させて開閉をアニメーションさせる。 */}
+				<div
+					className="mt-3.5 overflow-hidden transition-[max-width,max-height] duration-200 ease-out min-[640px]:absolute min-[640px]:top-0 min-[640px]:left-[calc(100%_+_14px)] min-[640px]:mt-0"
+					style={
+						othersOpen
+							? { maxWidth: 320, maxHeight: 320 }
+							: { maxWidth: 0, maxHeight: 0 }
+					}
+				>
+					<OthersPanel open={othersOpen}>
 						<CommandMenu
 							items={OTHERS_ITEMS.map((item) => item.gameName)}
 							selected={othersSelected}
 							onSelect={navigateToOther}
 							onHover={setOthersSelected}
+							flashingIndex={
+								otherFlash.flashingKey !== null
+									? Number(otherFlash.flashingKey)
+									: null
+							}
 						/>
-					</div>
-				) : null}
+					</OthersPanel>
+				</div>
 			</div>
 
 			<div

@@ -11,8 +11,7 @@ interface CollectionsPageProps {
 const KIND_TABS: readonly { value: CollectionKind; label: string }[] = [
 	{ value: "book", label: "Books" },
 	{ value: "album", label: "Albums" },
-	{ value: "film", label: "Films" },
-	{ value: "link", label: "Links" },
+	{ value: "other", label: "Others" },
 ];
 
 const KIND_VALUES = new Set<string>(KIND_TABS.map((t) => t.value));

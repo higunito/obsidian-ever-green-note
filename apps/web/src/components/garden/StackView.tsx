@@ -57,11 +57,12 @@ export function StackView({ state, spineEntries, columns }: StackViewProps) {
 					return (
 						<div
 							key={col.article.slug}
-							className={`h-full min-w-0 w-full transition-all ${
+							className={`arch-animated h-full min-w-0 w-full transition-all ${
 								isActive
 									? "flex md:flex-[2_1_380px]"
 									: "hidden md:flex md:flex-[1_1_295px]"
 							}`}
+							style={{ animation: "stackColumnIn 0.25s ease-out" }}
 						>
 							<FileWindow
 								article={col.article}

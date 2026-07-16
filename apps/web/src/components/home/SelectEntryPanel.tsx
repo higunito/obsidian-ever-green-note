@@ -16,7 +16,7 @@ const TABS = [
 const PANEL_SIZE_CLASS = "h-[360px] overflow-y-auto";
 
 function tabClass(active: boolean): string {
-	return `border px-3 py-2 font-dot text-[11px] transition-colors ${
+	return `cursor-pointer border px-3 py-2 font-dot text-[11px] transition-colors ${
 		active
 			? "border-arch-cyan bg-arch-cyan-faint text-arch-cyan"
 			: "border-arch-border text-arch-muted hover:text-arch-cyan"
@@ -44,34 +44,40 @@ export function SelectEntryPanel({
 
 	return (
 		<div className="flex flex-col gap-3.5">
-			<div className="relative">
-				<Window title="SELECT ENTRY">
-					<div className="flex flex-wrap gap-2 p-2.5">
-						{TABS.map((tab, i) => (
-							<button
-								key={tab}
-								type="button"
-								onClick={() => setSelected(i)}
-								className={tabClass(i === selected)}
-							>
-								{tab}
-							</button>
-						))}
-					</div>
-				</Window>
-				{selected === 2 ? (
-					<EntryLinkModal label="思考マップへ" href="/garden?view=map" />
-				) : null}
-				{selected === 3 ? (
-					<EntryLinkModal label="記事一覧へ" href="/essays" />
-				) : null}
-			</div>
+			<Window title="SELECT ENTRY">
+				<div className="flex flex-wrap gap-2 p-2.5">
+					{TABS.map((tab, i) => (
+						<button
+							key={tab}
+							type="button"
+							onClick={() => setSelected(i)}
+							className={tabClass(i === selected)}
+						>
+							{tab}
+						</button>
+					))}
+				</div>
+			</Window>
 
 			{selected === 0 ? (
 				<div className={PANEL_SIZE_CLASS}>{fragmentsContent}</div>
 			) : null}
 			{selected === 1 ? (
 				<div className={PANEL_SIZE_CLASS}>{threeDoorsContent}</div>
+			) : null}
+			{selected === 2 ? (
+				<div
+					className={`${PANEL_SIZE_CLASS} flex items-start justify-center pt-6`}
+				>
+					<EntryLinkModal label="思考マップへ" href="/garden?view=map" />
+				</div>
+			) : null}
+			{selected === 3 ? (
+				<div
+					className={`${PANEL_SIZE_CLASS} flex items-start justify-center pt-6`}
+				>
+					<EntryLinkModal label="記事一覧へ" href="/essays" />
+				</div>
 			) : null}
 		</div>
 	);

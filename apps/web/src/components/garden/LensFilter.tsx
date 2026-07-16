@@ -127,7 +127,7 @@ export function LensFilter({ topics }: LensFilterProps) {
 				</button>
 			</div>
 			{sheetOpen ? (
-				<div className="fixed inset-x-0 bottom-0 z-50 border border-arch-border border-b-0 bg-arch-panel p-4 backdrop-blur-md">
+				<div className="fixed inset-x-0 bottom-0 z-50 border-2 border-arch-border border-b-0 bg-arch-panel p-4">
 					<div className="flex flex-wrap items-center gap-1.5">{pills}</div>
 					<div className="mt-3 text-right">
 						<button

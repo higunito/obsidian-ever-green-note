@@ -12,6 +12,7 @@ import type {
 	GraphTopic,
 } from "@web/types/content";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 interface InvestigationMapProps {
@@ -69,6 +70,92 @@ function dedupeNoteEdges(edges: readonly GraphEdge[]): GraphEdge[] {
 const zoomButtonClass =
 	"flex h-7 w-7 items-center justify-center border border-arch-border bg-arch-panel-dark font-mon text-sm text-arch-cyan";
 
+interface PendingNavigation {
+	href: string;
+	title: string;
+}
+
+/**
+ * ノートノードクリック時の遷移確認モーダル（spec SC-003 §3.2/§3.3、F-MAP-003）。
+ * マップ上に直接遷移せず、いったん確認を挟む。
+ */
+function NavigateConfirmDialog({
+	pending,
+	onConfirm,
+	onCancel,
+}: {
+	pending: PendingNavigation;
+	onConfirm: () => void;
+	onCancel: () => void;
+}) {
+	return (
+		// 地図側のパン操作（コンテナの onPointerDown/Move/Up）へイベントが伝播すると、
+		// モーダル内のボタンクリックがドラッグ開始と競合して効かなくなるため止める。
+		<div
+			className="fixed inset-0 z-[200] flex items-center justify-center p-4"
+			onPointerDown={(e) => e.stopPropagation()}
+			onPointerMove={(e) => e.stopPropagation()}
+			onPointerUp={(e) => e.stopPropagation()}
+		>
+			<button
+				type="button"
+				aria-label="キャンセル"
+				onClick={onCancel}
+				className="absolute inset-0 bg-black/70"
+			/>
+			<div
+				className="relative min-w-[260px] max-w-[90vw] border-2"
+				style={{
+					borderColor: C.cyan,
+					background: C.panel,
+					boxShadow: `inset 1px 1px 0 ${C.borderHi}, inset -1px -1px 0 ${C.borderSh}, 0 0 22px ${C.cyanDim}`,
+				}}
+			>
+				<div
+					className="flex items-center gap-2 px-3 py-2"
+					style={{
+						background:
+							"linear-gradient(90deg, #1c3a56 0%, #112230 60%, #0c1a28 100%)",
+						borderBottom: `2px solid ${C.border}`,
+						fontFamily: font.dot,
+						fontSize: "11px",
+						color: C.cyan,
+						letterSpacing: "0.08em",
+					}}
+				>
+					<span style={{ opacity: 0.35 }}>▪</span>
+					SYSTEM CONFIRM
+				</div>
+				<div className="p-4">
+					<p className="font-min text-[13px] text-arch-text">
+						「{pending.title}」へ移動する
+					</p>
+					<div className="mt-4 flex justify-end gap-2">
+						<button
+							type="button"
+							onClick={onCancel}
+							className="border border-arch-border px-3 py-1.5 font-dot text-[11px] text-arch-muted"
+						>
+							キャンセル
+						</button>
+						<button
+							type="button"
+							onClick={onConfirm}
+							className="border-2 px-3 py-1.5 font-dot text-[11px] text-arch-cyan"
+							style={{
+								borderColor: C.cyan,
+								boxShadow: `inset 1px 1px 0 ${C.borderHi}, inset -1px -1px 0 ${C.borderSh}`,
+							}}
+						>
+							移動する
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+}
+
 /**
  * SC-003 調査マップ（design §9.3・§9.5、spec SC-003、figma `MapScreen` を正準）。
  * `graph.json` の座標を読むだけで、パン／ズーム／Lens フィルタによる dim／ツールチップ／
@@ -79,6 +166,7 @@ export function InvestigationMap({
 	articles,
 	filters,
 }: InvestigationMapProps) {
+	const router = useRouter();
 	const containerRef = useRef<HTMLDivElement>(null);
 	const pointers = useRef(new Map<number, { x: number; y: number }>());
 	const dragStart = useRef<{
@@ -95,6 +183,7 @@ export function InvestigationMap({
 	const [dragging, setDragging] = useState(false);
 	const [hoverId, setHoverId] = useState<string | null>(null);
 	const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+	const [pendingNav, setPendingNav] = useState<PendingNavigation | null>(null);
 
 	const nodesById = useMemo(
 		() => new Map<string, GraphNode>(graph.nodes.map((n) => [n.id, n])),
@@ -334,6 +423,8 @@ export function InvestigationMap({
 						const isHover = hoverId === topic.id;
 						const dimmed =
 							filters.topics.length > 0 && !filters.topics.includes(topic.id);
+						// 菱形（45°回転した正方形）で描画（丸い形より荒削りな印象、§10.2 v1.8）。
+						const r = isHover ? 19 : 16;
 						return (
 							// biome-ignore lint/a11y/noStaticElementInteractions: トピックはリンク先を持たずクリック不可（hover ツールチップのみ）。マウス専用の補助表示のため、キーボード等価は設けない
 							<g
@@ -344,15 +435,17 @@ export function InvestigationMap({
 								}}
 								onMouseLeave={() => setHoverId(null)}
 							>
-								<circle
-									cx={x}
-									cy={y}
-									r={isHover ? 27 : 23}
+								<rect
+									x={x - r}
+									y={y - r}
+									width={r * 2}
+									height={r * 2}
 									fill="rgba(7,22,34,0.75)"
 									stroke={dimmed ? C.borderFaint : isHover ? C.cyan : C.border}
 									strokeWidth={isHover ? 1.5 : 1}
 									opacity={dimmed ? 0.3 : 1}
 									filter={isHover ? "url(#map-glow)" : undefined}
+									transform={`rotate(45 ${x} ${y})`}
 								/>
 								<circle
 									cx={x}
@@ -399,10 +492,13 @@ export function InvestigationMap({
 						const visible = nodeVisibility.get(node.id) ?? true;
 						const isHover = hoverId === node.id;
 						const color = node.status ? statusColor(node.status) : C.muted;
+						const href = `/garden/${node.id}`;
+						// 小さな四角ドットで描画（丸い形より荒削りな印象、§10.2 v1.8）。
+						const s = isHover ? 6 : 4;
 						return (
 							<Link
 								key={node.id}
-								href={`/garden/${node.id}`}
+								href={href}
 								aria-label={node.title}
 								onPointerDown={(e) => e.stopPropagation()}
 								onMouseEnter={(e) => {
@@ -410,20 +506,33 @@ export function InvestigationMap({
 									setTooltipPos({ x: e.clientX, y: e.clientY });
 								}}
 								onMouseLeave={() => setHoverId(null)}
+								onClick={(e) => {
+									// 直接遷移せず確認モーダルを挟む（spec SC-003 §3.2/§3.3、F-MAP-003）。
+									e.preventDefault();
+									setPendingNav({ href, title: node.title });
+								}}
 								style={{ cursor: "pointer", opacity: visible ? 1 : 0.15 }}
 							>
 								{/* あたり判定用の透明な広めの円。可視の点(r=6〜9)だけだとクリック/タップ判定が小さすぎるため（design §10.6 モバイル操作性）。 */}
 								<circle cx={x} cy={y} r={16} fill="transparent" />
-								<circle
-									cx={x}
-									cy={y}
-									r={isHover ? 9 : 6}
+								<rect
+									x={x - s}
+									y={y - s}
+									width={s * 2}
+									height={s * 2}
 									fill="rgba(7,22,34,0.8)"
 									stroke={color}
 									strokeWidth={isHover ? 1.5 : 1}
 									filter={isHover ? "url(#map-glow)" : undefined}
 								/>
-								<circle cx={x} cy={y} r={2.5} fill={color} opacity={0.9} />
+								<rect
+									x={x - 2}
+									y={y - 2}
+									width={4}
+									height={4}
+									fill={color}
+									opacity={0.9}
+								/>
 								<text
 									x={x}
 									y={y - 13}
@@ -446,7 +555,7 @@ export function InvestigationMap({
 
 			{hoverNode ? (
 				<div
-					className="pointer-events-none fixed z-[100] max-w-[220px] border border-arch-border bg-arch-panel p-3 backdrop-blur-md"
+					className="pointer-events-none fixed z-[100] max-w-[220px] border-2 border-arch-border bg-arch-panel p-3"
 					style={{ left: tooltipPos.x + 14, top: tooltipPos.y - 8 }}
 				>
 					<div className="mb-1 font-mon text-[9px] text-arch-cyan">
@@ -469,7 +578,7 @@ export function InvestigationMap({
 				</div>
 			) : hoverTopic ? (
 				<div
-					className="pointer-events-none fixed z-[100] max-w-[220px] border border-arch-border bg-arch-panel p-3 backdrop-blur-md"
+					className="pointer-events-none fixed z-[100] max-w-[220px] border-2 border-arch-border bg-arch-panel p-3"
 					style={{ left: tooltipPos.x + 14, top: tooltipPos.y - 8 }}
 				>
 					<div className="mb-1 font-dot text-sm text-arch-cyan">
@@ -514,6 +623,17 @@ export function InvestigationMap({
 			<div className="absolute bottom-4 left-4 font-mon text-[9px] text-arch-muted tracking-wide opacity-35">
 				ドラッグ: パン　スクロール: ズーム
 			</div>
+
+			{pendingNav ? (
+				<NavigateConfirmDialog
+					pending={pendingNav}
+					onCancel={() => setPendingNav(null)}
+					onConfirm={() => {
+						router.push(pendingNav.href);
+						setPendingNav(null);
+					}}
+				/>
+			) : null}
 		</div>
 	);
 }
