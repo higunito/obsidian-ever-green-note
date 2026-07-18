@@ -1,4 +1,7 @@
+"use client";
+
 import { Tag } from "@web/components/notes";
+import { useFlashNavigate } from "@web/lib/use-flash-navigate";
 import { internalHref } from "@web/lib/wikilink";
 import type { Article } from "@web/types/content";
 import Link from "next/link";
@@ -11,12 +14,21 @@ interface EssayCardProps {
  * Essay 一覧カード（spec SC-005、design §9.3）。title/summary/topics/updated。
  * v1 の Essays は native のみ運用のため、`channel:note` バッジ・外部リンクアイコンは実装しない
  * （spec SC-005 §5.2 は v2 として明記。本計画 Phase 8 のスコープ注記に準拠）。
+ * クリック時は `useFlashNavigate`（v1.12）でビビビ点滅させてから詳細ページへ遷移する。
  */
 export function EssayCard({ essay }: EssayCardProps) {
+	const href = internalHref({ slug: essay.slug, layer: essay.layer });
+	const { flashingKey, navigate } = useFlashNavigate();
+	const flashing = flashingKey === href;
 	return (
 		<Link
-			href={internalHref({ slug: essay.slug, layer: essay.layer })}
-			className="block border border-arch-border bg-[rgba(11,26,43,0.7)] p-3 transition-all hover:border-arch-cyan hover:bg-[rgba(20,50,58,0.95)]"
+			href={href}
+			onClick={(e) => {
+				e.preventDefault();
+				navigate(href, href);
+			}}
+			className={`block border border-arch-border bg-[rgba(11,26,43,0.7)] p-3 transition-all hover:border-arch-cyan hover:bg-[rgba(20,50,58,0.95)] ${flashing ? "arch-animated" : ""}`}
+			style={{ animation: flashing ? "navFlash 0.3s steps(1) 1" : "none" }}
 		>
 			<div className="mb-1.5 font-dot text-xs leading-relaxed text-arch-text">
 				{essay.title}

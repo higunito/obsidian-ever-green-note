@@ -57,12 +57,22 @@ export function StackView({ state, spineEntries, columns }: StackViewProps) {
 					return (
 						<div
 							key={col.article.slug}
-							className={`arch-animated h-full min-w-0 w-full transition-all ${
+							className={`h-full min-w-0 w-full transition-all ${
 								isActive
 									? "flex md:flex-[2_1_380px]"
-									: "hidden md:flex md:flex-[1_1_295px]"
+									: "arch-animated hidden md:flex md:flex-[1_1_295px]"
 							}`}
-							style={{ animation: "stackColumnIn 0.25s ease-out" }}
+							// isActive でない列だけ横幅を「かつてアクティブだった幅」から現在の幅へ
+							// 縮めるアニメーションを付ける（stackColumnShrink、globals.css）。`[slug]`
+							// のルート遷移では毎回ページ全体が再マウントされるため（CSS transition は
+							// 「直前の状態」を持たず効かない）、animation の from だけを固定値で与えて
+							// to は暗黙的に現在の flex-basis に解決させることで擬似的に「縮む」動きを出す。
+							// isActive の列（今読んでいる箇所）はフェードなどを付けずそのまま表示する。
+							style={
+								!isActive
+									? { animation: "stackColumnShrink 0.25s ease-out" }
+									: undefined
+							}
 						>
 							<FileWindow
 								article={col.article}

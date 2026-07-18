@@ -1,3 +1,6 @@
+"use client";
+
+import { useFlashNavigate } from "@web/lib/use-flash-navigate";
 import { internalHref } from "@web/lib/wikilink";
 import { C, statusColor } from "@web/styles/tokens";
 import type { Article } from "@web/types/content";
@@ -13,14 +16,25 @@ interface NoteCardProps {
 /**
  * Garden ノートのカード（spec SC-002、design §9.2、figma `NoteCard` を正準）。
  * status バッジ＋左罫の status 色＋title＋summary＋topics。hover でシアン強調。
+ * クリック時は `useFlashNavigate`（v1.12）でビビビ点滅させてから詳細ページへ遷移する。
  */
 export function NoteCard({ note }: NoteCardProps) {
 	const accent = note.status ? statusColor(note.status) : C.border;
+	const href = internalHref({ slug: note.slug, layer: note.layer });
+	const { flashingKey, navigate } = useFlashNavigate();
+	const flashing = flashingKey === href;
 	return (
 		<Link
-			href={internalHref({ slug: note.slug, layer: note.layer })}
-			className="block border border-arch-border border-l-2 bg-[rgba(11,26,43,0.7)] p-3 transition-all hover:border-arch-cyan hover:bg-[rgba(20,50,58,0.95)] hover:shadow-[0_0_12px_var(--color-arch-cyan-faint)]"
-			style={{ borderLeftColor: accent }}
+			href={href}
+			onClick={(e) => {
+				e.preventDefault();
+				navigate(href, href);
+			}}
+			className={`block border border-arch-border border-l-2 bg-[rgba(11,26,43,0.7)] p-3 transition-all hover:border-arch-cyan hover:bg-[rgba(20,50,58,0.95)] hover:shadow-[0_0_12px_var(--color-arch-cyan-faint)] ${flashing ? "arch-animated" : ""}`}
+			style={{
+				borderLeftColor: accent,
+				animation: flashing ? "navFlash 0.3s steps(1) 1" : "none",
+			}}
 		>
 			{note.status ? (
 				<div className="mb-[5px]">

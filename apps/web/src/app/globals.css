@@ -264,16 +264,15 @@
 	}
 }
 
-/* Stack View に新しいカラムが加わった時の登場演出（右から出てくる、spec SC-004 §4.3 v1.9）。
-   カラムは slug をキーに1回だけマウントされるため、既存カラムの再レンダーでは再生されない。 */
-@keyframes stackColumnIn {
+/* Stack View で新しいカラムが加わり、既存カラムがアクティブ幅→非アクティブ幅へ縮む演出
+   （spec SC-004 §4.3 v1.11）。`/garden/[slug]` はルート遷移のたびページ全体が再マウントされる
+   （`transition` は直前の状態を持たないカラムには効かない）ため、`animation` の `from` にのみ
+   「かつてアクティブだった時の幅」を固定値で与え、`to` を明示しないことで実際の flex-basis
+   （下敷きのスタイルシート値）へ暗黙的に解決させ、疑似的に「縮む」動きにする。
+   フェード（opacity）は使わない＝ページ全体がふわっと消える見え方を避けるため。 */
+@keyframes stackColumnShrink {
 	from {
-		opacity: 0;
-		transform: translateX(24px);
-	}
-	to {
-		opacity: 1;
-		transform: translateX(0);
+		flex-basis: 380px;
 	}
 }
 

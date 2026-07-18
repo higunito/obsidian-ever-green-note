@@ -3,6 +3,7 @@
 import { Badge } from "@web/components/notes";
 import type { GardenFilters } from "@web/lib/garden-filters";
 import { gardenFilterMatchesNode } from "@web/lib/garden-filters";
+import { useFlashNavigate } from "@web/lib/use-flash-navigate";
 import { C, font, statusColor } from "@web/styles/tokens";
 import type {
 	Article,
@@ -12,7 +13,6 @@ import type {
 	GraphTopic,
 } from "@web/types/content";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 interface InvestigationMapProps {
@@ -67,8 +67,10 @@ function dedupeNoteEdges(edges: readonly GraphEdge[]): GraphEdge[] {
 	return result;
 }
 
+// cursor-pointer は明示必須：コンテナ側が cursor:grab/grabbing を指定しており、
+// これは inherit されるためボタン側で上書きしないと指カーソルにならない。
 const zoomButtonClass =
-	"flex h-7 w-7 items-center justify-center border border-arch-border bg-arch-panel-dark font-mon text-sm text-arch-cyan";
+	"flex h-7 w-7 cursor-pointer items-center justify-center border border-arch-border bg-arch-panel-dark font-mon text-sm text-arch-cyan";
 
 interface PendingNavigation {
 	href: string;
@@ -83,10 +85,13 @@ function NavigateConfirmDialog({
 	pending,
 	onConfirm,
 	onCancel,
+	confirmFlashing,
 }: {
 	pending: PendingNavigation;
 	onConfirm: () => void;
 	onCancel: () => void;
+	/** 「移動する」押下後のビビビ点滅演出中か（useFlashNavigate、v1.12）。 */
+	confirmFlashing: boolean;
 }) {
 	return (
 		// 地図側のパン操作（コンテナの onPointerDown/Move/Up）へイベントが伝播すると、
@@ -134,17 +139,20 @@ function NavigateConfirmDialog({
 						<button
 							type="button"
 							onClick={onCancel}
-							className="border border-arch-border px-3 py-1.5 font-dot text-[11px] text-arch-muted"
+							className="cursor-pointer border border-arch-border px-3 py-1.5 font-dot text-[11px] text-arch-muted"
 						>
 							キャンセル
 						</button>
 						<button
 							type="button"
 							onClick={onConfirm}
-							className="border-2 px-3 py-1.5 font-dot text-[11px] text-arch-cyan"
+							className={`cursor-pointer border-2 px-3 py-1.5 font-dot text-[11px] text-arch-cyan ${confirmFlashing ? "arch-animated" : ""}`}
 							style={{
 								borderColor: C.cyan,
 								boxShadow: `inset 1px 1px 0 ${C.borderHi}, inset -1px -1px 0 ${C.borderSh}`,
+								animation: confirmFlashing
+									? "navFlash 0.3s steps(1) 1"
+									: "none",
 							}}
 						>
 							移動する
@@ -166,7 +174,8 @@ export function InvestigationMap({
 	articles,
 	filters,
 }: InvestigationMapProps) {
-	const router = useRouter();
+	const { flashingKey: navFlashingKey, navigate: navigateWithFlash } =
+		useFlashNavigate();
 	const containerRef = useRef<HTMLDivElement>(null);
 	const pointers = useRef(new Map<number, { x: number; y: number }>());
 	const dragStart = useRef<{
@@ -590,7 +599,14 @@ export function InvestigationMap({
 				</div>
 			) : null}
 
-			<div className="absolute right-4 bottom-4 z-10 flex flex-col gap-1">
+			{/* コンテナの onPointerDown/Move/Up（地図のパン操作）へイベントが伝播すると、
+			 * ボタンクリックがドラッグ開始と競合して効かなくなるため止める（NavigateConfirmDialog と同様）。 */}
+			<div
+				className="absolute right-4 bottom-4 z-10 flex flex-col gap-1"
+				onPointerDown={(e) => e.stopPropagation()}
+				onPointerMove={(e) => e.stopPropagation()}
+				onPointerUp={(e) => e.stopPropagation()}
+			>
 				<button
 					type="button"
 					onClick={() => setZoom((z) => clampZoom(z + ZOOM_STEP))}
@@ -628,10 +644,8 @@ export function InvestigationMap({
 				<NavigateConfirmDialog
 					pending={pendingNav}
 					onCancel={() => setPendingNav(null)}
-					onConfirm={() => {
-						router.push(pendingNav.href);
-						setPendingNav(null);
-					}}
+					onConfirm={() => navigateWithFlash(pendingNav.href, pendingNav.href)}
+					confirmFlashing={navFlashingKey === pendingNav.href}
 				/>
 			) : null}
 		</div>
