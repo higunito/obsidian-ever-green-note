@@ -31,7 +31,8 @@ yarn-error.log*
 # local env files
 .env*.local
 .env
-apps/web/.env*
+apps/web/.env
+apps/web/.env.local
 
 # generated content
 content/
