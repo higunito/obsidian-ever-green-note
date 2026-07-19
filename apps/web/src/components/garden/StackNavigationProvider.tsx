@@ -59,7 +59,7 @@ export function StackNavigationProvider({
 
 	const goBack = useCallback(() => {
 		const next = goBackPure(state);
-		router.push(next ? buildGardenHref(next) : "/");
+		router.push(next ? buildGardenHref(next) : "/home");
 	}, [state, router]);
 
 	const value = useMemo(() => ({ state, open, goBack }), [state, open, goBack]);

@@ -18,6 +18,9 @@ const ITEMS = ["タイトルを見る", "アニメーション低減"] as const;
  * SSR とクライアント初期表示のずれを避けるため、マウント前はチェック状態を未確定（false）で表示する
  * （layout.tsx の beforeInteractive スクリプトが実際の演出停止自体は先に反映済みのため、
  * この表示ラグは演出のちらつきには影響しない）。
+ * 十字キー操作（spec SC-011 §11.4）は呼び出し側（`app/config/page.tsx`）の `SpatialNavRegion` が担う。
+ * `CommandMenu` 自体の ▶ カーソルはマウスホバーのみで動く（キーボード選択時は
+ * `data-roving-selected` の枠線表示に委ねる）。
  */
 export function ConfigPanel() {
 	const router = useRouter();

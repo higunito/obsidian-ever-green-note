@@ -1,5 +1,11 @@
 import { SearchPanel } from "@web/components/search";
-import { Footer, Nav, NavBack } from "@web/components/system";
+import {
+	Footer,
+	KeyboardBack,
+	Nav,
+	NavBack,
+	SpatialNavRegion,
+} from "@web/components/system";
 import { getContentStore } from "@web/lib/content";
 
 interface SearchPageProps {
@@ -18,18 +24,22 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 
 	return (
 		<>
+			<KeyboardBack href="/home" />
 			{/* main の幅は他の Nav 設置ページと統一する（Nav の折り返しを避けるため）。
 			    検索パネルは読みやすさのため内側の div で従来通り max-w-3xl に絞る。 */}
 			<main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 p-5">
-				<div className="flex flex-wrap items-center gap-3">
-					<NavBack label="◀ HOME" href="/home" />
-					<h1 className="font-dot text-sm text-arch-text">SEARCH / 検索</h1>
-				</div>
-				<Nav />
+				{/* 十字キーの対象（spec SC-010 §10.4）：Nav/NavBack・検索結果一覧。 */}
+				<SpatialNavRegion className="flex flex-1 flex-col gap-4">
+					<div className="flex flex-wrap items-center gap-3">
+						<NavBack label="◀ HOME" href="/home" />
+						<h1 className="font-dot text-sm text-arch-text">SEARCH / 検索</h1>
+					</div>
+					<Nav />
 
-				<div className="mx-auto w-full max-w-3xl">
-					<SearchPanel items={items} initialQuery={q ?? ""} />
-				</div>
+					<div className="mx-auto w-full max-w-3xl">
+						<SearchPanel items={items} initialQuery={q ?? ""} />
+					</div>
+				</SpatialNavRegion>
 			</main>
 			<Footer />
 		</>

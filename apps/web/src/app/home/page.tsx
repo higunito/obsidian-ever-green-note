@@ -1,6 +1,13 @@
 import { SelectEntryPanel, ThreeDoorsPanel } from "@web/components/home";
 import { NoteCard } from "@web/components/notes";
-import { Footer, Nav, NavBack, Window } from "@web/components/system";
+import {
+	Footer,
+	KeyboardBack,
+	Nav,
+	NavBack,
+	SpatialNavRegion,
+	Window,
+} from "@web/components/system";
 import { getContentStore } from "@web/lib/content";
 import {
 	dailySeed,
@@ -55,17 +62,23 @@ export default async function HomePage() {
 
 	return (
 		<>
+			<KeyboardBack href="/" />
 			<main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 p-5">
-				<div className="flex flex-wrap items-center gap-3">
-					<NavBack label="◀ TITLE" href="/" />
-					<h1 className="font-dot text-sm text-arch-text">MAIN MENU / Home</h1>
-				</div>
-				<Nav />
+				{/* 十字キーの対象（spec SC-001 §1.4）：Nav/NavBack・SELECT ENTRY タブ・選択中パネルの内容。 */}
+				<SpatialNavRegion className="flex flex-1 flex-col gap-4">
+					<div className="flex flex-wrap items-center gap-3">
+						<NavBack label="◀ TITLE" href="/" />
+						<h1 className="font-dot text-sm text-arch-text">
+							MAIN MENU / Home
+						</h1>
+					</div>
+					<Nav />
 
-				<SelectEntryPanel
-					fragmentsContent={fragmentsContent}
-					threeDoorsContent={threeDoorsContent}
-				/>
+					<SelectEntryPanel
+						fragmentsContent={fragmentsContent}
+						threeDoorsContent={threeDoorsContent}
+					/>
+				</SpatialNavRegion>
 			</main>
 			<Footer />
 		</>

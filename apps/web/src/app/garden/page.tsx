@@ -1,6 +1,12 @@
 import { InvestigationMap, LensFilter } from "@web/components/garden";
 import { NoteCard } from "@web/components/notes";
-import { Footer, Nav, NavBack } from "@web/components/system";
+import {
+	Footer,
+	KeyboardBack,
+	Nav,
+	NavBack,
+	SpatialNavRegion,
+} from "@web/components/system";
 import { getContentStore } from "@web/lib/content";
 import {
 	applyGardenFilters,
@@ -70,52 +76,64 @@ export default async function GardenIndexPage({
 
 	return (
 		<>
+			{/* Map View（InvestigationMap）は自前で B ボタン（確認モーダルの取り消し優先）を持つため、
+			    Index View のときだけここで既定の B ボタンを有効にする（spec SC-002 §2.4）。 */}
+			{view !== "map" ? <KeyboardBack href="/home" /> : null}
 			<main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 p-5">
-				<div className="flex flex-wrap items-center gap-3">
-					<NavBack label="◀ HOME" href="/home" />
-					<h1 className="font-dot text-sm text-arch-text">
-						FRAGMENTS / Garden
-					</h1>
-					<div className="ml-auto flex gap-3">
-						<Link
-							href={buildGardenIndexHref({ view: "index", filters })}
-							className={viewTabClass(view === "index")}
-						>
-							INDEX
-						</Link>
-						<Link
-							href={buildGardenIndexHref({ view: "map", filters })}
-							className={viewTabClass(view === "map")}
-						>
-							MAP
-						</Link>
+				{/* 十字キーの対象（spec SC-002 §2.4）：View 切替・Lens フィルタ・NoteCard グリッド。
+				    Map View 中は無効化し、InvestigationMap 自身のセレクタ型 UI に委ねる（design §9.6.2）。 */}
+				<SpatialNavRegion
+					className="flex flex-1 flex-col gap-4"
+					enabled={view !== "map"}
+				>
+					<div className="flex flex-wrap items-center gap-3">
+						<NavBack label="◀ HOME" href="/home" />
+						<h1 className="font-dot text-sm text-arch-text">
+							FRAGMENTS / Garden
+						</h1>
+						<div className="ml-auto flex gap-3">
+							<Link
+								href={buildGardenIndexHref({ view: "index", filters })}
+								className={viewTabClass(view === "index")}
+							>
+								INDEX
+							</Link>
+							<Link
+								href={buildGardenIndexHref({ view: "map", filters })}
+								className={viewTabClass(view === "map")}
+							>
+								MAP
+							</Link>
+						</div>
 					</div>
-				</div>
-				<Nav />
+					<Nav />
 
-				<Suspense fallback={null}>
-					<LensFilter topics={allTopics} />
-				</Suspense>
+					<Suspense fallback={null}>
+						<LensFilter topics={allTopics} />
+					</Suspense>
 
-				{view === "map" ? (
-					visibleMapNodeCount === 0 ? (
+					{view === "map" ? (
+						visibleMapNodeCount === 0 ? (
+							<EmptyState
+								clearHref={isFiltered ? clearFiltersHref : undefined}
+							/>
+						) : (
+							<InvestigationMap
+								graph={graph}
+								articles={gardenArticles}
+								filters={filters}
+							/>
+						)
+					) : filtered.length === 0 ? (
 						<EmptyState clearHref={isFiltered ? clearFiltersHref : undefined} />
 					) : (
-						<InvestigationMap
-							graph={graph}
-							articles={gardenArticles}
-							filters={filters}
-						/>
-					)
-				) : filtered.length === 0 ? (
-					<EmptyState clearHref={isFiltered ? clearFiltersHref : undefined} />
-				) : (
-					<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-						{filtered.map((note) => (
-							<NoteCard key={note.slug} note={note} />
-						))}
-					</div>
-				)}
+						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+							{filtered.map((note) => (
+								<NoteCard key={note.slug} note={note} />
+							))}
+						</div>
+					)}
+				</SpatialNavRegion>
 			</main>
 			<Footer />
 		</>

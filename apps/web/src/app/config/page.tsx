@@ -1,5 +1,12 @@
 import { ConfigPanel } from "@web/components/config";
-import { Footer, Nav, NavBack, Window } from "@web/components/system";
+import {
+	Footer,
+	KeyboardBack,
+	Nav,
+	NavBack,
+	SpatialNavRegion,
+	Window,
+} from "@web/components/system";
 
 /**
  * SC-011 Config（design §11.2/§11.3、spec SC-011、F-CFG-001/F-NAV-002）。
@@ -7,22 +14,26 @@ import { Footer, Nav, NavBack, Window } from "@web/components/system";
 export default function ConfigPage() {
 	return (
 		<>
+			<KeyboardBack href="/home" />
 			{/* main の幅は他の Nav 設置ページ（/garden 等）と完全に揃える（spec SC-011 §11.2）。
 			    CONFIG ウィンドウは mx-auto で中央寄せしつつ、他画面と同じ幅の中で大きく表示する。 */}
 			<main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 p-5">
-				<div className="flex flex-wrap items-center gap-3">
-					<NavBack label="◀ HOME" href="/home" />
-					<h1 className="font-dot text-sm text-arch-text">CONFIG</h1>
-				</div>
-				<Nav />
+				{/* 十字キーの対象（spec SC-011 §11.4）：Nav/NavBack・設定項目一覧。 */}
+				<SpatialNavRegion className="flex flex-1 flex-col gap-4">
+					<div className="flex flex-wrap items-center gap-3">
+						<NavBack label="◀ HOME" href="/home" />
+						<h1 className="font-dot text-sm text-arch-text">CONFIG</h1>
+					</div>
+					<Nav />
 
-				<div className="mx-auto w-full max-w-xl">
-					<Window title="CONFIG">
-						<div className="p-2">
-							<ConfigPanel />
-						</div>
-					</Window>
-				</div>
+					<div className="mx-auto w-full max-w-xl">
+						<Window title="CONFIG">
+							<div className="p-2">
+								<ConfigPanel />
+							</div>
+						</Window>
+					</div>
+				</SpatialNavRegion>
 			</main>
 			<Footer />
 		</>

@@ -1,9 +1,12 @@
 "use client";
 
 import { Badge } from "@web/components/notes";
+import { SpatialNavRegion } from "@web/components/system";
 import type { GardenFilters } from "@web/lib/garden-filters";
 import { gardenFilterMatchesNode } from "@web/lib/garden-filters";
+import { useBackButton } from "@web/lib/use-back-button";
 import { useFlashNavigate } from "@web/lib/use-flash-navigate";
+import { useSpatialNavigation } from "@web/lib/use-spatial-navigation";
 import { C, font, statusColor } from "@web/styles/tokens";
 import type {
 	Article,
@@ -13,7 +16,14 @@ import type {
 	GraphTopic,
 } from "@web/types/content";
 import Link from "next/link";
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+	useCallback,
+	useEffect,
+	useLayoutEffect,
+	useMemo,
+	useRef,
+	useState,
+} from "react";
 
 interface InvestigationMapProps {
 	graph: Graph;
@@ -135,7 +145,8 @@ function NavigateConfirmDialog({
 					<p className="font-min text-[13px] text-arch-text">
 						「{pending.title}」へ移動する
 					</p>
-					<div className="mt-4 flex justify-end gap-2">
+					{/* 十字キーの対象（spec SC-003 §3.3）：モーダル表示中はこの 2 ボタンのみ。 */}
+					<SpatialNavRegion className="mt-4 flex justify-end gap-2">
 						<button
 							type="button"
 							onClick={onCancel}
@@ -157,7 +168,7 @@ function NavigateConfirmDialog({
 						>
 							移動する
 						</button>
-					</div>
+					</SpatialNavRegion>
 				</div>
 			</div>
 		</div>
@@ -193,6 +204,18 @@ export function InvestigationMap({
 	const [hoverId, setHoverId] = useState<string | null>(null);
 	const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
 	const [pendingNav, setPendingNav] = useState<PendingNavigation | null>(null);
+
+	// 十字キーの対象（spec SC-003 §3.3）：マップノード・ズームコントロール。モーダル表示中は無効化し
+	// `NavigateConfirmDialog` 側の `SpatialNavRegion` に委ねる（design §9.6.2）。
+	useSpatialNavigation({ containerRef, enabled: pendingNav === null });
+
+	// B ボタン（design §9.6.3）：モーダル表示中はまずモーダルを閉じる。閉じていれば既定の SC-001 へ。
+	const closeModalBeforeBack = useCallback(() => {
+		if (pendingNav === null) return false;
+		setPendingNav(null);
+		return true;
+	}, [pendingNav]);
+	useBackButton("/home", { onBeforeBack: closeModalBeforeBack });
 
 	const nodesById = useMemo(
 		() => new Map<string, GraphNode>(graph.nodes.map((n) => [n.id, n])),

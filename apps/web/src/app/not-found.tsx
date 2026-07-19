@@ -1,4 +1,10 @@
-import { Footer, NavBack, Window } from "@web/components/system";
+import {
+	Footer,
+	KeyboardBack,
+	NavBack,
+	SpatialNavRegion,
+	Window,
+} from "@web/components/system";
 import { C, font } from "@web/styles/tokens";
 
 /**
@@ -9,6 +15,7 @@ import { C, font } from "@web/styles/tokens";
 export default function NotFound() {
 	return (
 		<>
+			<KeyboardBack href="/home" />
 			<main className="mx-auto flex w-full max-w-md flex-1 flex-col items-center justify-center gap-4 p-5">
 				<Window title="SYSTEM ERROR" className="w-full">
 					<div className="flex flex-col items-center gap-3 p-6 text-center">
@@ -22,10 +29,11 @@ export default function NotFound() {
 						>
 							記録が見つかりません。指定されたページは存在しないか、非公開です。
 						</p>
-						<div className="mt-2 flex gap-5">
+						{/* 十字キーの対象（spec SC-012 §12.4）：この 2 項目のみ。 */}
+						<SpatialNavRegion className="mt-2 flex gap-5">
 							<NavBack label="◀ HOME" href="/home" />
 							<NavBack label="SEARCH ▶" href="/search" />
-						</div>
+						</SpatialNavRegion>
 					</div>
 				</Window>
 			</main>

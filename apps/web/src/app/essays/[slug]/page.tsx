@@ -1,5 +1,10 @@
 import { NoteBody, Tag } from "@web/components/notes";
-import { Footer, NavBack } from "@web/components/system";
+import {
+	Footer,
+	KeyboardBack,
+	NavBack,
+	SpatialNavRegion,
+} from "@web/components/system";
 import { getContentStore } from "@web/lib/content";
 import { internalHref } from "@web/lib/wikilink";
 import type { ArticleLayer } from "@web/types/content";
@@ -69,28 +74,31 @@ export default async function EssayDetailPage({
 
 	return (
 		<>
+			<KeyboardBack href="/essays" />
 			{/* 本文幅は可読行長（65〜75字相当）で固定（spec SC-006 §6.2）。640px は
 			    Noto Serif JP・本アプリの本文サイズでの実測目安（数値の根拠は spec に無いため実装時に決定）。 */}
 			<main className="mx-auto flex w-full max-w-[640px] flex-1 flex-col gap-6 p-5 pt-8">
-				<NavBack label="◀ ARTICLE" href="/essays" />
+				{/* 十字キーの対象（spec SC-006 §6.3）：NavBack・本文中の [[link]]・Backlinks / 関連ノート。 */}
+				<SpatialNavRegion className="flex flex-col gap-6">
+					<NavBack label="◀ ARTICLE" href="/essays" />
 
-				<header className="flex flex-col gap-2">
-					<h1 className="font-dot text-base leading-relaxed text-arch-text sm:text-lg">
-						{essay.title}
-					</h1>
-					<div className="flex flex-wrap items-center gap-1.5">
-						{essay.topics.map((topic) => (
-							<Tag key={topic} label={topic} />
-						))}
-						<span className="ml-auto font-mon text-[9px] text-arch-muted">
-							updated {essay.updated}
-						</span>
-					</div>
-				</header>
+					<header className="flex flex-col gap-2">
+						<h1 className="font-dot text-base leading-relaxed text-arch-text sm:text-lg">
+							{essay.title}
+						</h1>
+						<div className="flex flex-wrap items-center gap-1.5">
+							{essay.topics.map((topic) => (
+								<Tag key={topic} label={topic} />
+							))}
+							<span className="ml-auto font-mon text-[9px] text-arch-muted">
+								updated {essay.updated}
+							</span>
+						</div>
+					</header>
 
-				<NoteBody html={essay.bodyHtml} className="text-[15px]" />
-
-				<EssayRelatedNotes notes={relatedNotes} />
+					<NoteBody html={essay.bodyHtml} className="text-[15px]" />
+					<EssayRelatedNotes notes={relatedNotes} />
+				</SpatialNavRegion>
 			</main>
 			<Footer />
 		</>

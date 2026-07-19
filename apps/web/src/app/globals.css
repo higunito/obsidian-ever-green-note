@@ -337,6 +337,14 @@
 	animation: none !important;
 }
 
+/* セレクタ型 UI の仮想カーソル（design §9.6.2、`lib/use-spatial-navigation.ts` が付与）。
+   実 DOM フォーカス（ブラウザ既定の outline）とは別の視覚表現として独立させる。 */
+[data-roving-selected="true"] {
+	outline: 2px solid var(--color-arch-cyan);
+	outline-offset: 2px;
+	box-shadow: 0 0 10px var(--color-arch-cyan-dim);
+}
+
 /* 90年代風スクロールバー（幅広・ソリッドカラー、§10.2 v1.8）。 */
 ::-webkit-scrollbar {
 	width: 10px;

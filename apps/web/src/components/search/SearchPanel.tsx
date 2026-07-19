@@ -52,6 +52,8 @@ export function SearchPanel({ items, initialQuery }: SearchPanelProps) {
 	}, [query]);
 
 	return (
+		// 十字キーの対象（親の SpatialNavRegion に含まれる。spec SC-010 §10.4）：検索結果一覧・
+		// 人気トピック。入力欄フォーカス中は矢印キーの横取りをしない（design §9.6.2）。
 		<div className="flex flex-col gap-4">
 			<label className="flex items-center gap-2 border border-arch-border bg-arch-panel px-3 py-2 font-mon text-sm text-arch-text focus-within:border-arch-cyan">
 				<span className="text-arch-cyan">SEARCH &gt;_</span>

@@ -1,5 +1,11 @@
 import { EssayCard } from "@web/components/cards";
-import { Footer, Nav, NavBack } from "@web/components/system";
+import {
+	Footer,
+	KeyboardBack,
+	Nav,
+	NavBack,
+	SpatialNavRegion,
+} from "@web/components/system";
 import { getContentStore } from "@web/lib/content";
 import Link from "next/link";
 
@@ -42,50 +48,58 @@ export default async function EssaysPage({ searchParams }: EssaysPageProps) {
 
 	return (
 		<>
+			<KeyboardBack href="/home" />
 			<main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 p-5">
-				<div className="flex flex-wrap items-center gap-3">
-					<NavBack label="◀ HOME" href="/home" />
-					<h1 className="font-dot text-sm text-arch-text">ARTICLE / Essays</h1>
-				</div>
-				<Nav />
+				{/* 十字キーの対象（spec SC-005 §5.3）：topic フィルタ・EssayCard グリッド。 */}
+				<SpatialNavRegion className="flex flex-1 flex-col gap-4">
+					<div className="flex flex-wrap items-center gap-3">
+						<NavBack label="◀ HOME" href="/home" />
+						<h1 className="font-dot text-sm text-arch-text">
+							ARTICLE / Essays
+						</h1>
+					</div>
+					<Nav />
 
-				{allTopics.length > 0 ? (
-					<div className="flex flex-wrap items-center gap-1.5">
-						<span className="font-mon text-[9px] text-arch-muted">TOPIC:</span>
-						<Link href="/essays" className={topicPillClass(!selectedTopic)}>
-							すべて
-						</Link>
-						{allTopics.map((topic) => (
-							<Link
-								key={topic}
-								href={`/essays?topic=${encodeURIComponent(topic)}`}
-								className={topicPillClass(selectedTopic === topic)}
-							>
-								{topic}
+					{allTopics.length > 0 ? (
+						<div className="flex flex-wrap items-center gap-1.5">
+							<span className="font-mon text-[9px] text-arch-muted">
+								TOPIC:
+							</span>
+							<Link href="/essays" className={topicPillClass(!selectedTopic)}>
+								すべて
 							</Link>
-						))}
-					</div>
-				) : null}
+							{allTopics.map((topic) => (
+								<Link
+									key={topic}
+									href={`/essays?topic=${encodeURIComponent(topic)}`}
+									className={topicPillClass(selectedTopic === topic)}
+								>
+									{topic}
+								</Link>
+							))}
+						</div>
+					) : null}
 
-				{filtered.length === 0 ? (
-					<div className="p-8 text-center font-min text-[13px] text-arch-muted">
-						<p>まだ記事がありません</p>
-						{selectedTopic ? (
-							<Link
-								href="/essays"
-								className="mt-2 inline-block font-mon text-[10px] text-arch-cyan underline"
-							>
-								フィルタを解除
-							</Link>
-						) : null}
-					</div>
-				) : (
-					<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-						{filtered.map((essay) => (
-							<EssayCard key={essay.slug} essay={essay} />
-						))}
-					</div>
-				)}
+					{filtered.length === 0 ? (
+						<div className="p-8 text-center font-min text-[13px] text-arch-muted">
+							<p>まだ記事がありません</p>
+							{selectedTopic ? (
+								<Link
+									href="/essays"
+									className="mt-2 inline-block font-mon text-[10px] text-arch-cyan underline"
+								>
+									フィルタを解除
+								</Link>
+							) : null}
+						</div>
+					) : (
+						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
+							{filtered.map((essay) => (
+								<EssayCard key={essay.slug} essay={essay} />
+							))}
+						</div>
+					)}
+				</SpatialNavRegion>
 			</main>
 			<Footer />
 		</>
