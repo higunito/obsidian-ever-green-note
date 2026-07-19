@@ -25,7 +25,11 @@ pnpm -w lint               # Biome（lint + format）
 | 変数 | 用途 |
 | --- | --- |
 | `CONTENT_BASE_URL` | 中間ストア（R2）の公開ベース URL。未設定なら fixtures を使う |
-| `REVALIDATE_SECRET` | `/api/revalidate` の共有シークレット認証（Phase 10 で使用） |
+| `REVALIDATE_SECRET` | `/api/revalidate` の共有シークレット認証 |
+
+## コンテンツ同期（Content CI → R2 → revalidate）
+
+Content 側（Obsidian Vault リポジトリ）の GitHub Actions が R2 へアップロード後、[`src/app/api/revalidate/route.ts`](./src/app/api/revalidate/route.ts) に `POST` する（`Authorization: Bearer <REVALIDATE_SECRET>`）。認証成功で `revalidateTag('content', 'max')` を実行し、次リクエストから最新の JSON を反映する（design §6.3）。ワークフロー本体は Content 側リポジトリに配置するため本リポジトリには存在しない（ドラフトと R2 セットアップ手順は `tmp/v1-first/content-ci-workflow-draft.yml` / `tmp/v1-first/phase10-r2-setup.md`）。
 
 ## デザイントークン
 
