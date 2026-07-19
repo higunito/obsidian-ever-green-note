@@ -83,9 +83,7 @@ function OthersPanel({
 const OTHERS_ITEMS = [
 	{ gameName: "MAP", href: "/garden?view=map" },
 	{ gameName: "ROUTE", href: "/paths" },
-	{ gameName: "INFLUENCE", href: "/collections" },
-	{ gameName: "PROJECTS", href: "/projects" },
-	{ gameName: "PROFILE", href: "/about" },
+	{ gameName: "ABOUT", href: "/about" },
 	{ gameName: "SEARCH", href: "/search" },
 ] as const;
 

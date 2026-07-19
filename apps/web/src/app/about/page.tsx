@@ -1,15 +1,14 @@
 import { NoteBody, Tag } from "@web/components/notes";
 import { Footer, Nav, NavBack } from "@web/components/system";
-import { getContentStore } from "@web/lib/content";
+import { ABOUT_CONTENT } from "@web/lib/about-content";
 
 /**
- * SC-011 About（design §4.6、spec SC-011）。`pages.json.about`（＝Vault `Fleeting/about.md`）から生成する
- * プロフィール固定ページ。趣旨・世界観・外部リンクは Vault 側の本文（bodyHtml）に含める運用とし、
- * このページ自体は枠組みのみを提供する（design §4.6「About/Paths もすべて Vault から生成」）。
+ * SC-009 About（design §4.6、spec SC-009）。プロフィール固定ページ。
+ * 2026-07-19 より Vault 生成（`pages.json.about`）をやめ、`lib/about-content.ts` の
+ * 静的コンテンツを直接表示する方式に変更した（design §4.6「About はアプリ管理コンテンツ」）。
  */
-export default async function AboutPage() {
-	const store = getContentStore();
-	const { about } = await store.getPages();
+export default function AboutPage() {
+	const about = ABOUT_CONTENT;
 
 	return (
 		<>
@@ -18,7 +17,7 @@ export default async function AboutPage() {
 			<main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 p-5">
 				<div className="flex flex-wrap items-center gap-3">
 					<NavBack label="◀ HOME" href="/home" />
-					<h1 className="font-dot text-sm text-arch-text">PROFILE / About</h1>
+					<h1 className="font-dot text-sm text-arch-text">ABOUT / About</h1>
 				</div>
 				<Nav />
 

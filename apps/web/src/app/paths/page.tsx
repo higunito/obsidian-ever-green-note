@@ -3,7 +3,7 @@ import { Footer, Nav, NavBack } from "@web/components/system";
 import { getContentStore } from "@web/lib/content";
 
 /**
- * SC-009 Paths 一覧（design §4.6 / §5.3、spec SC-009）。`paths.json`（`tags:[moc]` 由来）から
+ * SC-007 Paths 一覧（design §4.6 / §5.3、spec SC-007）。`paths.json`（`tags:[moc]` 由来）から
  * `PathCard` 一覧を表示する。
  */
 export default async function PathsPage() {

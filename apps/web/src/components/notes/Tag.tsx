@@ -3,7 +3,7 @@ interface TagProps {
 }
 
 /**
- * トピック/技術タグ（design §9.2、figma `Tag` を正準）。NoteCard 等の topics と ProjectCard の技術タグで共用する。
+ * トピック/技術タグ（design §9.2、figma `Tag` を正準）。NoteCard 等の topics 表示で使う。
  */
 export function Tag({ label }: TagProps) {
 	return (

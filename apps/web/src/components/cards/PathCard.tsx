@@ -7,7 +7,7 @@ interface PathCardProps {
 }
 
 /**
- * Paths 一覧カード（spec SC-009）。design §9.3 は個別コンポーネントとして列挙していないが、
+ * Paths 一覧カード（spec SC-007）。design §9.3 は個別コンポーネントとして列挙していないが、
  * 他カード（EssayCard 等）と同じ見た目に揃えるため実装時に追加した（`.claude/rules/coding.md`
  * の既存スタイル踏襲方針に準拠）。title/概要/含まれるノート数/代表 topics。
  */

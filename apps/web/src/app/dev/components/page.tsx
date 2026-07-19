@@ -1,27 +1,11 @@
-import { CollectionCard, EssayCard, ProjectCard } from "@web/components/cards";
+import { EssayCard } from "@web/components/cards";
 import type { DoorItem } from "@web/components/doors";
 import { Badge, NoteBody, NoteCard, Tag } from "@web/components/notes";
 import { Window } from "@web/components/system";
 import { getContentStore } from "@web/lib/content";
-import type { NoteStatus, ProjectItem } from "@web/types/content";
+import type { NoteStatus } from "@web/types/content";
 import { notFound } from "next/navigation";
 import { ThreeDoorsDemo } from "./ThreeDoorsDemo";
-
-const SAMPLE_PROJECTS: readonly ProjectItem[] = [
-	{
-		slug: "sample-project",
-		title: "サンプルプロジェクト",
-		summary: "Projects/ が実装されるまでのプレースホルダー表示確認用データ。",
-		tags: ["TypeScript", "Next.js"],
-		url: "https://example.com/sample-project",
-	},
-	{
-		slug: "sample-project-no-link",
-		title: "リンクなしプロジェクト",
-		summary: "external url が無いケースの表示確認用。",
-		tags: ["Rust"],
-	},
-];
 
 const ALL_STATUSES: readonly NoteStatus[] = ["seed", "growing", "evergreen"];
 
@@ -35,10 +19,7 @@ export default async function ComponentCatalogPage() {
 	}
 
 	const store = getContentStore();
-	const [articles, collections] = await Promise.all([
-		store.getArticles(),
-		store.getCollections(),
-	]);
+	const articles = await store.getArticles();
 	const gardenNotes = articles.filter((a) => a.layer === "garden");
 	const essays = articles.filter((a) => a.layer === "essay");
 	const bodySample = gardenNotes.find(
@@ -96,22 +77,6 @@ export default async function ComponentCatalogPage() {
 				<div className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-2">
 					{essays.map((essay) => (
 						<EssayCard key={essay.slug} essay={essay} />
-					))}
-				</div>
-			</Window>
-
-			<Window title="CollectionCard">
-				<div className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-2 lg:grid-cols-4">
-					{collections.items.map((item) => (
-						<CollectionCard key={item.slug} item={item} />
-					))}
-				</div>
-			</Window>
-
-			<Window title="ProjectCard">
-				<div className="grid grid-cols-1 gap-3 p-3 sm:grid-cols-2">
-					{SAMPLE_PROJECTS.map((project) => (
-						<ProjectCard key={project.slug} project={project} />
 					))}
 				</div>
 			</Window>

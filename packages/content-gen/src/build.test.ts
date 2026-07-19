@@ -1,9 +1,7 @@
 import { fileURLToPath } from "node:url";
 import {
 	articlesSchema,
-	collectionsSchema,
 	graphSchema,
-	pagesSchema,
 	pathsSchema,
 	searchIndexSchema,
 } from "content-schema";
@@ -19,8 +17,6 @@ const PRIVATE_MARKERS = [
 	"SECRET_LITERATURE_MARKER",
 	"SECRET_DRAFT_MARKER",
 	"UNPUBLISHED_ESSAY_MARKER",
-	"UNPUBLISHED_ALBUM_MARKER",
-	"MALFORMED_ITEM_MARKER",
 	"source_ref",
 	"Literature/",
 	"Memo/",
@@ -29,13 +25,11 @@ const PRIVATE_MARKERS = [
 describe("generateContent（fixture vault）", () => {
 	const result = generateContent(FIXTURE_VAULT);
 
-	it("全 6 出力が content-schema の zod スキーマを通過する", () => {
+	it("全 4 出力が content-schema の zod スキーマを通過する", () => {
 		expect(articlesSchema.safeParse(result.articles).success).toBe(true);
 		expect(graphSchema.safeParse(result.graph).success).toBe(true);
 		expect(searchIndexSchema.safeParse(result.searchIndex).success).toBe(true);
-		expect(collectionsSchema.safeParse(result.collections).success).toBe(true);
 		expect(pathsSchema.safeParse(result.paths).success).toBe(true);
-		expect(pagesSchema.safeParse(result.pages).success).toBe(true);
 	});
 
 	it("非公開ノート・非公開ゾーンの内容がどの出力にも一切含まれない", () => {
@@ -152,21 +146,6 @@ describe("generateContent（fixture vault）", () => {
 	it("paths.topics は MOC 自身の空 topics ではなく steps の topics の和集合になる", () => {
 		const path = result.paths[0];
 		expect(path.topics).toEqual(["美学", "物語論"]);
-	});
-
-	it("pages.about は Fleeting/about.md から生成される", () => {
-		expect(result.pages.about.bodyHtml).toContain("思考アーカイブ");
-	});
-
-	it("collections は publish:true かつ必須項目が揃ったアイテムだけを含む", () => {
-		expect(result.collections.items).toHaveLength(1);
-		expect(result.collections.items[0].slug).toBe("book-invisible-cities");
-	});
-
-	it("collections アイテムは source_ref フィールドを一切持たない（構造的サニタイズ）", () => {
-		for (const item of result.collections.items) {
-			expect(Object.hasOwn(item, "source_ref")).toBe(false);
-		}
 	});
 
 	it("search-index はプレーンテキストのみを持ち wikilink 記法・HTML タグを含まない", () => {

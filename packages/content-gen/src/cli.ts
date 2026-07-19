@@ -2,9 +2,7 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import {
 	articlesSchema,
-	collectionsSchema,
 	graphSchema,
-	pagesSchema,
 	pathsSchema,
 	searchIndexSchema,
 } from "content-schema";
@@ -67,13 +65,7 @@ export function runCli(argv: readonly string[]): void {
 			schema: searchIndexSchema,
 			data: result.searchIndex,
 		},
-		{
-			file: "collections.json",
-			schema: collectionsSchema,
-			data: result.collections,
-		},
 		{ file: "paths.json", schema: pathsSchema, data: result.paths },
-		{ file: "pages.json", schema: pagesSchema, data: result.pages },
 	];
 
 	let hasError = false;

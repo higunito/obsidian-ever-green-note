@@ -13,8 +13,8 @@ import { basenameNoExt, slugify, uniqueSlug } from "./slug.ts";
 import { type FoundFile, scanZone } from "./vault-scan.ts";
 import type { WikilinkResolver } from "./wikilink.ts";
 
-/** Now/About は Fleeting 直下の予約ファイルであり、通常の Garden ノートとしては扱わない（design §4.6）。 */
-const RESERVED_FLEETING_FILES = new Set(["now.md", "about.md"]);
+/** Now は Fleeting 直下の予約ファイルであり、通常の Garden ノートとしては扱わない（v1 スコープ外）。 */
+const RESERVED_FLEETING_FILES = new Set(["now.md"]);
 
 export interface PublishableNote {
 	relPath: string;

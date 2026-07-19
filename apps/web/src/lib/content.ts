@@ -1,23 +1,12 @@
 import "server-only";
-import type {
-	Article,
-	Collections,
-	Graph,
-	Pages,
-	PathItem,
-	SearchIndex,
-} from "@web/types/content";
+import type { Article, Graph, PathItem, SearchIndex } from "@web/types/content";
 import {
 	articlesSchema,
-	collectionsSchema,
 	fixtureArticles,
-	fixtureCollections,
 	fixtureGraph,
-	fixturePages,
 	fixturePaths,
 	fixtureSearchIndex,
 	graphSchema,
-	pagesSchema,
 	pathsSchema,
 	searchIndexSchema,
 } from "content-schema";
@@ -30,10 +19,8 @@ export interface ContentStore {
 	getArticleBySlug(slug: string): Promise<Article | undefined>;
 	getGraph(): Promise<Graph>;
 	getSearchIndex(): Promise<SearchIndex>;
-	getCollections(): Promise<Collections>;
 	getPaths(): Promise<PathItem[]>;
 	getPathBySlug(slug: string): Promise<PathItem | undefined>;
-	getPages(): Promise<Pages>;
 }
 
 /**
@@ -53,17 +40,11 @@ class LocalStore implements ContentStore {
 	async getSearchIndex(): Promise<SearchIndex> {
 		return fixtureSearchIndex;
 	}
-	async getCollections(): Promise<Collections> {
-		return fixtureCollections;
-	}
 	async getPaths(): Promise<PathItem[]> {
 		return fixturePaths;
 	}
 	async getPathBySlug(slug: string): Promise<PathItem | undefined> {
 		return fixturePaths.find((p) => p.slug === slug);
-	}
-	async getPages(): Promise<Pages> {
-		return fixturePages;
 	}
 }
 
@@ -108,17 +89,11 @@ class RemoteStore implements ContentStore {
 	async getSearchIndex(): Promise<SearchIndex> {
 		return this.fetchJson("search-index.json", searchIndexSchema);
 	}
-	async getCollections(): Promise<Collections> {
-		return this.fetchJson("collections.json", collectionsSchema);
-	}
 	async getPaths(): Promise<PathItem[]> {
 		return this.fetchJson("paths.json", pathsSchema);
 	}
 	async getPathBySlug(slug: string): Promise<PathItem | undefined> {
 		return (await this.getPaths()).find((p) => p.slug === slug);
-	}
-	async getPages(): Promise<Pages> {
-		return this.fetchJson("pages.json", pagesSchema);
 	}
 }
 

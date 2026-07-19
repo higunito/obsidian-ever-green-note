@@ -1,15 +1,12 @@
 import type {
 	Article,
-	Collections,
 	Graph,
 	GraphEdge,
 	GraphNode,
 	GraphTopic,
-	Pages,
 	PathItem,
 	SearchIndex,
 } from "content-schema";
-import { loadCollectionItems } from "./collections.ts";
 import {
 	computeNodeBasePosition,
 	computeTopicPositions,
@@ -24,7 +21,6 @@ import {
 	type PublishableNote,
 	renderNoteBodies,
 } from "./notes.ts";
-import { loadPages } from "./pages.ts";
 import {
 	assignPseudoFilenames,
 	type PseudoFileTarget,
@@ -34,9 +30,7 @@ export interface GenerateResult {
 	articles: Article[];
 	graph: Graph;
 	searchIndex: SearchIndex;
-	collections: Collections;
 	paths: PathItem[];
-	pages: Pages;
 }
 
 function bySlug<T extends { slug: string }>(a: T, b: T): number {
@@ -44,7 +38,7 @@ function bySlug<T extends { slug: string }>(a: T, b: T): number {
 }
 
 /**
- * Vault（1 断面）から 6 種類の JSON を決定論的に組み立てる。
+ * Vault（1 断面）から 4 種類の JSON を決定論的に組み立てる。
  * 副作用はここでは行わない（zod 検証・ファイル書き出しは呼び出し側 = cli.ts の責務）。
  */
 export function generateContent(vaultDir: string): GenerateResult {
@@ -76,16 +70,12 @@ export function generateContent(vaultDir: string): GenerateResult {
 	const graph = buildGraph(sortedNotes);
 	const searchIndex = buildSearchIndex(sortedNotes);
 	const paths = buildPaths(sortedNotes);
-	const collectionItems = loadCollectionItems(vaultDir);
-	const pages = loadPages(vaultDir, resolve);
 
 	return {
 		articles,
 		graph,
 		searchIndex,
-		collections: { items: collectionItems },
 		paths,
-		pages,
 	};
 }
 

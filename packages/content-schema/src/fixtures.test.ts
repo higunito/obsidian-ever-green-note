@@ -1,15 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
 	articlesSchema,
-	collectionsSchema,
 	fixtureArticles,
-	fixtureCollections,
 	fixtureGraph,
-	fixturePages,
 	fixturePaths,
 	fixtureSearchIndex,
 	graphSchema,
-	pagesSchema,
 	pathsSchema,
 	searchIndexSchema,
 } from "./index.ts";
@@ -27,16 +23,8 @@ describe("fixtures がスキーマ検証を通過する", () => {
 		expect(searchIndexSchema.safeParse(fixtureSearchIndex).success).toBe(true);
 	});
 
-	it("collections.json", () => {
-		expect(collectionsSchema.safeParse(fixtureCollections).success).toBe(true);
-	});
-
 	it("paths.json", () => {
 		expect(pathsSchema.safeParse(fixturePaths).success).toBe(true);
-	});
-
-	it("pages.json", () => {
-		expect(pagesSchema.safeParse(fixturePages).success).toBe(true);
 	});
 });
 
@@ -121,12 +109,6 @@ describe("fixtures の相互整合性（後続 Phase が前提にする不変条
 		}
 	});
 
-	it("collections.json は非公開参照 source_ref を含まない（サニタイズ契約）", () => {
-		for (const item of fixtureCollections.items) {
-			expect(Object.hasOwn(item, "source_ref")).toBe(false);
-		}
-	});
-
 	it("paths.json の steps は既知の garden slug を順序付きで指す", () => {
 		const gardenSlugs = new Set(
 			fixtureArticles.filter((a) => a.layer === "garden").map((a) => a.slug),
@@ -137,9 +119,5 @@ describe("fixtures の相互整合性（後続 Phase が前提にする不変条
 				expect(gardenSlugs.has(step)).toBe(true);
 			}
 		}
-	});
-
-	it("pages.json の about は bodyHtml を持つ", () => {
-		expect(fixturePages.about.bodyHtml.length).toBeGreaterThan(0);
 	});
 });

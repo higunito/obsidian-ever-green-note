@@ -7,7 +7,7 @@ interface SearchPageProps {
 }
 
 /**
- * SC-012 Search（design §4.4、spec SC-012）。search-index.json はこのページでのみ取得する
+ * SC-010 Search（design §4.4、spec SC-010）。search-index.json はこのページでのみ取得する
  * （design §12.1「必要ページで遅延読み込み」）。実検索・ハイライトは `SearchPanel`（クライアント）に委譲する。
  */
 export default async function SearchPage({ searchParams }: SearchPageProps) {

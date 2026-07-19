@@ -21,10 +21,10 @@ function stepHref(slug: string, step: number): string {
 }
 
 /**
- * SC-010 Path 詳細（design §4.6 / §5.3、spec SC-010）。
+ * SC-008 Path 詳細（design §4.6 / §5.3、spec SC-008）。
  * 現在ステップは `?step=` に保持する（design §11.1「共有可能であるべき状態は URL クエリに保持」の原則を
  * Path の進捗にも適用。design/spec 自体には具体的なクエリ名の規定が無いため実装時に決定）。
- * 各ステップは `NoteCard` を再利用し、そのまま SC-004（Garden 詳細）へ離脱できる（spec §10.3）。
+ * 各ステップは `NoteCard` を再利用し、そのまま SC-004（Garden 詳細）へ離脱できる（spec §8.3）。
  */
 export default async function PathDetailPage({
 	params,

@@ -1,6 +1,6 @@
-// クライアント側全文検索（design §4.4、spec SC-012、F-SRCH-001）。
+// クライアント側全文検索（design §4.4、spec SC-010、F-SRCH-001）。
 // search-index.json（title/summary/topics/本文プレーン）を minisearch でインデックス化する。
-// ライブラリ選定は spec 13.3 が実装時の裁量としているため minisearch を採用した。
+// ライブラリ選定は spec SC-010 §10.3 が実装時の裁量としているため minisearch を採用した。
 
 import type { ArticleLayer, SearchItem } from "@web/types/content";
 import MiniSearch from "minisearch";
@@ -46,7 +46,7 @@ export interface SearchResultItem {
 const EXCERPT_RADIUS = 40;
 
 /**
- * 本文プレーンテキストからクエリ語の周辺を抜粋する（spec 13.2「ハイライト付き抜粋」）。
+ * 本文プレーンテキストからクエリ語の周辺を抜粋する（spec SC-010 §10.2「ハイライト付き抜粋」）。
  * minisearch のトークン一致とは独立に、クエリ文字列そのものの最初の出現箇所を単純検索する
  * （日本語は空白区切りでないため、形態素解析なしでも安定するようトークン一致より単純部分一致を優先した）。
  */
