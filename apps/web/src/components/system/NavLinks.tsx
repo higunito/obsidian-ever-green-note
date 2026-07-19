@@ -24,7 +24,7 @@ export function NavLinks() {
 	const currentView = useSearchParams().get("view");
 
 	return (
-		<ul className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
+		<ul className="flex flex-wrap items-baseline justify-center gap-x-4 gap-y-2">
 			{NAV_ITEMS.map((item) => {
 				const active = isActive(item, pathname, currentView);
 				return (

@@ -7,7 +7,7 @@ import { NavLinks } from "./NavLinks";
 // フォールバックはハイライト無しの同一リンク一覧（初期表示のレイアウトシフトを避ける）。
 function NavFallback() {
 	return (
-		<ul className="flex flex-wrap items-baseline gap-x-4 gap-y-2">
+		<ul className="flex flex-wrap items-baseline justify-center gap-x-4 gap-y-2">
 			{NAV_ITEMS.map((item) => (
 				<li key={item.href}>
 					<Link
