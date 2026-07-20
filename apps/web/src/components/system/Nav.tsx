@@ -5,9 +5,15 @@ import { NavLinks } from "./NavLinks";
 
 // `useSearchParams` を使う `NavLinks` を Suspense でラップする（Next.js の要件）。
 // フォールバックはハイライト無しの同一リンク一覧（初期表示のレイアウトシフトを避ける）。
+// `data-roving-ignore`：ストリーミング SSR でこのフォールバックが本物の `NavLinks` に差し替わる前に
+// `useSpatialNavigation` の effect がここの `<a>` を仮想カーソル対象として拾い `data-roving-selected`
+// を書き込んでしまうと、差し替え時の hydration 比較で属性不一致警告が出るため対象から除外する。
 function NavFallback() {
 	return (
-		<ul className="flex flex-wrap items-baseline justify-center gap-y-2">
+		<ul
+			data-roving-ignore
+			className="flex flex-wrap items-baseline justify-center gap-y-2"
+		>
 			{NAV_ITEMS.map((item) => (
 				<li
 					key={item.href}

@@ -184,6 +184,10 @@
 /* ── NoteBody 内部リンク装飾（spec SC-004）─────────────────────────────────────
    bodyHtml は content-gen が生成した静的 HTML（<a data-wikilink>）のため、
    dangerouslySetInnerHTML 配下の要素はここでスタイルする（コンポーネント側では個々の <a> に触れない）。 */
+.note-body {
+	/* 明朝ウェイト 500（design §10.3）。既定 400 だとほぼ黒背景との高コントラストでハレーションが起き読みにくいため。 */
+	font-weight: 500;
+}
 .note-body p {
 	margin: 0 0 16px;
 }

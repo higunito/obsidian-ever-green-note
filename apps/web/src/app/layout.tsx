@@ -29,7 +29,7 @@ const fontDot = DotGothic16({
 });
 
 const fontMin = Noto_Serif_JP({
-	weight: ["400", "600"],
+	weight: ["400", "500", "600"],
 	subsets: ["latin"],
 	variable: "--font-noto-serif",
 	display: "swap",

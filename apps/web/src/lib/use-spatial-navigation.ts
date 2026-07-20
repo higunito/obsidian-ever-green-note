@@ -27,6 +27,11 @@ const SELECTED_ATTR = "data-roving-selected";
 const FREE_LAYOUT_ATTR = "data-roving-free";
 /** 画面遷移直後の既定選択項目を明示するための属性（design §9.6.2 v1.18）。1 領域内に複数あれば DOM 順で先頭を使う。 */
 const DEFAULT_ATTR = "data-roving-default";
+/** この属性を持つ祖先配下の要素は対象から除外する（design §9.6.2 v1.29）。
+ * `Nav` の Suspense fallback（`NavFallback`）のように、ストリーミング SSR で
+ * 本物のコンテンツに差し替わる一時的な DOM に属性を書き込むと、差し替え時の
+ * hydration 比較で属性不一致警告が出るため。 */
+const IGNORE_ATTR = "data-roving-ignore";
 const DEFAULT_ITEM_SELECTOR = "a,button";
 
 function toRect(el: HTMLElement): Rect {
@@ -170,10 +175,13 @@ export function useSpatialNavigation<T extends HTMLElement>({
 		return Array.from(
 			container.querySelectorAll<HTMLElement>(itemSelector),
 		).filter(
-			// `hidden md:flex` 等でブレークポイントにより非表示の要素を除外する
-			// （display:none は getClientRects() が空になる。position:fixed でも空にならないため
-			// offsetParent 判定より確実）。
-			(item) => item.getClientRects().length > 0,
+			(item) =>
+				// `hidden md:flex` 等でブレークポイントにより非表示の要素を除外する
+				// （display:none は getClientRects() が空になる。position:fixed でも空にならないため
+				// offsetParent 判定より確実）。
+				item.getClientRects().length > 0 &&
+				// Suspense fallback 等、本物のコンテンツに差し替わる一時的な DOM を除外する。
+				item.closest(`[${IGNORE_ATTR}]`) === null,
 		);
 	}, [itemSelector]);
 
