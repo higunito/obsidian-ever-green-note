@@ -1,5 +1,6 @@
 export { type BacklinkEntry, FileWindow } from "./FileWindow";
-export { InvestigationMap } from "./InvestigationMap";
+export { GardenScreen } from "./GardenScreen";
+export { InvestigationMap, type PendingNavigation } from "./InvestigationMap";
 export { LensFilter } from "./LensFilter";
 export { LocalMap, type LocalMapNeighbor } from "./LocalMap";
 export { MobileStackBar } from "./MobileStackBar";

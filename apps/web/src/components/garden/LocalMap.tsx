@@ -30,6 +30,8 @@ export function LocalMap({ currentFile, neighbors }: LocalMapProps) {
 
 	return (
 		<svg
+			// 自由配置のノードグラフのため左右キーの「同じ行」制約を適用しない（design §9.6.2 v1.18）。
+			data-roving-free="true"
 			width={WIDTH}
 			height={HEIGHT}
 			style={{ overflow: "visible" }}

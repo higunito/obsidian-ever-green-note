@@ -62,6 +62,7 @@ export function ConfigPanel() {
 				selected={selected}
 				onSelect={handleSelect}
 				onHover={setSelected}
+				markDefault
 			/>
 			<div
 				style={{ fontFamily: font.mon, fontSize: "11px", color: C.muted }}

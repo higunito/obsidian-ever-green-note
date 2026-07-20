@@ -1,12 +1,5 @@
-import { InvestigationMap, LensFilter } from "@web/components/garden";
-import { NoteCard } from "@web/components/notes";
-import {
-	Footer,
-	KeyboardBack,
-	Nav,
-	NavBack,
-	SpatialNavRegion,
-} from "@web/components/system";
+import { GardenScreen } from "@web/components/garden";
+import { Footer } from "@web/components/system";
 import { getContentStore } from "@web/lib/content";
 import {
 	applyGardenFilters,
@@ -16,36 +9,13 @@ import {
 	hasActiveGardenFilter,
 	parseGardenFilters,
 } from "@web/lib/garden-filters";
-import Link from "next/link";
-import { Suspense } from "react";
-
-function EmptyState({ clearHref }: { clearHref?: string }) {
-	return (
-		<div className="p-8 text-center font-min text-[13px] text-arch-muted">
-			<p>該当する記録がありません</p>
-			{clearHref ? (
-				<Link
-					href={clearHref}
-					className="mt-2 inline-block font-mon text-[10px] text-arch-cyan underline"
-				>
-					フィルタを解除
-				</Link>
-			) : null}
-		</div>
-	);
-}
 
 interface GardenIndexPageProps {
 	searchParams: Promise<GardenSearchParams>;
 }
 
-function viewTabClass(active: boolean): string {
-	return `font-mon text-[10px] tracking-[0.08em] transition-colors ${
-		active ? "text-arch-cyan" : "text-arch-muted hover:text-arch-cyan"
-	}`;
-}
-
 // SC-002 Garden 入口（Index / Map 切替、design §5.4、spec SC-002）＋ SC-003 調査マップ（design §9.3・§9.5、spec SC-003）。
+// キーボード操作（十字キー・B ボタン）は `GardenScreen`（クライアント）が一元的に担う（design §9.6.2 v1.18）。
 export default async function GardenIndexPage({
 	searchParams,
 }: GardenIndexPageProps) {
@@ -76,64 +46,18 @@ export default async function GardenIndexPage({
 
 	return (
 		<>
-			{/* Map View（InvestigationMap）は自前で B ボタン（確認モーダルの取り消し優先）を持つため、
-			    Index View のときだけここで既定の B ボタンを有効にする（spec SC-002 §2.4）。 */}
-			{view !== "map" ? <KeyboardBack href="/home" /> : null}
 			<main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 p-5">
-				{/* 十字キーの対象（spec SC-002 §2.4）：View 切替・Lens フィルタ・NoteCard グリッド。
-				    Map View 中は無効化し、InvestigationMap 自身のセレクタ型 UI に委ねる（design §9.6.2）。 */}
-				<SpatialNavRegion
-					className="flex flex-1 flex-col gap-4"
-					enabled={view !== "map"}
-				>
-					<div className="flex flex-wrap items-center gap-3">
-						<NavBack label="◀ HOME" href="/home" />
-						<h1 className="font-dot text-sm text-arch-text">
-							FRAGMENTS / Garden
-						</h1>
-						<div className="ml-auto flex gap-3">
-							<Link
-								href={buildGardenIndexHref({ view: "index", filters })}
-								className={viewTabClass(view === "index")}
-							>
-								INDEX
-							</Link>
-							<Link
-								href={buildGardenIndexHref({ view: "map", filters })}
-								className={viewTabClass(view === "map")}
-							>
-								MAP
-							</Link>
-						</div>
-					</div>
-					<Nav />
-
-					<Suspense fallback={null}>
-						<LensFilter topics={allTopics} />
-					</Suspense>
-
-					{view === "map" ? (
-						visibleMapNodeCount === 0 ? (
-							<EmptyState
-								clearHref={isFiltered ? clearFiltersHref : undefined}
-							/>
-						) : (
-							<InvestigationMap
-								graph={graph}
-								articles={gardenArticles}
-								filters={filters}
-							/>
-						)
-					) : filtered.length === 0 ? (
-						<EmptyState clearHref={isFiltered ? clearFiltersHref : undefined} />
-					) : (
-						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-							{filtered.map((note) => (
-								<NoteCard key={note.slug} note={note} />
-							))}
-						</div>
-					)}
-				</SpatialNavRegion>
+				<GardenScreen
+					view={view}
+					filters={filters}
+					allTopics={allTopics}
+					clearFiltersHref={clearFiltersHref}
+					isFiltered={isFiltered}
+					visibleMapNodeCount={visibleMapNodeCount}
+					graph={graph}
+					gardenArticles={gardenArticles}
+					filtered={filtered}
+				/>
 			</main>
 			<Footer />
 		</>

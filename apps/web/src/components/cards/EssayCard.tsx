@@ -8,6 +8,8 @@ import Link from "next/link";
 
 interface EssayCardProps {
 	essay: Article;
+	/** 画面遷移直後の十字キー既定選択にする場合 true（`data-roving-default`、design §9.6.2 v1.18）。 */
+	defaultFocus?: boolean;
 }
 
 /**
@@ -16,13 +18,14 @@ interface EssayCardProps {
  * （spec SC-005 §5.2 は v2 として明記。本計画 Phase 8 のスコープ注記に準拠）。
  * クリック時は `useFlashNavigate`（v1.12）でビビビ点滅させてから詳細ページへ遷移する。
  */
-export function EssayCard({ essay }: EssayCardProps) {
+export function EssayCard({ essay, defaultFocus }: EssayCardProps) {
 	const href = internalHref({ slug: essay.slug, layer: essay.layer });
 	const { flashingKey, navigate } = useFlashNavigate();
 	const flashing = flashingKey === href;
 	return (
 		<Link
 			href={href}
+			data-roving-default={defaultFocus ? "true" : undefined}
 			onClick={(e) => {
 				e.preventDefault();
 				navigate(href, href);

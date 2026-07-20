@@ -94,8 +94,12 @@ export default async function EssaysPage({ searchParams }: EssaysPageProps) {
 						</div>
 					) : (
 						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-							{filtered.map((essay) => (
-								<EssayCard key={essay.slug} essay={essay} />
+							{filtered.map((essay, i) => (
+								<EssayCard
+									key={essay.slug}
+									essay={essay}
+									defaultFocus={i === 0}
+								/>
 							))}
 						</div>
 					)}

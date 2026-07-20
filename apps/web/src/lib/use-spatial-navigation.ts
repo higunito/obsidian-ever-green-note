@@ -5,6 +5,10 @@ import { type RefObject, useCallback, useEffect, useRef } from "react";
 type Direction = "up" | "down" | "left" | "right";
 
 interface Rect {
+	top: number;
+	bottom: number;
+	left: number;
+	right: number;
 	centerX: number;
 	centerY: number;
 }
@@ -18,14 +22,31 @@ interface UseSpatialNavigationOptions<T extends HTMLElement> {
 }
 
 const SELECTED_ATTR = "data-roving-selected";
+/** この属性を持つ祖先内では左右キーの「同じ行」制約を適用しない（design §9.6.2 v1.18）。
+ * 調査マップ／LocalMap のようにノードが格子状に並ばない自由配置の領域に付与する。 */
+const FREE_LAYOUT_ATTR = "data-roving-free";
+/** 画面遷移直後の既定選択項目を明示するための属性（design §9.6.2 v1.18）。1 領域内に複数あれば DOM 順で先頭を使う。 */
+const DEFAULT_ATTR = "data-roving-default";
 const DEFAULT_ITEM_SELECTOR = "a,button";
 
 function toRect(el: HTMLElement): Rect {
 	const r = el.getBoundingClientRect();
-	return { centerX: (r.left + r.right) / 2, centerY: (r.top + r.bottom) / 2 };
+	return {
+		top: r.top,
+		bottom: r.bottom,
+		left: r.left,
+		right: r.right,
+		centerX: (r.left + r.right) / 2,
+		centerY: (r.top + r.bottom) / 2,
+	};
 }
 
-function isTextInput(target: EventTarget | null): boolean {
+/** 垂直方向に重なりがあるか（左右キーの「同じ行」判定に使う）。 */
+function overlapsVertically(a: Rect, b: Rect): boolean {
+	return a.top < b.bottom && a.bottom > b.top;
+}
+
+function isTextInput(target: EventTarget | null): target is HTMLElement {
 	return (
 		target instanceof HTMLElement &&
 		(target.tagName === "INPUT" || target.tagName === "TEXTAREA")
@@ -48,7 +69,7 @@ function simulateClick(el: HTMLElement): void {
  * 移動軸方向の距離＋直交軸のズレ×2 が最小のもの」）。行・列を明示的に管理しない分、
  * タブ列＋グリッドのような異なる並びが縦に混在する画面でも自然に移動できる。
  */
-function findNext(
+function nearestInDirection(
 	current: Rect,
 	candidates: HTMLElement[],
 	direction: Direction,
@@ -88,6 +109,31 @@ function findNext(
 }
 
 /**
+ * 左右キーは実座標が「同じ行」（垂直方向に重なりのある要素）にある項目間のみを移動対象とし、
+ * 同じ行に候補が無ければ移動しない（design §9.6.2 v1.18）。`Nav`・フィルタ・カード一覧のように
+ * 縦に複数領域が積み重なる画面で、左右移動が行の境界を越えて無関係な別領域へ飛ぶ不具合を防ぐ。
+ * 調査マップ／LocalMap のような自由配置の領域（`data-roving-free` 祖先）はこの制約の例外とし、
+ * 全方向とも実座標最短移動を使う。上下キーは常にこの制約の対象外（領域をまたいだ移動を許容する）。
+ */
+function findNext(
+	currentEl: HTMLElement,
+	candidates: HTMLElement[],
+	direction: Direction,
+): HTMLElement | null {
+	const current = toRect(currentEl);
+	const isHorizontal = direction === "left" || direction === "right";
+	const isFreeLayout = currentEl.closest(`[${FREE_LAYOUT_ATTR}]`) !== null;
+
+	if (isHorizontal && !isFreeLayout) {
+		const sameRow = candidates.filter((el) =>
+			overlapsVertically(current, toRect(el)),
+		);
+		return nearestInDirection(current, sameRow, direction);
+	}
+	return nearestInDirection(current, candidates, direction);
+}
+
+/**
  * セレクタ型 UI の仮想カーソル共通フック（design §9.6.2、spec 共通仕様 F-NAV-003）。
  * `TitleMenu`（v1.9）で確立した「選択状態をコンポーネント内で保持し、実 DOM フォーカスとは
  * 独立に十字キーで移動する」方式を、任意のコンテナに一般化したもの。
@@ -99,6 +145,9 @@ function findNext(
  * （`.click()` は SVGElement に無いため使わない。LocalMap 等の SVG ノードも対象になりうる）。
  * `Nav`/`NavBack`（design §9.6.2、v1.17）も画面の主要コンテンツと同じ領域に含め、
  * 十字キーで到達できるようにする（Tab 移動でも引き続き到達できる）。
+ * 左右キーは「同じ行」（垂直方向に重なりのある要素）内のみを移動対象とする（`data-roving-free`
+ * 祖先を持つ自由配置の領域は例外）。`data-roving-default` を付けた要素があれば既定選択に使う
+ * （無ければ DOM 順の先頭）。テキスト入力欄フォーカス中は上下キーで `blur` して抜けられる（design §9.6.2 v1.18）。
  */
 export function useSpatialNavigation<T extends HTMLElement>({
 	itemSelector = DEFAULT_ITEM_SELECTOR,
@@ -134,7 +183,8 @@ export function useSpatialNavigation<T extends HTMLElement>({
 		[getItems],
 	);
 
-	// 対象一覧が変わった（フィルタ適用・データ読み込み等）ときに選択中要素が消えていたら先頭へ戻す。
+	// 対象一覧が変わった（フィルタ適用・データ読み込み等）ときに選択中要素が消えていたら
+	// 既定選択（`data-roving-default`）または先頭へ戻す（design §9.6.2 v1.18）。
 	useEffect(() => {
 		if (!enabled) {
 			applyHighlight(null);
@@ -144,7 +194,11 @@ export function useSpatialNavigation<T extends HTMLElement>({
 		const items = getItems();
 		if (items.length === 0) return;
 		if (!selectedRef.current || !items.includes(selectedRef.current)) {
-			selectedRef.current = items[0];
+			const defaultItem = containerRef.current?.querySelector<HTMLElement>(
+				`[${DEFAULT_ATTR}]`,
+			);
+			selectedRef.current =
+				defaultItem && items.includes(defaultItem) ? defaultItem : items[0];
 		}
 		applyHighlight(selectedRef.current);
 	});
@@ -154,17 +208,6 @@ export function useSpatialNavigation<T extends HTMLElement>({
 
 		function handleKeyDown(e: KeyboardEvent) {
 			if (e.ctrlKey || e.metaKey || e.altKey) return;
-			if (isTextInput(e.target)) return;
-
-			const items = getItems();
-			if (items.length === 0) return;
-
-			if (e.key === "Enter" || e.key === "z" || e.key === "Z") {
-				e.preventDefault();
-				const target = selectedRef.current ?? items[0];
-				if (target) simulateClick(target);
-				return;
-			}
 
 			const direction: Direction | null =
 				e.key === "ArrowUp"
@@ -176,6 +219,33 @@ export function useSpatialNavigation<T extends HTMLElement>({
 							: e.key === "ArrowRight"
 								? "right"
 								: null;
+
+			// テキスト入力欄フォーカス中：左右はテキストカーソル移動を優先して横取りしない。
+			// 上下は入力欄から blur したうえで仮想カーソル側の移動に切り替える（design §9.6.2 v1.18）。
+			// Enter/Z はここでは扱わない（入力中の通常のタイプ操作・フォーム挙動を妨げないため）。
+			if (isTextInput(e.target)) {
+				if (direction !== "up" && direction !== "down") return;
+				const items = getItems();
+				if (items.length === 0) return;
+				e.preventDefault();
+				const next = findNext(e.target, items, direction);
+				if (!next) return;
+				e.target.blur();
+				selectedRef.current = next;
+				applyHighlight(next);
+				return;
+			}
+
+			const items = getItems();
+			if (items.length === 0) return;
+
+			if (e.key === "Enter" || e.key === "z" || e.key === "Z") {
+				e.preventDefault();
+				const target = selectedRef.current ?? items[0];
+				if (target) simulateClick(target);
+				return;
+			}
+
 			if (!direction) return;
 			e.preventDefault();
 
@@ -184,7 +254,7 @@ export function useSpatialNavigation<T extends HTMLElement>({
 					? selectedRef.current
 					: items[0];
 			const candidates = items.filter((item) => item !== current);
-			const next = findNext(toRect(current), candidates, direction) ?? current;
+			const next = findNext(current, candidates, direction) ?? current;
 			selectedRef.current = next;
 			applyHighlight(next);
 		}

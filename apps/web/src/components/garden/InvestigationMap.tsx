@@ -4,9 +4,7 @@ import { Badge } from "@web/components/notes";
 import { SpatialNavRegion } from "@web/components/system";
 import type { GardenFilters } from "@web/lib/garden-filters";
 import { gardenFilterMatchesNode } from "@web/lib/garden-filters";
-import { useBackButton } from "@web/lib/use-back-button";
 import { useFlashNavigate } from "@web/lib/use-flash-navigate";
-import { useSpatialNavigation } from "@web/lib/use-spatial-navigation";
 import { C, font, statusColor } from "@web/styles/tokens";
 import type {
 	Article,
@@ -16,20 +14,18 @@ import type {
 	GraphTopic,
 } from "@web/types/content";
 import Link from "next/link";
-import {
-	useCallback,
-	useEffect,
-	useLayoutEffect,
-	useMemo,
-	useRef,
-	useState,
-} from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 interface InvestigationMapProps {
 	graph: Graph;
 	/** ツールチップの summary 表示用（graph.json は summary を持たないため articles.json と結合する）。 */
 	articles: readonly Article[];
 	filters: GardenFilters;
+	/** 遷移確認モーダルの開閉状態。呼び出し側（`GardenScreen`）が保持する（design §9.6.2 v1.18：
+	 * ページ全体を 1 つのセレクタ型 UI 領域にするため、モーダル開閉に応じた領域の有効/無効切り替えを
+	 * 呼び出し側に委ねる）。 */
+	pendingNav: PendingNavigation | null;
+	setPendingNav: (pending: PendingNavigation | null) => void;
 }
 
 // design §9.5：トピックは生成時に中心 (450,300) を基準に円周配置される。クライアントはこの基準点だけ共有し、座標自体は再計算しない。
@@ -82,7 +78,7 @@ function dedupeNoteEdges(edges: readonly GraphEdge[]): GraphEdge[] {
 const zoomButtonClass =
 	"flex h-7 w-7 cursor-pointer items-center justify-center border border-arch-border bg-arch-panel-dark font-mon text-sm text-arch-cyan";
 
-interface PendingNavigation {
+export interface PendingNavigation {
 	href: string;
 	title: string;
 }
@@ -179,11 +175,15 @@ function NavigateConfirmDialog({
  * SC-003 調査マップ（design §9.3・§9.5、spec SC-003、figma `MapScreen` を正準）。
  * `graph.json` の座標を読むだけで、パン／ズーム／Lens フィルタによる dim／ツールチップ／
  * ノードクリック遷移（`/garden/[slug]` への直リンク、Stack は経由しない）を担う。
+ * 十字キー・B ボタンの制御（セレクタ型 UI 領域・戻る処理）は呼び出し側の `GardenScreen` が担う
+ * （design §9.6.2 v1.18：マップとその外側の `Nav`/Lens フィルタを同一領域にするため）。
  */
 export function InvestigationMap({
 	graph,
 	articles,
 	filters,
+	pendingNav,
+	setPendingNav,
 }: InvestigationMapProps) {
 	const { flashingKey: navFlashingKey, navigate: navigateWithFlash } =
 		useFlashNavigate();
@@ -203,19 +203,6 @@ export function InvestigationMap({
 	const [dragging, setDragging] = useState(false);
 	const [hoverId, setHoverId] = useState<string | null>(null);
 	const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
-	const [pendingNav, setPendingNav] = useState<PendingNavigation | null>(null);
-
-	// 十字キーの対象（spec SC-003 §3.3）：マップノード・ズームコントロール。モーダル表示中は無効化し
-	// `NavigateConfirmDialog` 側の `SpatialNavRegion` に委ねる（design §9.6.2）。
-	useSpatialNavigation({ containerRef, enabled: pendingNav === null });
-
-	// B ボタン（design §9.6.3）：モーダル表示中はまずモーダルを閉じる。閉じていれば既定の SC-001 へ。
-	const closeModalBeforeBack = useCallback(() => {
-		if (pendingNav === null) return false;
-		setPendingNav(null);
-		return true;
-	}, [pendingNav]);
-	useBackButton("/home", { onBeforeBack: closeModalBeforeBack });
 
 	const nodesById = useMemo(
 		() => new Map<string, GraphNode>(graph.nodes.map((n) => [n.id, n])),
@@ -329,6 +316,8 @@ export function InvestigationMap({
 	return (
 		<div
 			ref={containerRef}
+			// 自由配置のノードグラフのため左右キーの「同じ行」制約を適用しない（design §9.6.2 v1.18）。
+			data-roving-free="true"
 			className="relative h-[70vh] min-h-[420px] overflow-hidden border border-arch-border bg-arch-panel-dark"
 			style={{ touchAction: "none", cursor: dragging ? "grabbing" : "grab" }}
 			onPointerDown={handlePointerDown}

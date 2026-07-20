@@ -4,6 +4,8 @@ import Link from "next/link";
 
 interface PathCardProps {
 	path: PathItem;
+	/** 画面遷移直後の十字キー既定選択にする場合 true（`data-roving-default`、design §9.6.2 v1.18）。 */
+	defaultFocus?: boolean;
 }
 
 /**
@@ -11,10 +13,11 @@ interface PathCardProps {
  * 他カード（EssayCard 等）と同じ見た目に揃えるため実装時に追加した（`.claude/rules/coding.md`
  * の既存スタイル踏襲方針に準拠）。title/概要/含まれるノート数/代表 topics。
  */
-export function PathCard({ path }: PathCardProps) {
+export function PathCard({ path, defaultFocus }: PathCardProps) {
 	return (
 		<Link
 			href={`/paths/${encodeURIComponent(path.slug)}`}
+			data-roving-default={defaultFocus ? "true" : undefined}
 			className="block border border-arch-border bg-[rgba(11,26,43,0.7)] p-3 transition-all hover:border-arch-cyan hover:bg-[rgba(20,50,58,0.95)]"
 		>
 			<div className="mb-1.5 font-dot text-xs leading-relaxed text-arch-text">

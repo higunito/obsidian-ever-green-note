@@ -34,8 +34,8 @@ export default async function PathsPage() {
 						</div>
 					) : (
 						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-							{paths.map((path) => (
-								<PathCard key={path.slug} path={path} />
+							{paths.map((path, i) => (
+								<PathCard key={path.slug} path={path} defaultFocus={i === 0} />
 							))}
 						</div>
 					)}

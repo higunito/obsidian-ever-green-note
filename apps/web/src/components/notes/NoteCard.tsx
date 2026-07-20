@@ -11,6 +11,8 @@ import { Tag } from "./Tag";
 interface NoteCardProps {
 	/** Garden ノート（design §4.2）。`status` は Garden ノートのみ必須のため、無い場合は枠線色のみ既定にフォールバックする。 */
 	note: Article;
+	/** 画面遷移直後の十字キー既定選択にする場合 true（`data-roving-default`、design §9.6.2 v1.18）。 */
+	defaultFocus?: boolean;
 }
 
 /**
@@ -18,7 +20,7 @@ interface NoteCardProps {
  * status バッジ＋左罫の status 色＋title＋summary＋topics。hover でシアン強調。
  * クリック時は `useFlashNavigate`（v1.12）でビビビ点滅させてから詳細ページへ遷移する。
  */
-export function NoteCard({ note }: NoteCardProps) {
+export function NoteCard({ note, defaultFocus }: NoteCardProps) {
 	const accent = note.status ? statusColor(note.status) : C.border;
 	const href = internalHref({ slug: note.slug, layer: note.layer });
 	const { flashingKey, navigate } = useFlashNavigate();
@@ -26,6 +28,7 @@ export function NoteCard({ note }: NoteCardProps) {
 	return (
 		<Link
 			href={href}
+			data-roving-default={defaultFocus ? "true" : undefined}
 			onClick={(e) => {
 				e.preventDefault();
 				navigate(href, href);

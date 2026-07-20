@@ -38,8 +38,8 @@ export default async function HomePage() {
 		<Window title="FRAGMENTS — 最近更新された記録" className="h-full">
 			{hasGardenNotes ? (
 				<div className="grid grid-cols-[repeat(auto-fill,minmax(195px,1fr))] gap-2.5 p-3">
-					{recentGarden.map((note) => (
-						<NoteCard key={note.slug} note={note} />
+					{recentGarden.map((note, i) => (
+						<NoteCard key={note.slug} note={note} defaultFocus={i === 0} />
 					))}
 				</div>
 			) : (

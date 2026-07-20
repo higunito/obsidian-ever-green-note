@@ -13,6 +13,8 @@ interface CommandMenuProps {
 	active?: boolean;
 	/** 遷移確定演出中の項目インデックス。一致する項目をビビビと点滅させる（spec SC-000 §0.3 v1.9）。 */
 	flashingIndex?: number | null;
+	/** true の場合、先頭項目（index 0）を十字キーの既定選択にする（`data-roving-default`、design §9.6.2 v1.18）。既定 false。 */
+	markDefault?: boolean;
 }
 
 /**
@@ -26,6 +28,7 @@ export function CommandMenu({
 	onHover,
 	active = true,
 	flashingIndex = null,
+	markDefault = false,
 }: CommandMenuProps) {
 	return (
 		<div>
@@ -36,6 +39,7 @@ export function CommandMenu({
 					<button
 						type="button"
 						key={item}
+						data-roving-default={markDefault && i === 0 ? "true" : undefined}
 						onMouseEnter={() => onHover?.(i)}
 						onClick={() => onSelect(i)}
 						className={flashing ? "arch-animated" : undefined}
