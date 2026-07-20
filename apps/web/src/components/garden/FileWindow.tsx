@@ -66,12 +66,12 @@ export function FileWindow({
 			{/* タイトルバー */}
 			<div
 				className="sticky top-0 z-10 flex items-center gap-2 border-b border-arch-border bg-arch-panel-dark px-2.5 py-1"
-				style={{ fontFamily: font.mon, fontSize: fs(11), color: C.cyan }}
+				style={{ fontFamily: font.mon, fontSize: fs(11), color: C.cyanDim }}
 			>
 				<span style={{ opacity: 0.35 }}>▪</span>
 				<span>{file}</span>
 				<span className="text-arch-border-faint">│</span>
-				<span className="overflow-hidden text-ellipsis whitespace-nowrap font-dot text-[calc(10px*var(--font-scale))] text-arch-muted">
+				<span className="overflow-hidden text-ellipsis whitespace-nowrap font-dot text-[calc(10px*var(--font-scale))] text-arch-text">
 					{article.title}
 				</span>
 			</div>
