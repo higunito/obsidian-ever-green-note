@@ -12,13 +12,10 @@ function NavFallback() {
 				<li key={item.href}>
 					<Link
 						href={item.href}
-						className="group inline-flex items-baseline gap-1.5 transition-colors"
+						className="group inline-flex items-baseline transition-colors"
 					>
 						<span className="font-dot text-[calc(12px*var(--font-scale))] tracking-[0.06em] text-arch-text group-hover:text-arch-cyan">
 							{item.gameName}
-						</span>
-						<span className="font-mon text-[calc(9px*var(--font-scale))] tracking-[0.08em] text-arch-muted">
-							{item.label}
 						</span>
 					</Link>
 				</li>
@@ -33,7 +30,7 @@ interface NavProps {
 }
 
 /**
- * 画面間ナビ（§9.1）。各項目はゲーム内名称＋通常名を必ず併記する（可読性ガードレール §10.6）。
+ * 画面間ナビ（§9.1）。各項目はゲーム内名称のみを表示する（design §3.3 v1.26）。
  * 対応表の単一情報源は lib/navigation.ts（design §3.3）。現在ページはハイライトで示す。
  */
 export function Nav({ markActiveAsDefault = false }: NavProps = {}) {

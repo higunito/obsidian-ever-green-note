@@ -36,9 +36,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 				>
 					<div className="flex flex-wrap items-center gap-3">
 						<NavBack label="◀ HOME" href="/home" />
-						<h1 className="font-dot text-arch-sm text-arch-text">
-							SEARCH / 検索
-						</h1>
+						<h1 className="font-dot text-arch-sm text-arch-text">SEARCH</h1>
 					</div>
 					<Nav />
 

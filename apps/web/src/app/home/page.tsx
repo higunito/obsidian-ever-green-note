@@ -68,9 +68,7 @@ export default async function HomePage() {
 				<SpatialNavRegion className="flex flex-1 flex-col gap-4">
 					<div className="flex flex-wrap items-center gap-3">
 						<NavBack label="◀ TITLE" href="/" />
-						<h1 className="font-dot text-arch-sm text-arch-text">
-							HOME / Home
-						</h1>
+						<h1 className="font-dot text-arch-sm text-arch-text">HOME</h1>
 					</div>
 					<Nav />
 

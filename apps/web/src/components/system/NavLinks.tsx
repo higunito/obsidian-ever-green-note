@@ -41,7 +41,7 @@ export function NavLinks({ markActiveAsDefault = false }: NavLinksProps = {}) {
 							data-roving-default={
 								markActiveAsDefault && active ? "true" : undefined
 							}
-							className="group inline-flex items-baseline gap-1.5 transition-colors"
+							className="group inline-flex items-baseline transition-colors"
 						>
 							<span
 								className={`font-dot text-[calc(12px*var(--font-scale))] tracking-[0.06em] group-hover:text-arch-cyan ${
@@ -49,13 +49,6 @@ export function NavLinks({ markActiveAsDefault = false }: NavLinksProps = {}) {
 								}`}
 							>
 								{item.gameName}
-							</span>
-							<span
-								className={`font-mon text-[calc(9px*var(--font-scale))] tracking-[0.08em] ${
-									active ? "text-arch-cyan" : "text-arch-muted"
-								}`}
-							>
-								{item.label}
 							</span>
 						</Link>
 					</li>
