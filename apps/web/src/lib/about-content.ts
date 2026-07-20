@@ -4,15 +4,28 @@
 export interface AboutContent {
 	updated: string;
 	topics: string[];
-	bodyHtml: string;
+	/** 「概要」セクションの本文（design §4.6、spec SC-009 §9.2）。 */
+	overviewHtml: string;
 }
 
 export const ABOUT_CONTENT: AboutContent = {
 	updated: "2026-07-19",
 	topics: [],
-	bodyHtml: `
-<p>『思考アーカイブ』は、思考の途中を、ひらいておく場所です。</p>
-<p>1999年に発売されたものの、開発会社の消滅によって忘れられた個人用知識探索ソフトウェア——という体裁を借りて、日々の断片的なノートや読書からの気づき、まとまった文章までを公開しています。</p>
-<p>TODO: 自己紹介・外部リンク（note / GitHub / 連絡先）をここに追記してください。</p>
+	overviewHtml: `
+<p>『思考アーカイブ』は、私の思考の途中を、ひらいておく場所です。</p>
+<p>日々の断片的な思考の記録から、まとまった文章までを公開しています。</p>
 `.trim(),
 };
+
+export interface AboutExternalLink {
+	label: string;
+	href: string;
+}
+
+/** 「LINKS ／ リンク集」セクション（design §4.6、spec SC-009 §9.2）。
+ * URL は環境変数（`ABOUT_GITHUB_URL`/`ABOUT_NOTE_URL`、`.env.local`）で管理し、コードに直書きしない。
+ * 未設定の項目は表示しない（`.env.local.example` にサンプル値あり）。 */
+export const ABOUT_EXTERNAL_LINKS: readonly AboutExternalLink[] = [
+	{ label: "GitHub", href: process.env.ABOUT_GITHUB_URL ?? "" },
+	{ label: "note", href: process.env.ABOUT_NOTE_URL ?? "" },
+].filter((link): link is AboutExternalLink => link.href !== "");

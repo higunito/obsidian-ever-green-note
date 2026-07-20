@@ -13,7 +13,9 @@ const TABS = [
 ] as const;
 
 // FRAGMENTS と THREE DOORS を同じ大きさで切替表示するための固定高さ（spec SC-001 §1.2）。
-const PANEL_SIZE_CLASS = "h-[360px] overflow-y-auto";
+// 高さも --font-scale で拡大する：カード内テキストだけ拡大して高さは固定のままだと、
+// 文字サイズ「大」でカードが縦に伸びてパネル下端で見切れてしまうため（v1.20 バグ修正）。
+const PANEL_SIZE_CLASS = "h-[calc(360px*var(--font-scale))] overflow-y-auto";
 
 function tabClass(active: boolean): string {
 	return `cursor-pointer border px-3 py-2 font-dot text-[calc(11px*var(--font-scale))] transition-colors ${

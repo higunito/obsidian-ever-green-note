@@ -203,6 +203,13 @@ export function InvestigationMap({
 	const [dragging, setDragging] = useState(false);
 	const [hoverId, setHoverId] = useState<string | null>(null);
 	const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
+	// 十字キーでノードを選択したときも、マウスホバーと同じツールチップを出す（design §9.6.2）。
+	// GardenScreen がマップとその外側を1つの十字キー領域にしているため、選択状態は自 DOM の
+	// `data-roving-selected` 属性の変化としてしか観測できない（`useSpatialNavigation` は実 DOM
+	// フォーカスを移動しないため onFocus では検知できない）。マウス由来の hoverId とは独立させ、
+	// 表示時はマウスを優先する（マウス操作中に不用意に消えないようにするため）。
+	const [keyboardHoverId, setKeyboardHoverId] = useState<string | null>(null);
+	const [keyboardTooltipPos, setKeyboardTooltipPos] = useState({ x: 0, y: 0 });
 
 	const nodesById = useMemo(
 		() => new Map<string, GraphNode>(graph.nodes.map((n) => [n.id, n])),
@@ -239,6 +246,36 @@ export function InvestigationMap({
 		}
 		el.addEventListener("wheel", handleWheel, { passive: false });
 		return () => el.removeEventListener("wheel", handleWheel);
+	}, []);
+
+	// 十字キーでのノード選択を検知してツールチップを出す。ノード <Link> の `data-node-id` を
+	// 目印に、コンテナ配下で `data-roving-selected="true"` を持つ要素を都度探し直す。
+	useEffect(() => {
+		const el = containerRef.current;
+		if (!el) return;
+		function syncKeyboardHover() {
+			const selected = el?.querySelector<HTMLElement>(
+				'[data-roving-selected="true"]',
+			);
+			const nodeId = selected?.dataset.nodeId;
+			if (!nodeId) {
+				setKeyboardHoverId(null);
+				return;
+			}
+			const rect = selected.getBoundingClientRect();
+			setKeyboardTooltipPos({
+				x: rect.left + rect.width / 2,
+				y: rect.top + rect.height / 2,
+			});
+			setKeyboardHoverId(nodeId);
+		}
+		const observer = new MutationObserver(syncKeyboardHover);
+		observer.observe(el, {
+			attributes: true,
+			attributeFilter: ["data-roving-selected"],
+			subtree: true,
+		});
+		return () => observer.disconnect();
 	}, []);
 
 	// 初期表示はコンテナ中央にマップの原点が来るよう pan を補正する（狭いモバイル幅対応）。
@@ -309,9 +346,12 @@ export function InvestigationMap({
 		}
 	}
 
-	const hoverNode = hoverId ? nodesById.get(hoverId) : undefined;
+	// マウスホバー中はマウスを優先し、無ければ十字キーでの選択を採用する。
+	const activeHoverId = hoverId ?? keyboardHoverId;
+	const activeTooltipPos = hoverId ? tooltipPos : keyboardTooltipPos;
+	const hoverNode = activeHoverId ? nodesById.get(activeHoverId) : undefined;
 	const hoverTopic =
-		hoverId && !hoverNode ? topicsById.get(hoverId) : undefined;
+		activeHoverId && !hoverNode ? topicsById.get(activeHoverId) : undefined;
 
 	return (
 		<div
@@ -407,7 +447,7 @@ export function InvestigationMap({
 								opacity={
 									dimmed
 										? 0.15
-										: hoverId === node.id || hoverId === topic.id
+										: activeHoverId === node.id || activeHoverId === topic.id
 											? 1
 											: 0.7
 								}
@@ -441,7 +481,7 @@ export function InvestigationMap({
 					{graph.topics.map((topic) => {
 						const x = topic.x - CENTER.x;
 						const y = topic.y - CENTER.y;
-						const isHover = hoverId === topic.id;
+						const isHover = activeHoverId === topic.id;
 						const dimmed =
 							filters.topics.length > 0 && !filters.topics.includes(topic.id);
 						// 菱形（45°回転した正方形）で描画（丸い形より荒削りな印象、§10.2 v1.8）。
@@ -511,7 +551,7 @@ export function InvestigationMap({
 						const x = node.x - CENTER.x;
 						const y = node.y - CENTER.y;
 						const visible = nodeVisibility.get(node.id) ?? true;
-						const isHover = hoverId === node.id;
+						const isHover = activeHoverId === node.id;
 						const color = node.status ? statusColor(node.status) : C.muted;
 						const href = `/garden/${node.id}`;
 						// 小さな四角ドットで描画（丸い形より荒削りな印象、§10.2 v1.8）。
@@ -521,6 +561,8 @@ export function InvestigationMap({
 								key={node.id}
 								href={href}
 								aria-label={node.title}
+								// 十字キー選択時にツールチップを出すための目印（MutationObserver から参照）。
+								data-node-id={node.id}
 								onPointerDown={(e) => e.stopPropagation()}
 								onMouseEnter={(e) => {
 									setHoverId(node.id);
@@ -577,7 +619,7 @@ export function InvestigationMap({
 			{hoverNode ? (
 				<div
 					className="pointer-events-none fixed z-[100] max-w-[220px] border-2 border-arch-border bg-arch-panel p-3"
-					style={{ left: tooltipPos.x + 14, top: tooltipPos.y - 8 }}
+					style={{ left: activeTooltipPos.x + 14, top: activeTooltipPos.y - 8 }}
 				>
 					<div className="mb-1 font-mon text-[calc(9px*var(--font-scale))] text-arch-cyan">
 						{hoverNode.file}
@@ -600,7 +642,7 @@ export function InvestigationMap({
 			) : hoverTopic ? (
 				<div
 					className="pointer-events-none fixed z-[100] max-w-[220px] border-2 border-arch-border bg-arch-panel p-3"
-					style={{ left: tooltipPos.x + 14, top: tooltipPos.y - 8 }}
+					style={{ left: activeTooltipPos.x + 14, top: activeTooltipPos.y - 8 }}
 				>
 					<div className="mb-1 font-dot text-arch-sm text-arch-cyan">
 						{hoverTopic.id}
