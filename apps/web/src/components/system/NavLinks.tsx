@@ -30,11 +30,14 @@ export function NavLinks({ markActiveAsDefault = false }: NavLinksProps = {}) {
 	const currentView = useSearchParams().get("view");
 
 	return (
-		<ul className="flex flex-wrap items-baseline justify-center gap-x-4 gap-y-2">
+		<ul className="flex flex-wrap items-baseline justify-center gap-y-2">
 			{NAV_ITEMS.map((item) => {
 				const active = isActive(item, pathname, currentView);
 				return (
-					<li key={item.href}>
+					<li
+						key={item.href}
+						className="ml-6 border-l border-arch-border pl-6 first:ml-0 first:border-l-0 first:pl-0"
+					>
 						<Link
 							href={item.href}
 							aria-current={active ? "page" : undefined}
