@@ -1,6 +1,6 @@
 # apps/web — 思考アーカイブ（Web アプリ）
 
-Next.js（App Router）製の個人サイト本体。1999 年製の架空 PC アドベンチャーゲームの画面として、Obsidian Vault 由来の公開ノートを表示する。全ページ常時 ADV（モード切替なし）。
+Next.js（App Router）製の個人サイト本体。1999 年製の架空 PC アドベンチャーゲームの画面として、Obsidian Vault 由来の公開ノートを表示する。
 
 設計の正典は [`docs/design.md`](../../docs/design.md)、画面仕様は [`docs/specification.md`](../../docs/specification.md)、実装計画は [`tmp/v1-first/implementation-plan.md`](../../tmp/v1-first/implementation-plan.md)。
 

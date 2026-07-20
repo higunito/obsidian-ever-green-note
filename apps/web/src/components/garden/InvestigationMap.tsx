@@ -18,7 +18,7 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 interface InvestigationMapProps {
 	graph: Graph;
-	/** ツールチップの summary 表示用（graph.json は summary を持たないため articles.json と結合する）。 */
+	/** 詳細パネルの summary 表示用（graph.json は summary を持たないため articles.json と結合する）。 */
 	articles: readonly Article[];
 	filters: GardenFilters;
 	/** 遷移確認モーダルの開閉状態。呼び出し側（`GardenScreen`）が保持する（design §9.6.2 v1.18：
@@ -173,7 +173,7 @@ function NavigateConfirmDialog({
 
 /**
  * SC-003 調査マップ（design §9.3・§9.5、spec SC-003、figma `MapScreen` を正準）。
- * `graph.json` の座標を読むだけで、パン／ズーム／Lens フィルタによる dim／ツールチップ／
+ * `graph.json` の座標を読むだけで、パン／ズーム／Lens フィルタによる dim／hover 詳細パネル／
  * ノードクリック遷移（`/garden/[slug]` への直リンク、Stack は経由しない）を担う。
  * 十字キー・B ボタンの制御（セレクタ型 UI 領域・戻る処理）は呼び出し側の `GardenScreen` が担う
  * （design §9.6.2 v1.18：マップとその外側の `Nav`/Lens フィルタを同一領域にするため）。
@@ -202,14 +202,12 @@ export function InvestigationMap({
 	const [zoom, setZoom] = useState(1);
 	const [dragging, setDragging] = useState(false);
 	const [hoverId, setHoverId] = useState<string | null>(null);
-	const [tooltipPos, setTooltipPos] = useState({ x: 0, y: 0 });
-	// 十字キーでノードを選択したときも、マウスホバーと同じツールチップを出す（design §9.6.2）。
+	// 十字キーでノードを選択したときも、マウスホバーと同じ詳細パネル表示を出す（design §9.6.2）。
 	// GardenScreen がマップとその外側を1つの十字キー領域にしているため、選択状態は自 DOM の
 	// `data-roving-selected` 属性の変化としてしか観測できない（`useSpatialNavigation` は実 DOM
 	// フォーカスを移動しないため onFocus では検知できない）。マウス由来の hoverId とは独立させ、
 	// 表示時はマウスを優先する（マウス操作中に不用意に消えないようにするため）。
 	const [keyboardHoverId, setKeyboardHoverId] = useState<string | null>(null);
-	const [keyboardTooltipPos, setKeyboardTooltipPos] = useState({ x: 0, y: 0 });
 
 	const nodesById = useMemo(
 		() => new Map<string, GraphNode>(graph.nodes.map((n) => [n.id, n])),
@@ -234,6 +232,12 @@ export function InvestigationMap({
 			map.set(node.id, gardenFilterMatchesNode(node, filters));
 		return map;
 	}, [graph.nodes, filters]);
+	// 画面遷移直後の十字キー既定選択（spec SC-003 §3.3 v1.23）：Lens フィルタ適用後の先頭ノートノード。
+	// `◀ HOME` 等のヘッダー要素より先に DOM へ現れないため `data-roving-default` で明示する。
+	const defaultFocusNodeId = useMemo(
+		() => graph.nodes.find((node) => nodeVisibility.get(node.id))?.id,
+		[graph.nodes, nodeVisibility],
+	);
 
 	// ホイールは preventDefault が必要（ページスクロールと競合するため）。
 	// React の onWheel は passive 扱いになりうるため、ref 経由でネイティブリスナーを張る。
@@ -248,7 +252,7 @@ export function InvestigationMap({
 		return () => el.removeEventListener("wheel", handleWheel);
 	}, []);
 
-	// 十字キーでのノード選択を検知してツールチップを出す。ノード <Link> の `data-node-id` を
+	// 十字キーでのノード選択を検知して詳細パネルを出す。ノード <Link> の `data-node-id` を
 	// 目印に、コンテナ配下で `data-roving-selected="true"` を持つ要素を都度探し直す。
 	useEffect(() => {
 		const el = containerRef.current;
@@ -258,16 +262,7 @@ export function InvestigationMap({
 				'[data-roving-selected="true"]',
 			);
 			const nodeId = selected?.dataset.nodeId;
-			if (!nodeId) {
-				setKeyboardHoverId(null);
-				return;
-			}
-			const rect = selected.getBoundingClientRect();
-			setKeyboardTooltipPos({
-				x: rect.left + rect.width / 2,
-				y: rect.top + rect.height / 2,
-			});
-			setKeyboardHoverId(nodeId);
+			setKeyboardHoverId(nodeId ?? null);
 		}
 		const observer = new MutationObserver(syncKeyboardHover);
 		observer.observe(el, {
@@ -348,360 +343,362 @@ export function InvestigationMap({
 
 	// マウスホバー中はマウスを優先し、無ければ十字キーでの選択を採用する。
 	const activeHoverId = hoverId ?? keyboardHoverId;
-	const activeTooltipPos = hoverId ? tooltipPos : keyboardTooltipPos;
 	const hoverNode = activeHoverId ? nodesById.get(activeHoverId) : undefined;
 	const hoverTopic =
 		activeHoverId && !hoverNode ? topicsById.get(activeHoverId) : undefined;
 
 	return (
-		<div
-			ref={containerRef}
-			// 自由配置のノードグラフのため左右キーの「同じ行」制約を適用しない（design §9.6.2 v1.18）。
-			data-roving-free="true"
-			className="relative h-[70vh] min-h-[420px] overflow-hidden border border-arch-border bg-arch-panel-dark"
-			style={{ touchAction: "none", cursor: dragging ? "grabbing" : "grab" }}
-			onPointerDown={handlePointerDown}
-			onPointerMove={handlePointerMove}
-			onPointerUp={handlePointerUp}
-			onPointerCancel={handlePointerUp}
-		>
-			<svg width="100%" height="100%" style={{ userSelect: "none" }}>
-				<title>調査マップ</title>
-				<defs>
-					<pattern
-						id="map-grid"
-						width={50}
-						height={50}
-						patternUnits="userSpaceOnUse"
-					>
-						<path
-							d="M 50 0 L 0 0 0 50"
-							fill="none"
-							stroke="rgba(127,227,224,0.025)"
-							strokeWidth={0.5}
-						/>
-					</pattern>
-					<filter id="map-glow" x="-60%" y="-60%" width="220%" height="220%">
-						<feGaussianBlur stdDeviation={4} result="b" />
-						<feMerge>
-							<feMergeNode in="b" />
-							<feMergeNode in="SourceGraphic" />
-						</feMerge>
-					</filter>
-				</defs>
-
-				<g
-					transform={`translate(${CENTER.x + pan.x} ${CENTER.y + pan.y}) scale(${zoom})`}
-				>
-					<rect
-						x={-600}
-						y={-450}
-						width={1200}
-						height={900}
-						fill="url(#map-grid)"
-					/>
-
-					{graph.topics.map((topic, i) => {
-						const next = graph.topics[(i + 1) % graph.topics.length];
-						if (!next || next.id === topic.id) return null;
-						return (
-							<line
-								key={`ring-${topic.id}`}
-								x1={topic.x - CENTER.x}
-								y1={topic.y - CENTER.y}
-								x2={next.x - CENTER.x}
-								y2={next.y - CENTER.y}
-								stroke="rgba(127,227,224,0.05)"
-								strokeWidth={0.7}
-								strokeDasharray="6,14"
+		<div className="flex flex-col gap-3 lg:flex-row">
+			<div
+				ref={containerRef}
+				// 自由配置のノードグラフのため左右キーの「同じ行」制約を適用しない（design §9.6.2 v1.18）。
+				data-roving-free="true"
+				className="relative h-[70vh] min-h-[420px] flex-1 overflow-hidden border border-arch-border bg-arch-panel-dark"
+				style={{ touchAction: "none", cursor: dragging ? "grabbing" : "grab" }}
+				onPointerDown={handlePointerDown}
+				onPointerMove={handlePointerMove}
+				onPointerUp={handlePointerUp}
+				onPointerCancel={handlePointerUp}
+			>
+				<svg width="100%" height="100%" style={{ userSelect: "none" }}>
+					<title>調査マップ</title>
+					<defs>
+						<pattern
+							id="map-grid"
+							width={50}
+							height={50}
+							patternUnits="userSpaceOnUse"
+						>
+							<path
+								d="M 50 0 L 0 0 0 50"
+								fill="none"
+								stroke="rgba(127,227,224,0.025)"
+								strokeWidth={0.5}
 							/>
-						);
-					})}
+						</pattern>
+						<filter id="map-glow" x="-60%" y="-60%" width="220%" height="220%">
+							<feGaussianBlur stdDeviation={4} result="b" />
+							<feMerge>
+								<feMergeNode in="b" />
+								<feMergeNode in="SourceGraphic" />
+							</feMerge>
+						</filter>
+					</defs>
 
-					{graph.topics.map((topic) => (
-						<line
-							key={`radial-${topic.id}`}
-							x1={0}
-							y1={0}
-							x2={topic.x - CENTER.x}
-							y2={topic.y - CENTER.y}
-							stroke="rgba(127,227,224,0.04)"
-							strokeWidth={0.5}
+					<g
+						transform={`translate(${CENTER.x + pan.x} ${CENTER.y + pan.y}) scale(${zoom})`}
+					>
+						<rect
+							x={-600}
+							y={-450}
+							width={1200}
+							height={900}
+							fill="url(#map-grid)"
 						/>
-					))}
 
-					{topicEdges.map((edge) => {
-						const node = nodesById.get(edge.source);
-						const topic = topicsById.get(edge.target);
-						if (!node || !topic) return null;
-						const dimmed = !nodeVisibility.get(node.id);
-						return (
+						{graph.topics.map((topic, i) => {
+							const next = graph.topics[(i + 1) % graph.topics.length];
+							if (!next || next.id === topic.id) return null;
+							return (
+								<line
+									key={`ring-${topic.id}`}
+									x1={topic.x - CENTER.x}
+									y1={topic.y - CENTER.y}
+									x2={next.x - CENTER.x}
+									y2={next.y - CENTER.y}
+									stroke="rgba(127,227,224,0.05)"
+									strokeWidth={0.7}
+									strokeDasharray="6,14"
+								/>
+							);
+						})}
+
+						{graph.topics.map((topic) => (
 							<line
-								key={`nt-${edge.source}-${edge.target}`}
-								x1={node.x - CENTER.x}
-								y1={node.y - CENTER.y}
+								key={`radial-${topic.id}`}
+								x1={0}
+								y1={0}
 								x2={topic.x - CENTER.x}
 								y2={topic.y - CENTER.y}
-								stroke="rgba(127,227,224,0.16)"
-								strokeWidth={0.8}
-								opacity={
-									dimmed
-										? 0.15
-										: activeHoverId === node.id || activeHoverId === topic.id
-											? 1
-											: 0.7
-								}
+								stroke="rgba(127,227,224,0.04)"
+								strokeWidth={0.5}
 							/>
-						);
-					})}
+						))}
 
-					{noteEdges.map((edge) => {
-						const a = nodesById.get(edge.source);
-						const b = nodesById.get(edge.target);
-						if (!a || !b) return null;
-						const dimmed =
-							!nodeVisibility.get(a.id) || !nodeVisibility.get(b.id);
-						return (
-							<line
-								key={`ll-${edge.source}-${edge.target}`}
-								x1={a.x - CENTER.x}
-								y1={a.y - CENTER.y}
-								x2={b.x - CENTER.x}
-								y2={b.y - CENTER.y}
-								stroke="rgba(127,227,224,0.28)"
-								strokeWidth={1}
-								strokeDasharray="2,6"
-								opacity={dimmed ? 0.15 : 1}
-							/>
-						);
-					})}
-
-					<circle cx={0} cy={0} r={2.5} fill="rgba(127,227,224,0.12)" />
-
-					{graph.topics.map((topic) => {
-						const x = topic.x - CENTER.x;
-						const y = topic.y - CENTER.y;
-						const isHover = activeHoverId === topic.id;
-						const dimmed =
-							filters.topics.length > 0 && !filters.topics.includes(topic.id);
-						// 菱形（45°回転した正方形）で描画（丸い形より荒削りな印象、§10.2 v1.8）。
-						const r = isHover ? 19 : 16;
-						return (
-							// biome-ignore lint/a11y/noStaticElementInteractions: トピックはリンク先を持たずクリック不可（hover ツールチップのみ）。マウス専用の補助表示のため、キーボード等価は設けない
-							<g
-								key={topic.id}
-								onMouseEnter={(e) => {
-									setHoverId(topic.id);
-									setTooltipPos({ x: e.clientX, y: e.clientY });
-								}}
-								onMouseLeave={() => setHoverId(null)}
-							>
-								<rect
-									x={x - r}
-									y={y - r}
-									width={r * 2}
-									height={r * 2}
-									fill="rgba(7,22,34,0.75)"
-									stroke={dimmed ? C.borderFaint : isHover ? C.cyan : C.border}
-									strokeWidth={isHover ? 1.5 : 1}
-									opacity={dimmed ? 0.3 : 1}
-									filter={isHover ? "url(#map-glow)" : undefined}
-									transform={`rotate(45 ${x} ${y})`}
+						{topicEdges.map((edge) => {
+							const node = nodesById.get(edge.source);
+							const topic = topicsById.get(edge.target);
+							if (!node || !topic) return null;
+							const dimmed = !nodeVisibility.get(node.id);
+							return (
+								<line
+									key={`nt-${edge.source}-${edge.target}`}
+									x1={node.x - CENTER.x}
+									y1={node.y - CENTER.y}
+									x2={topic.x - CENTER.x}
+									y2={topic.y - CENTER.y}
+									stroke="rgba(127,227,224,0.16)"
+									strokeWidth={0.8}
+									opacity={
+										dimmed
+											? 0.15
+											: activeHoverId === node.id || activeHoverId === topic.id
+												? 1
+												: 0.7
+									}
 								/>
-								<circle
-									cx={x}
-									cy={y}
-									r={5}
-									fill={dimmed ? C.cyanFaint : isHover ? C.cyan : C.cyanDim}
-									opacity={dimmed ? 0.3 : 1}
+							);
+						})}
+
+						{noteEdges.map((edge) => {
+							const a = nodesById.get(edge.source);
+							const b = nodesById.get(edge.target);
+							if (!a || !b) return null;
+							const dimmed =
+								!nodeVisibility.get(a.id) || !nodeVisibility.get(b.id);
+							return (
+								<line
+									key={`ll-${edge.source}-${edge.target}`}
+									x1={a.x - CENTER.x}
+									y1={a.y - CENTER.y}
+									x2={b.x - CENTER.x}
+									y2={b.y - CENTER.y}
+									stroke="rgba(127,227,224,0.28)"
+									strokeWidth={1}
+									strokeDasharray="2,6"
+									opacity={dimmed ? 0.15 : 1}
 								/>
-								<text
-									x={x}
-									y={y + 38}
-									textAnchor="middle"
-									fill={dimmed ? C.borderFaint : isHover ? C.text : C.muted}
-									style={{
-										fontFamily: font.dot,
-										fontSize: fs(11),
-										pointerEvents: "none",
-									}}
+							);
+						})}
+
+						<circle cx={0} cy={0} r={2.5} fill="rgba(127,227,224,0.12)" />
+
+						{graph.topics.map((topic) => {
+							const x = topic.x - CENTER.x;
+							const y = topic.y - CENTER.y;
+							const isHover = activeHoverId === topic.id;
+							const dimmed =
+								filters.topics.length > 0 && !filters.topics.includes(topic.id);
+							// 菱形（45°回転した正方形）で描画（丸い形より荒削りな印象、§10.2 v1.8）。
+							const r = isHover ? 19 : 16;
+							return (
+								// biome-ignore lint/a11y/noStaticElementInteractions: トピックはリンク先を持たずクリック不可（hover 詳細パネルのみ）。マウス専用の補助表示のため、キーボード等価は設けない
+								<g
+									key={topic.id}
+									onMouseEnter={() => setHoverId(topic.id)}
+									onMouseLeave={() => setHoverId(null)}
 								>
-									{topic.id}
-								</text>
-								{topic.count > 0 && !dimmed ? (
+									<rect
+										x={x - r}
+										y={y - r}
+										width={r * 2}
+										height={r * 2}
+										fill="rgba(7,22,34,0.75)"
+										stroke={
+											dimmed ? C.borderFaint : isHover ? C.cyan : C.border
+										}
+										strokeWidth={isHover ? 1.5 : 1}
+										opacity={dimmed ? 0.3 : 1}
+										filter={isHover ? "url(#map-glow)" : undefined}
+										transform={`rotate(45 ${x} ${y})`}
+									/>
+									<circle
+										cx={x}
+										cy={y}
+										r={5}
+										fill={dimmed ? C.cyanFaint : isHover ? C.cyan : C.cyanDim}
+										opacity={dimmed ? 0.3 : 1}
+									/>
 									<text
-										x={x + 15}
-										y={y - 18}
-										fill={C.cyan}
-										opacity={0.6}
+										x={x}
+										y={y + 38}
+										textAnchor="middle"
+										fill={dimmed ? C.borderFaint : isHover ? C.text : C.muted}
 										style={{
-											fontFamily: font.mon,
-											fontSize: fs(9),
+											fontFamily: font.dot,
+											fontSize: fs(11),
 											pointerEvents: "none",
 										}}
 									>
-										×{topic.count}
+										{topic.id}
 									</text>
-								) : null}
-							</g>
-						);
-					})}
+									{topic.count > 0 && !dimmed ? (
+										<text
+											x={x + 15}
+											y={y - 18}
+											fill={C.cyan}
+											opacity={0.6}
+											style={{
+												fontFamily: font.mon,
+												fontSize: fs(9),
+												pointerEvents: "none",
+											}}
+										>
+											×{topic.count}
+										</text>
+									) : null}
+								</g>
+							);
+						})}
 
-					{graph.nodes.map((node) => {
-						const x = node.x - CENTER.x;
-						const y = node.y - CENTER.y;
-						const visible = nodeVisibility.get(node.id) ?? true;
-						const isHover = activeHoverId === node.id;
-						const color = node.status ? statusColor(node.status) : C.muted;
-						const href = `/garden/${node.id}`;
-						// 小さな四角ドットで描画（丸い形より荒削りな印象、§10.2 v1.8）。
-						const s = isHover ? 6 : 4;
-						return (
-							<Link
-								key={node.id}
-								href={href}
-								aria-label={node.title}
-								// 十字キー選択時にツールチップを出すための目印（MutationObserver から参照）。
-								data-node-id={node.id}
-								onPointerDown={(e) => e.stopPropagation()}
-								onMouseEnter={(e) => {
-									setHoverId(node.id);
-									setTooltipPos({ x: e.clientX, y: e.clientY });
-								}}
-								onMouseLeave={() => setHoverId(null)}
-								onClick={(e) => {
-									// 直接遷移せず確認モーダルを挟む（spec SC-003 §3.2/§3.3、F-MAP-003）。
-									e.preventDefault();
-									setPendingNav({ href, title: node.title });
-								}}
-								style={{ cursor: "pointer", opacity: visible ? 1 : 0.15 }}
-							>
-								{/* あたり判定用の透明な広めの円。可視の点(r=6〜9)だけだとクリック/タップ判定が小さすぎるため（design §10.6 モバイル操作性）。 */}
-								<circle cx={x} cy={y} r={16} fill="transparent" />
-								<rect
-									x={x - s}
-									y={y - s}
-									width={s * 2}
-									height={s * 2}
-									fill="rgba(7,22,34,0.8)"
-									stroke={color}
-									strokeWidth={isHover ? 1.5 : 1}
-									filter={isHover ? "url(#map-glow)" : undefined}
-								/>
-								<rect
-									x={x - 2}
-									y={y - 2}
-									width={4}
-									height={4}
-									fill={color}
-									opacity={0.9}
-								/>
-								<text
-									x={x}
-									y={y - 13}
-									textAnchor="middle"
-									fill={isHover ? C.text : C.muted}
-									opacity={isHover ? 0.9 : 0.45}
-									style={{
-										fontFamily: font.mon,
-										fontSize: fs(8),
-										pointerEvents: "none",
+						{graph.nodes.map((node) => {
+							const x = node.x - CENTER.x;
+							const y = node.y - CENTER.y;
+							const visible = nodeVisibility.get(node.id) ?? true;
+							const isHover = activeHoverId === node.id;
+							const color = node.status ? statusColor(node.status) : C.muted;
+							const href = `/garden/${node.id}`;
+							// 小さな四角ドットで描画（丸い形より荒削りな印象、§10.2 v1.8）。
+							const s = isHover ? 6 : 4;
+							return (
+								<Link
+									key={node.id}
+									href={href}
+									aria-label={node.title}
+									// 十字キー選択時に詳細パネルを出すための目印（MutationObserver から参照）。
+									data-node-id={node.id}
+									data-roving-default={
+										node.id === defaultFocusNodeId ? "true" : undefined
+									}
+									onPointerDown={(e) => e.stopPropagation()}
+									onMouseEnter={() => setHoverId(node.id)}
+									onMouseLeave={() => setHoverId(null)}
+									onClick={(e) => {
+										// 直接遷移せず確認モーダルを挟む（spec SC-003 §3.2/§3.3、F-MAP-003）。
+										e.preventDefault();
+										setPendingNav({ href, title: node.title });
 									}}
+									style={{ cursor: "pointer", opacity: visible ? 1 : 0.15 }}
 								>
-									{node.file}
-								</text>
-							</Link>
-						);
-					})}
-				</g>
-			</svg>
+									{/* あたり判定用の透明な広めの円。可視の点(r=6〜9)だけだとクリック/タップ判定が小さすぎるため（design §10.6 モバイル操作性）。 */}
+									<circle cx={x} cy={y} r={16} fill="transparent" />
+									<rect
+										x={x - s}
+										y={y - s}
+										width={s * 2}
+										height={s * 2}
+										fill="rgba(7,22,34,0.8)"
+										stroke={color}
+										strokeWidth={isHover ? 1.5 : 1}
+										filter={isHover ? "url(#map-glow)" : undefined}
+									/>
+									<rect
+										x={x - 2}
+										y={y - 2}
+										width={4}
+										height={4}
+										fill={color}
+										opacity={0.9}
+									/>
+									<text
+										x={x}
+										y={y - 13}
+										textAnchor="middle"
+										fill={isHover ? C.text : C.muted}
+										opacity={isHover ? 0.9 : 0.45}
+										style={{
+											fontFamily: font.mon,
+											fontSize: fs(8),
+											pointerEvents: "none",
+										}}
+									>
+										{node.file}
+									</text>
+								</Link>
+							);
+						})}
+					</g>
+				</svg>
 
-			{hoverNode ? (
+				{/* コンテナの onPointerDown/Move/Up（地図のパン操作）へイベントが伝播すると、
+				 * ボタンクリックがドラッグ開始と競合して効かなくなるため止める（NavigateConfirmDialog と同様）。 */}
 				<div
-					className="pointer-events-none fixed z-[100] max-w-[220px] border-2 border-arch-border bg-arch-panel p-3"
-					style={{ left: activeTooltipPos.x + 14, top: activeTooltipPos.y - 8 }}
+					className="absolute right-4 bottom-4 z-10 flex flex-col gap-1"
+					onPointerDown={(e) => e.stopPropagation()}
+					onPointerMove={(e) => e.stopPropagation()}
+					onPointerUp={(e) => e.stopPropagation()}
 				>
-					<div className="mb-1 font-mon text-[calc(9px*var(--font-scale))] text-arch-cyan">
-						{hoverNode.file}
-					</div>
-					<div className="mb-1.5 font-dot text-arch-xs text-arch-text">
-						{hoverNode.title}
-					</div>
-					{hoverNode.status ? (
-						<div className="mb-1.5">
-							<Badge status={hoverNode.status} />
+					<button
+						type="button"
+						onClick={() => setZoom((z) => clampZoom(z + ZOOM_STEP))}
+						className={zoomButtonClass}
+						aria-label="ズームイン"
+					>
+						+
+					</button>
+					<button
+						type="button"
+						onClick={() => setZoom((z) => clampZoom(z - ZOOM_STEP))}
+						className={zoomButtonClass}
+						aria-label="ズームアウト"
+					>
+						−
+					</button>
+					<button
+						type="button"
+						onClick={() => {
+							setZoom(1);
+							setPan(computeCenteredPan(containerRef.current));
+						}}
+						className={zoomButtonClass}
+						aria-label="表示をリセット"
+					>
+						⌂
+					</button>
+				</div>
+
+				<div className="absolute bottom-4 left-4 font-mon text-[calc(9px*var(--font-scale))] text-arch-muted tracking-wide opacity-35">
+					ドラッグ: パン　スクロール: ズーム
+				</div>
+
+				{pendingNav ? (
+					<NavigateConfirmDialog
+						pending={pendingNav}
+						onCancel={() => setPendingNav(null)}
+						onConfirm={() =>
+							navigateWithFlash(pendingNav.href, pendingNav.href)
+						}
+						confirmFlashing={navFlashingKey === pendingNav.href}
+					/>
+				) : null}
+			</div>
+
+			{/* hover 詳細パネル（design §9.3・spec SC-003 §3.2 F-MAP-003 v1.22）。
+			 * 以前はカーソル追従のフローティングツールチップだったが、地図の描画内容と重なって
+			 * 見えづらいとのフィードバックによりマップキャンバスの外側・右側の固定パネルへ変更。 */}
+			<aside className="w-full shrink-0 border border-arch-border bg-arch-panel-dark p-3 lg:w-64">
+				{hoverNode ? (
+					<div>
+						<div className="mb-1 font-mon text-[calc(9px*var(--font-scale))] text-arch-cyan">
+							{hoverNode.file}
 						</div>
-					) : null}
-					<div className="font-min text-[calc(11px*var(--font-scale))] text-arch-muted leading-relaxed">
-						{summaryBySlug.get(hoverNode.id) ?? ""}
+						<div className="mb-1.5 font-dot text-arch-xs text-arch-text">
+							{hoverNode.title}
+						</div>
+						{hoverNode.status ? (
+							<div className="mb-1.5">
+								<Badge status={hoverNode.status} />
+							</div>
+						) : null}
+						<div className="font-min text-[calc(11px*var(--font-scale))] text-arch-muted leading-relaxed">
+							{summaryBySlug.get(hoverNode.id) ?? ""}
+						</div>
 					</div>
-					<div className="mt-1.5 font-mon text-[calc(8px*var(--font-scale))] text-arch-cyan-dim tracking-wide">
-						クリックで詳細を開く →
+				) : hoverTopic ? (
+					<div>
+						<div className="mb-1 font-dot text-arch-sm text-arch-cyan">
+							{hoverTopic.id}
+						</div>
+						<div className="font-mon text-[calc(9px*var(--font-scale))] text-arch-muted">
+							{hoverTopic.count} notes
+						</div>
 					</div>
-				</div>
-			) : hoverTopic ? (
-				<div
-					className="pointer-events-none fixed z-[100] max-w-[220px] border-2 border-arch-border bg-arch-panel p-3"
-					style={{ left: activeTooltipPos.x + 14, top: activeTooltipPos.y - 8 }}
-				>
-					<div className="mb-1 font-dot text-arch-sm text-arch-cyan">
-						{hoverTopic.id}
+				) : (
+					<div className="font-mon text-[calc(9px*var(--font-scale))] text-arch-muted opacity-60">
+						ノードにカーソルを合わせると詳細を表示します。
 					</div>
-					<div className="font-mon text-[calc(9px*var(--font-scale))] text-arch-muted">
-						{hoverTopic.count} notes
-					</div>
-				</div>
-			) : null}
-
-			{/* コンテナの onPointerDown/Move/Up（地図のパン操作）へイベントが伝播すると、
-			 * ボタンクリックがドラッグ開始と競合して効かなくなるため止める（NavigateConfirmDialog と同様）。 */}
-			<div
-				className="absolute right-4 bottom-4 z-10 flex flex-col gap-1"
-				onPointerDown={(e) => e.stopPropagation()}
-				onPointerMove={(e) => e.stopPropagation()}
-				onPointerUp={(e) => e.stopPropagation()}
-			>
-				<button
-					type="button"
-					onClick={() => setZoom((z) => clampZoom(z + ZOOM_STEP))}
-					className={zoomButtonClass}
-					aria-label="ズームイン"
-				>
-					+
-				</button>
-				<button
-					type="button"
-					onClick={() => setZoom((z) => clampZoom(z - ZOOM_STEP))}
-					className={zoomButtonClass}
-					aria-label="ズームアウト"
-				>
-					−
-				</button>
-				<button
-					type="button"
-					onClick={() => {
-						setZoom(1);
-						setPan(computeCenteredPan(containerRef.current));
-					}}
-					className={zoomButtonClass}
-					aria-label="表示をリセット"
-				>
-					⌂
-				</button>
-			</div>
-
-			<div className="absolute bottom-4 left-4 font-mon text-[calc(9px*var(--font-scale))] text-arch-muted tracking-wide opacity-35">
-				ドラッグ: パン　スクロール: ズーム
-			</div>
-
-			{pendingNav ? (
-				<NavigateConfirmDialog
-					pending={pendingNav}
-					onCancel={() => setPendingNav(null)}
-					onConfirm={() => navigateWithFlash(pendingNav.href, pendingNav.href)}
-					confirmFlashing={navFlashingKey === pendingNav.href}
-				/>
-			) : null}
+				)}
+			</aside>
 		</div>
 	);
 }

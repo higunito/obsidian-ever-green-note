@@ -20,16 +20,16 @@ const KEY_BINDINGS = [
 	},
 	{
 		keys: "Enter / Z",
-		description: "選択中の項目を決定する（クリックと同じ）。",
+		description: "選択中の項目を決定します（クリックと同じ）。",
 	},
-	{ keys: "Esc / X", description: "1 つ前の画面に戻る。" },
+	{ keys: "Esc / X", description: "1 つ前の画面に戻ります。" },
 ] as const;
 
 /** タイトル画面（`/`）は `Nav` に含まれないため、`NAV_ITEMS` とは別に手動で用意する。 */
 const TITLE_PAGE_ITEM = {
 	gameName: "TITLE",
 	label: "タイトル",
-	description: "起動画面。CONFIG の「タイトルを見る」からいつでも見返せる。",
+	description: "起動画面。CONFIG の「タイトルを見る」からいつでも見返せます。",
 } as const;
 
 function SectionHeading({ children }: { children: ReactNode }) {

@@ -24,7 +24,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
 		label: "Garden",
 		href: "/garden",
 		description:
-			"断片的なノート（Garden）の一覧。ノートを開くと、関連ノートが横に積み重なる Stack View で探索できる。",
+			"断片的なノート（Garden）の一覧。ノートを開くと、関連ノートが横に積み重なる Stack View で探索できます。",
 	},
 	{
 		gameName: "ARTICLE",
