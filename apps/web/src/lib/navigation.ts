@@ -13,14 +13,14 @@ export interface NavItem {
 
 export const NAV_ITEMS: readonly NavItem[] = [
 	{
-		gameName: "MAIN MENU",
+		gameName: "HOME",
 		label: "Home",
 		href: "/home",
 		description:
 			"「最近更新された記録」「3つの入り口」「思考マップ」「記事一覧」への入り口をまとめたメインメニュー。",
 	},
 	{
-		gameName: "FRAGMENTS",
+		gameName: "GARDEN",
 		label: "Garden",
 		href: "/garden",
 		description:
@@ -29,7 +29,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
 	{
 		gameName: "ARTICLE",
 		label: "Essays",
-		href: "/essays",
+		href: "/articles",
 		description: "まとまった文章（Essay）の一覧と詳細。",
 	},
 	{
@@ -41,7 +41,7 @@ export const NAV_ITEMS: readonly NavItem[] = [
 	{
 		gameName: "ROUTE",
 		label: "Paths",
-		href: "/paths",
+		href: "/route",
 		description: "テーマ別に編集した、ノートを辿る順路（思考のルート）。",
 	},
 	{

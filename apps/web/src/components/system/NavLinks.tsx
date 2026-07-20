@@ -4,7 +4,7 @@ import { NAV_ITEMS, type NavItem } from "@web/lib/navigation";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 
-// FRAGMENTS(`/garden`)と MAP(`/garden?view=map`)のように同じパスを共有する項目は
+// GARDEN(`/garden`)と MAP(`/garden?view=map`)のように同じパスを共有する項目は
 // `view` クエリの一致で判定する（一致しない項目は他方が代わりにハイライトされる）。
 function isActive(
 	item: NavItem,

@@ -35,7 +35,7 @@ export default async function HomePage() {
 	const hasGardenNotes = gardenArticles.length > 0;
 
 	const fragmentsContent = (
-		<Window title="FRAGMENTS — 最近更新された記録" className="h-full">
+		<Window title="GARDEN — 最近更新された記録" className="h-full">
 			{hasGardenNotes ? (
 				<div className="grid grid-cols-[repeat(auto-fill,minmax(195px,1fr))] gap-2.5 p-3">
 					{recentGarden.map((note, i) => (
@@ -69,7 +69,7 @@ export default async function HomePage() {
 					<div className="flex flex-wrap items-center gap-3">
 						<NavBack label="◀ TITLE" href="/" />
 						<h1 className="font-dot text-arch-sm text-arch-text">
-							MAIN MENU / Home
+							HOME / Home
 						</h1>
 					</div>
 					<Nav />

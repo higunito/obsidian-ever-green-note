@@ -2,9 +2,9 @@ import type { Article, ArticleLayer } from "@web/types/content";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-// 内部リンクの遷移先はレイヤーで決まる（Garden→/garden、Essay→/essays。design §5.2 / spec SC-006）。
+// 内部リンクの遷移先はレイヤーで決まる（Garden→/garden、Essay→/articles。design §5.2 / spec SC-006）。
 export function layerBasePath(layer: ArticleLayer): string {
-	return layer === "essay" ? "/essays" : "/garden";
+	return layer === "article" ? "/articles" : "/garden";
 }
 
 // 生成物（bodyHtml）の href は slug を percent-encode しているため、アプリ側も同じ規則で組み立てる。

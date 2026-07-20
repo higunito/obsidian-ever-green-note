@@ -16,7 +16,7 @@ interface PathCardProps {
 export function PathCard({ path, defaultFocus }: PathCardProps) {
 	return (
 		<Link
-			href={`/paths/${encodeURIComponent(path.slug)}`}
+			href={`/route/${encodeURIComponent(path.slug)}`}
 			data-roving-default={defaultFocus ? "true" : undefined}
 			className="block border border-arch-border bg-[rgba(11,26,43,0.7)] p-3 transition-all hover:border-arch-cyan hover:bg-[rgba(20,50,58,0.95)]"
 		>

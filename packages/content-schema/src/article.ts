@@ -3,7 +3,7 @@ import { z } from "zod";
 export const noteStatusSchema = z.enum(["seed", "growing", "evergreen"]);
 export type NoteStatus = z.infer<typeof noteStatusSchema>;
 
-export const articleLayerSchema = z.enum(["garden", "essay"]);
+export const articleLayerSchema = z.enum(["garden", "article"]);
 export type ArticleLayer = z.infer<typeof articleLayerSchema>;
 
 export const articleChannelSchema = z.enum(["native", "note"]);

@@ -6,7 +6,7 @@ const resolver: WikilinkResolver = (name) => {
 	if (name === "因果と偶然")
 		return { slug: "causality-and-chance", layer: "garden" };
 	if (name === "断片から書くということ")
-		return { slug: "writing-with-fragments", layer: "essay" };
+		return { slug: "writing-with-fragments", layer: "article" };
 	return undefined;
 };
 
@@ -22,9 +22,9 @@ describe("renderMarkdown", () => {
 		expect(outboundLinks).toEqual(["causality-and-chance"]);
 	});
 
-	it("essay へのリンクは /essays/ を使う", () => {
+	it("article へのリンクは /articles/ を使う", () => {
 		const { html } = renderMarkdown("[[断片から書くということ]]", resolver);
-		expect(html).toContain('href="/essays/writing-with-fragments"');
+		expect(html).toContain('href="/articles/writing-with-fragments"');
 	});
 
 	it("表示名付き wikilink（[[name|display]]）は表示名を使う", () => {

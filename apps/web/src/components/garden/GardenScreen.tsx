@@ -84,7 +84,7 @@ export function GardenScreen({
 			<div className="flex flex-wrap items-center gap-3">
 				<NavBack label="◀ HOME" href="/home" />
 				<h1 className="font-dot text-arch-sm text-arch-text">
-					FRAGMENTS / Garden
+					GARDEN / Garden
 				</h1>
 				<div className="ml-auto flex gap-3">
 					<Link

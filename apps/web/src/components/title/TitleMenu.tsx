@@ -11,19 +11,13 @@ import {
 	useState,
 } from "react";
 
-const MENU_ITEMS = [
-	"START",
-	"FRAGMENTS",
-	"ARTICLE",
-	"OTHERS",
-	"CONFIG",
-] as const;
+const MENU_ITEMS = ["START", "GARDEN", "ARTICLE", "OTHERS", "CONFIG"] as const;
 const OTHERS_INDEX = 3;
 
 const MENU_HREF: Partial<Record<number, string>> = {
 	0: "/home",
 	1: "/garden",
-	2: "/essays",
+	2: "/articles",
 	4: "/config",
 };
 
@@ -82,7 +76,7 @@ function OthersPanel({
 
 const OTHERS_ITEMS = [
 	{ gameName: "MAP", href: "/garden?view=map" },
-	{ gameName: "ROUTE", href: "/paths" },
+	{ gameName: "ROUTE", href: "/route" },
 	{ gameName: "ABOUT", href: "/about" },
 	{ gameName: "SEARCH", href: "/search" },
 ] as const;

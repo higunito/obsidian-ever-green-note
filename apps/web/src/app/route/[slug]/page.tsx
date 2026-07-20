@@ -23,7 +23,7 @@ function parseStep(value: string | undefined, max: number): number {
 }
 
 function stepHref(slug: string, step: number): string {
-	return `/paths/${encodeURIComponent(slug)}?step=${step}`;
+	return `/route/${encodeURIComponent(slug)}?step=${step}`;
 }
 
 /**
@@ -59,14 +59,14 @@ export default async function PathDetailPage({
 
 	return (
 		<>
-			<KeyboardBack href="/paths" />
+			<KeyboardBack href="/route" />
 			{/* main の幅は他の Nav 設置ページと統一する（Nav の折り返しを避けるため）。
 			    本文は読みやすさのため内側の div で従来通り max-w-3xl に絞る。 */}
 			<main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 p-5">
 				{/* 十字キーの対象（spec SC-008 §8.3）：Nav/NavBack・前へ/次へ・ステップ列（各 NoteCard）。 */}
 				<SpatialNavRegion className="flex flex-1 flex-col gap-4">
 					<div className="flex flex-wrap items-center gap-3">
-						<NavBack label="◀ ROUTE" href="/paths" />
+						<NavBack label="◀ ROUTE" href="/route" />
 						<h1 className="font-dot text-arch-sm text-arch-text">
 							{path.title}
 						</h1>

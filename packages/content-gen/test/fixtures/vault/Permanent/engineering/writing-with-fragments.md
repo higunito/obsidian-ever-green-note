@@ -3,7 +3,7 @@ aliases:
 title: 断片から書くということ
 date: "2026-02-10 09:00"
 updated: 2026-02-20
-type: essay
+type: article
 status:
 topics:
   - エッセイ

@@ -12,7 +12,7 @@ const TABS = [
 	"記事を読む",
 ] as const;
 
-// FRAGMENTS と THREE DOORS を同じ大きさで切替表示するための固定高さ（spec SC-001 §1.2）。
+// GARDEN と THREE DOORS を同じ大きさで切替表示するための固定高さ（spec SC-001 §1.2）。
 // 高さも --font-scale で拡大する：カード内テキストだけ拡大して高さは固定のままだと、
 // 文字サイズ「大」でカードが縦に伸びてパネル下端で見切れてしまうため（v1.20 バグ修正）。
 const PANEL_SIZE_CLASS = "h-[calc(360px*var(--font-scale))] overflow-y-auto";
@@ -26,7 +26,7 @@ function tabClass(active: boolean): string {
 }
 
 interface SelectEntryPanelProps {
-	/** タブ0「最近更新された記録」選択時に表示する FRAGMENTS パネル。 */
+	/** タブ0「最近更新された記録」選択時に表示する GARDEN パネル。 */
 	fragmentsContent: ReactNode;
 	/** タブ1「3つの入り口から探索する」選択時に表示する THREE DOORS パネル。 */
 	threeDoorsContent: ReactNode;
@@ -78,7 +78,7 @@ export function SelectEntryPanel({
 				<div
 					className={`${PANEL_SIZE_CLASS} flex items-start justify-center pt-6`}
 				>
-					<EntryLinkModal label="記事一覧へ" href="/essays" />
+					<EntryLinkModal label="記事一覧へ" href="/articles" />
 				</div>
 			) : null}
 		</div>

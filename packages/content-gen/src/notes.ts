@@ -61,7 +61,7 @@ function loadCandidate(
 }
 
 /**
- * Fleeting/（→garden）・Permanent/（→essay）から publish:true のノートだけを読み込む。
+ * Fleeting/（→garden）・Permanent/（→article）から publish:true のノートだけを読み込む。
  * 非公開ゾーンは scanZone を一切呼ばないため、この関数の走査結果に非公開ノートが混じることはない。
  */
 export function loadPublishableNotes(vaultDir: string): PublishableNote[] {
@@ -75,7 +75,7 @@ export function loadPublishableNotes(vaultDir: string): PublishableNote[] {
 		...permanentFiles.map((f) =>
 			loadCandidate(
 				f,
-				"essay",
+				"article",
 				f.relPath.startsWith("note/") ? "note" : "native",
 			),
 		),
@@ -100,7 +100,7 @@ export function loadPublishableNotes(vaultDir: string): PublishableNote[] {
 		notes.push({
 			relPath: candidate.relPath,
 			layer: candidate.layer,
-			channel: candidate.layer === "essay" ? candidate.channel : undefined,
+			channel: candidate.layer === "article" ? candidate.channel : undefined,
 			slug,
 			title,
 			date: normalizeDateOnly(candidate.data.date),

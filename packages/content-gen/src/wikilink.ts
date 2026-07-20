@@ -13,7 +13,7 @@ const WIKILINK_RE = /\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g;
 
 /**
  * 本文中の `[[ノート名]]` / `[[ノート名|表示名]]` を解決する。
- * - 解決できた場合：レイヤーに応じた href（/garden/[slug] | /essays/[slug]）を持つ link ノードに変換し、
+ * - 解決できた場合：レイヤーに応じた href（/garden/[slug] | /articles/[slug]）を持つ link ノードに変換し、
  *   `resolved` コールバックで outboundLinks に記録する。
  * - 解決できない場合（非公開ノート・存在しないノート）：**死リンクにせずテキスト化**する（design §12.5 のサニタイズ）。
  *
@@ -55,8 +55,8 @@ export function applyWikilinks(
 				if (target) {
 					onResolved(target);
 					const href =
-						target.layer === "essay"
-							? `/essays/${target.slug}`
+						target.layer === "article"
+							? `/articles/${target.slug}`
 							: `/garden/${target.slug}`;
 					const link: Link = {
 						type: "link",

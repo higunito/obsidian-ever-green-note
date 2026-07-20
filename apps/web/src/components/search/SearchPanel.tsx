@@ -29,7 +29,7 @@ function popularTopics(items: readonly SearchItem[]): string[] {
 }
 
 function layerLabel(layer: SearchItem["layer"]): string {
-	return layer === "essay" ? "ARTICLE" : "FRAGMENTS";
+	return layer === "article" ? "ARTICLE" : "GARDEN";
 }
 
 /**

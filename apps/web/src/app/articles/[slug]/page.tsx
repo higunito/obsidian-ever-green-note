@@ -51,7 +51,7 @@ function EssayRelatedNotes({ notes }: { notes: readonly RelatedNote[] }) {
 
 /**
  * SC-006 Essay 詳細（design §9.3、spec SC-006）。Craig Mod 型の長文リーダー。
- * 本文中の `[[link]]` は content-gen が生成時に遷移先 layer 込みで `/garden/[slug]`・`/essays/[slug]`
+ * 本文中の `[[link]]` は content-gen が生成時に遷移先 layer 込みで `/garden/[slug]`・`/articles/[slug]`
  * へ解決済み（design §5.2 / Phase 2 実装）のため、Stack のようなクリック横取りは不要（spec 6.3）。
  */
 export default async function EssayDetailPage({
@@ -63,7 +63,7 @@ export default async function EssayDetailPage({
 	const articles = await store.getArticles();
 	const articlesBySlug = new Map(articles.map((a) => [a.slug, a]));
 	const essay = articlesBySlug.get(slug);
-	if (essay?.layer !== "essay") notFound();
+	if (essay?.layer !== "article") notFound();
 
 	const relatedNotes: RelatedNote[] = essay.backlinks.flatMap((backSlug) => {
 		const target = articlesBySlug.get(backSlug);
@@ -74,13 +74,13 @@ export default async function EssayDetailPage({
 
 	return (
 		<>
-			<KeyboardBack href="/essays" />
+			<KeyboardBack href="/articles" />
 			{/* 本文幅は可読行長（65〜75字相当）で固定（spec SC-006 §6.2）。640px は
 			    Noto Serif JP・本アプリの本文サイズでの実測目安（数値の根拠は spec に無いため実装時に決定）。 */}
 			<main className="mx-auto flex w-full max-w-[640px] flex-1 flex-col gap-6 p-5 pt-8">
 				{/* 十字キーの対象（spec SC-006 §6.3）：NavBack・本文中の [[link]]・Backlinks / 関連ノート。 */}
 				<SpatialNavRegion className="flex flex-col gap-6">
-					<NavBack label="◀ ARTICLE" href="/essays" />
+					<NavBack label="◀ ARTICLE" href="/articles" />
 
 					<header className="flex flex-col gap-2">
 						<h1 className="font-dot text-arch-base leading-relaxed text-arch-text sm:text-arch-lg">

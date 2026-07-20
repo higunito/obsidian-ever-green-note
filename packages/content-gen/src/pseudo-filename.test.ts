@@ -12,7 +12,7 @@ describe("computeBaseName", () => {
 });
 
 describe("assignPseudoFilenames", () => {
-	it("MOC/essay は .EXE、通常の garden は .DAT になる", () => {
+	it("MOC/article は .EXE、通常の garden は .DAT になる", () => {
 		const result = assignPseudoFilenames([
 			{ slug: "narrative-and-reality", extension: ".DAT" },
 			{ slug: "path-narrative-inquiry", extension: ".EXE" },

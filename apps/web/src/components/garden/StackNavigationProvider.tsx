@@ -15,7 +15,7 @@ interface StackNavigation {
 	state: StackState;
 	/**
 	 * slug を「開く」（design §5.2）。Garden なら Stack の状態遷移＋URL 更新、
-	 * Essay なら Stack に載せず `/essays/[slug]` へ素通しする（Essays は Stack 対象外、design §5.2）。
+	 * Essay なら Stack に載せず `/articles/[slug]` へ素通しする（Essays は Stack 対象外、design §5.2）。
 	 * FileWindow の本文リンク・Backlinks・LocalMap・Spine・パンくず・履歴ドロワーが共通して使う。
 	 */
 	open: (slug: string) => void;
@@ -47,8 +47,8 @@ export function StackNavigationProvider({
 
 	const open = useCallback(
 		(slug: string) => {
-			if (layerIndex.get(slug) === "essay") {
-				router.push(`/essays/${encodeURIComponent(slug)}`);
+			if (layerIndex.get(slug) === "article") {
+				router.push(`/articles/${encodeURIComponent(slug)}`);
 				return;
 			}
 			const next = openNote(state, slug);

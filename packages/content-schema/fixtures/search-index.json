@@ -50,7 +50,7 @@
 		},
 		{
 			"slug": "writing-with-fragments",
-			"layer": "essay",
+			"layer": "article",
 			"title": "断片から書くということ",
 			"summary": "断片的なノートを積み重ねて長い文章に育てる過程について。",
 			"topics": ["エッセイ", "文学"],
@@ -58,7 +58,7 @@
 		},
 		{
 			"slug": "engineering-as-craft",
-			"layer": "essay",
+			"layer": "article",
 			"title": "エンジニアリングは工芸である",
 			"summary": "ソフトウェアづくりを工芸として捉え直す。",
 			"topics": ["エンジニアリング", "技術"],

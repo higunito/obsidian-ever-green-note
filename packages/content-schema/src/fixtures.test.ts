@@ -31,9 +31,9 @@ describe("fixtures がスキーマ検証を通過する", () => {
 describe("fixtures の相互整合性（後続 Phase が前提にする不変条件）", () => {
 	const articleSlugs = new Set(fixtureArticles.map((a) => a.slug));
 
-	it("garden と essay の両レイヤーを含む", () => {
+	it("garden と article の両レイヤーを含む", () => {
 		const layers = new Set(fixtureArticles.map((a) => a.layer));
-		expect(layers).toEqual(new Set(["garden", "essay"]));
+		expect(layers).toEqual(new Set(["garden", "article"]));
 	});
 
 	it("outboundLinks は必ず既知の slug を指す", () => {

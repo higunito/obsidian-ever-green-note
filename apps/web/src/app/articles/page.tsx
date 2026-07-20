@@ -33,7 +33,7 @@ export default async function EssaysPage({ searchParams }: EssaysPageProps) {
 	const store = getContentStore();
 	const articles = await store.getArticles();
 	const nativeEssays = articles.filter(
-		(a) => a.layer === "essay" && a.channel === "native",
+		(a) => a.layer === "article" && a.channel === "native",
 	);
 	const allTopics = Array.from(
 		new Set(nativeEssays.flatMap((e) => e.topics)),
@@ -65,13 +65,13 @@ export default async function EssaysPage({ searchParams }: EssaysPageProps) {
 							<span className="font-mon text-[calc(9px*var(--font-scale))] text-arch-muted">
 								TOPIC:
 							</span>
-							<Link href="/essays" className={topicPillClass(!selectedTopic)}>
+							<Link href="/articles" className={topicPillClass(!selectedTopic)}>
 								すべて
 							</Link>
 							{allTopics.map((topic) => (
 								<Link
 									key={topic}
-									href={`/essays?topic=${encodeURIComponent(topic)}`}
+									href={`/articles?topic=${encodeURIComponent(topic)}`}
 									className={topicPillClass(selectedTopic === topic)}
 								>
 									{topic}
@@ -85,7 +85,7 @@ export default async function EssaysPage({ searchParams }: EssaysPageProps) {
 							<p>まだ記事がありません</p>
 							{selectedTopic ? (
 								<Link
-									href="/essays"
+									href="/articles"
 									className="mt-2 inline-block font-mon text-[calc(10px*var(--font-scale))] text-arch-cyan underline"
 								>
 									フィルタを解除

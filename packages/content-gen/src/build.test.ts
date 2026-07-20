@@ -57,7 +57,7 @@ describe("generateContent（fixture vault）", () => {
 		expect(slugs).toEqual([...slugs].sort());
 	});
 
-	it("Permanent/note/ 配下は channel:note、それ以外の essay は channel:native になる", () => {
+	it("Permanent/note/ 配下は channel:note、それ以外の article は channel:native になる", () => {
 		const jazz = result.articles.find((a) => a.slug === "jazz-jackets");
 		const essay = result.articles.find(
 			(a) => a.slug === "writing-with-fragments",
@@ -66,13 +66,13 @@ describe("generateContent（fixture vault）", () => {
 		expect(essay?.channel).toBe("native");
 	});
 
-	it("garden→essay の wikilink はレイヤーをまたいで解決され /essays/ を指す", () => {
+	it("garden→article の wikilink はレイヤーをまたいで解決され /articles/ を指す", () => {
 		const narrative = result.articles.find(
 			(a) => a.slug === "narrative-and-reality",
 		);
 		expect(narrative?.outboundLinks).toContain("writing-with-fragments");
 		expect(narrative?.bodyHtml).toContain(
-			'href="/essays/writing-with-fragments"',
+			'href="/articles/writing-with-fragments"',
 		);
 	});
 
@@ -92,8 +92,8 @@ describe("generateContent（fixture vault）", () => {
 				expect(bySlug.get(target)?.backlinks).toContain(article.slug);
 			}
 		}
-		// writing-with-fragments（essay）が narrative-and-reality（garden）へリンクしているので、
-		// 層をまたいで narrative-and-reality の backlinks に essay が含まれる。
+		// writing-with-fragments（article）が narrative-and-reality（garden）へリンクしているので、
+		// 層をまたいで narrative-and-reality の backlinks に article が含まれる。
 		expect(bySlug.get("narrative-and-reality")?.backlinks).toContain(
 			"writing-with-fragments",
 		);
@@ -119,7 +119,7 @@ describe("generateContent（fixture vault）", () => {
 			expect(gardenIds.has(edge.source)).toBe(true);
 			expect(gardenIds.has(edge.target)).toBe(true);
 		}
-		// writing-with-fragments（essay、graph ノードではない）からのリンクは辺として現れない。
+		// writing-with-fragments（article、graph ノードではない）からのリンクは辺として現れない。
 		expect(noteEdges.some((e) => e.source === "writing-with-fragments")).toBe(
 			false,
 		);

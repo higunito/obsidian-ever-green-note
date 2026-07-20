@@ -11,7 +11,7 @@ interface EntryLinkModalProps {
 }
 
 /**
- * `SelectEntryPanel` の MAP/ARTICLE タブ選択時に FRAGMENTS/THREE DOORS と同じ領域へ
+ * `SelectEntryPanel` の MAP/ARTICLE タブ選択時に GARDEN/THREE DOORS と同じ領域へ
  * 横中央寄せで出す遷移確認パネル（spec SC-001 §1.2、design §9.1 `EntryLinkModal`）。
  * 両タブで共通のコンポーネントを使う。表示位置は呼び出し側（`SelectEntryPanel`）が揃える。
  * クリック時は `useFlashNavigate`（`CommandMenu` と共通、v1.9）でビビビ点滅させてから遷移する。

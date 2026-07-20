@@ -1,7 +1,7 @@
 /**
  * 擬似ファイル名（design §9.4）の生成規則。
  * - slug をアルファベット以外も含め英数字だけに絞り、大文字化した先頭 8 文字を basename とする。
- * - 拡張子：essay または MOC（tags に `moc`）は `.EXE`、通常の Garden ノートは `.DAT`。
+ * - 拡張子：article または MOC（tags に `moc`）は `.EXE`、通常の Garden ノートは `.DAT`。
  * - 衝突時は basename の末尾に連番を足す（2, 3, ...）。
  */
 export type PseudoExtension = ".EXE" | ".DAT";

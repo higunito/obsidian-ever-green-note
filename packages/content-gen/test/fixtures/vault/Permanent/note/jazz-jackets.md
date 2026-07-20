@@ -3,7 +3,7 @@ aliases:
 title: 好きなジャズアルバムのジャケットの話
 date: "2026-05-29 07:38"
 updated: 2026-05-29
-type: essay
+type: article
 status:
 topics:
   - 音楽
