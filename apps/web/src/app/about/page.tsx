@@ -28,7 +28,6 @@ const KEY_BINDINGS = [
 /** タイトル画面（`/`）は `Nav` に含まれないため、`NAV_ITEMS` とは別に手動で用意する。 */
 const TITLE_PAGE_ITEM = {
 	gameName: "TITLE",
-	label: "タイトル",
 	description: "起動画面。CONFIG の「タイトルを見る」からいつでも見返せます。",
 } as const;
 
@@ -91,13 +90,8 @@ export default function AboutPage() {
 							<dl className="flex flex-col gap-3">
 								{[TITLE_PAGE_ITEM, ...NAV_ITEMS].map((item) => (
 									<div key={item.gameName} className="flex flex-col gap-0.5">
-										<dt className="flex items-baseline gap-1.5">
-											<span className="font-dot text-arch-xs text-arch-cyan">
-												{item.gameName}
-											</span>
-											<span className="font-mon text-[calc(9px*var(--font-scale))] text-arch-muted">
-												{item.label}
-											</span>
+										<dt className="font-dot text-arch-xs text-arch-cyan">
+											{item.gameName}
 										</dt>
 										<dd className="font-min text-[calc(12px*var(--font-scale))] text-arch-text leading-relaxed">
 											{item.description}

@@ -1,12 +1,10 @@
-// 画面間ナビの単一情報源（ゲーム内名称 / 通常名 / ルートの対応表 = docs/design.md §3.3）。
-// 共通ナビ（Nav）・各画面ヘッダーはゲーム内名称のみを表示する（v1.26）。
-// label（通常名）は About（SC-009）の「各ページの説明」でのみ使う。
+// 画面間ナビの単一情報源（ゲーム内名称 / ルートの対応表 = docs/design.md §3.3）。
+// 共通ナビ（Nav）・各画面ヘッダー・About（SC-009）の「各ページの説明」は
+// いずれもゲーム内名称のみを表示する（v1.26、About は v1.35 で同様に統一）。
 
 export interface NavItem {
-	/** ゲーム内名称（ドット書体で表示、共通ナビ・各画面ヘッダーで使う） */
+	/** ゲーム内名称（ドット書体で表示、共通ナビ・各画面ヘッダー・About で使う） */
 	gameName: string;
-	/** 通常名（About の「各ページの説明」でのみ表示） */
-	label: string;
 	href: string;
 	/** About ページ（SC-009）の「各ページの説明」で表示する一文説明。 */
 	description: string;
@@ -15,53 +13,45 @@ export interface NavItem {
 export const NAV_ITEMS: readonly NavItem[] = [
 	{
 		gameName: "HOME",
-		label: "Home",
 		href: "/home",
 		description:
-			"「最近更新された記録」「3つの入り口」「思考マップ」「記事一覧」への入り口をまとめたメインメニュー。",
+			"「最近更新された記録」「3つの入り口」「思考マップ」「記事一覧」への入り口をまとめたメインメニューです。",
 	},
 	{
 		gameName: "GARDEN",
-		label: "Garden",
 		href: "/garden",
 		description:
-			"断片的なノート（Garden）の一覧。ノートを開くと、関連ノートが横に積み重なる Stack View で探索できます。",
+			"断片的なノート（Garden）の一覧。ノートを開くと、関連ノートが横に積み重なるスタックビューで探索できます。",
 	},
 	{
 		gameName: "ARTICLE",
-		label: "Essays",
 		href: "/articles",
-		description: "まとまった文章（Essay）の一覧と詳細。",
+		description: "記事として書いた、ある程度まとまった文章が閲覧できます。Noteに投稿している記事と内容は同じです。",
 	},
 	{
 		gameName: "MAP",
-		label: "思考マップ",
 		href: "/garden?view=map",
-		description: "ノート同士のつながりを地図状に可視化した調査マップ。",
+		description: "ノート同士のつながりを地図状に可視化した調査マップです。",
 	},
 	{
 		gameName: "ROUTE",
-		label: "Paths",
 		href: "/route",
-		description: "テーマ別に編集した、ノートを辿る順路（思考のルート）。",
+		description: "テーマ別に、関連しているノートを辿ることができます。",
 	},
 	{
 		gameName: "SEARCH",
-		label: "検索",
 		href: "/search",
-		description: "サイト内の全文検索。",
+		description: "サイト内の全文検索ができます。",
 	},
 	{
 		gameName: "ABOUT",
-		label: "About",
 		href: "/about",
-		description: "このページ。サイトの概要・各ページの説明・操作方法。",
+		description: "このページ。サイトの概要・各ページの説明・操作方法を記載しています。",
 	},
 	{
 		gameName: "CONFIG",
-		label: "設定",
 		href: "/config",
 		description:
-			"タイトル画面の再生・アニメーション低減・文字サイズなどの表示設定。",
+			"タイトル画面の再生・アニメーション低減・文字サイズなどの表示設定ができます。",
 	},
 ] as const;
