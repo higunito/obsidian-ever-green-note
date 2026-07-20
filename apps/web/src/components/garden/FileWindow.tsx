@@ -53,6 +53,7 @@ export function FileWindow({
 
 	return (
 		<div
+			data-roving-group={article.slug}
 			className={`relative h-full w-full overflow-y-auto border-2 transition-all ${
 				isActive
 					? "border-arch-cyan bg-arch-panel shadow-[inset_1px_1px_0_var(--color-arch-border-hi),inset_-1px_-1px_0_var(--color-arch-border-sh),0_0_28px_var(--color-arch-cyan-dim)]"
@@ -63,17 +64,29 @@ export function FileWindow({
 				aria-hidden
 				className="pointer-events-none absolute inset-[3px] z-0 border border-arch-border-faint"
 			/>
-			{/* タイトルバー */}
+			{/* タイトルバー：ノート全体を表す十字キー対象（親、data-roving-group-root）。
+			    選択中は左右キーで他ノートのタイトルバーへ移動でき、カラムを開いた直後の
+			    既定選択にもなる（design §9.6.2 v1.33、spec SC-004 §4.5）。選択枠（data-roving-selected）が
+			    バー全体を貫く下線のように見えないよう、選択対象の `<button>` はバー内で
+			    タイトル文字列を囲む大きさに収める（`w-fit`）（v1.34）。 */}
 			<div
-				className="sticky top-0 z-10 flex items-center gap-2 border-b border-arch-border bg-arch-panel-dark px-2.5 py-1"
+				className="sticky top-0 z-10 flex items-center border-b border-arch-border bg-arch-panel-dark px-2.5 py-1"
 				style={{ fontFamily: font.mon, fontSize: fs(11), color: C.cyanDim }}
 			>
-				<span style={{ opacity: 0.35 }}>▪</span>
-				<span>{file}</span>
-				<span className="text-arch-border-faint">│</span>
-				<span className="overflow-hidden text-ellipsis whitespace-nowrap font-dot text-[calc(10px*var(--font-scale))] text-arch-text">
-					{article.title}
-				</span>
+				<button
+					type="button"
+					data-roving-group-root="true"
+					data-roving-default={isActive ? "true" : undefined}
+					aria-label={`${file} — ${article.title}`}
+					className="flex w-fit max-w-full min-w-0 items-center gap-2 px-1 py-0.5 text-left"
+				>
+					<span style={{ opacity: 0.35 }}>▪</span>
+					<span>{file}</span>
+					<span className="text-arch-border-faint">│</span>
+					<span className="overflow-hidden text-ellipsis whitespace-nowrap font-dot text-[calc(10px*var(--font-scale))] text-arch-text">
+						{article.title}
+					</span>
+				</button>
 			</div>
 			{/* ヘッダ */}
 			<div className="border-b border-arch-border-faint px-3.5 py-2">

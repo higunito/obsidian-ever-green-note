@@ -32,6 +32,13 @@ const DEFAULT_ATTR = "data-roving-default";
  * 本物のコンテンツに差し替わる一時的な DOM に属性を書き込むと、差し替え時の
  * hydration 比較で属性不一致警告が出るため。 */
 const IGNORE_ATTR = "data-roving-ignore";
+/** この属性を持つ祖先でまとまる項目群＝グループ（design §9.6.2 v1.33）。
+ * Stack View（SC-004）の各カラムのように「親（グループ全体）／子（グループ内の個別要素）」の
+ * 2 階層で十字キー操作したい領域に付与する。 */
+const GROUP_ATTR = "data-roving-group";
+/** グループを代表する項目（親）に付ける。この項目を選択中は他グループの代表項目へも
+ * 左右移動できるが、それ以外（子）を選択中は左右移動を同じグループ内に限定する（design §9.6.2 v1.33）。 */
+const GROUP_ROOT_ATTR = "data-roving-group-root";
 const DEFAULT_ITEM_SELECTOR = "a,button";
 
 function toRect(el: HTMLElement): Rect {
@@ -74,11 +81,15 @@ function simulateClick(el: HTMLElement): void {
  * 実座標に基づく 2 次元カーソル移動（隣接候補の選定は「移動方向にある要素のうち、
  * 移動軸方向の距離＋直交軸のズレ×2 が最小のもの」）。行・列を明示的に管理しない分、
  * タブ列＋グリッドのような異なる並びが縦に混在する画面でも自然に移動できる。
+ * 同じグループ（`data-roving-group`）内の候補は直交軸のズレを無視し、移動軸方向の距離のみで
+ * 比較する（design §9.6.2 v1.34）。本文中のリンクはテキストの行内位置により左右にばらつくため、
+ * ズレを加味すると縦方向の DOM 順（本文→Backlinks→Local Map）を飛び越えてしまうことがあるため。
  */
 function nearestInDirection(
 	current: Rect,
 	candidates: HTMLElement[],
 	direction: Direction,
+	currentGroup: Element | null,
 ): HTMLElement | null {
 	let best: HTMLElement | null = null;
 	let bestScore = Number.POSITIVE_INFINITY;
@@ -105,7 +116,9 @@ function nearestInDirection(
 				break;
 		}
 		if (primary <= 0.5) continue;
-		const score = primary + secondary * 2;
+		const sameGroup =
+			currentGroup !== null && el.closest(`[${GROUP_ATTR}]`) === currentGroup;
+		const score = sameGroup ? primary : primary + secondary * 2;
 		if (score < bestScore) {
 			bestScore = score;
 			best = el;
@@ -129,14 +142,23 @@ function findNext(
 	const current = toRect(currentEl);
 	const isHorizontal = direction === "left" || direction === "right";
 	const isFreeLayout = currentEl.closest(`[${FREE_LAYOUT_ATTR}]`) !== null;
+	const isGroupRoot = currentEl.hasAttribute(GROUP_ROOT_ATTR);
+	const currentGroup = currentEl.closest(`[${GROUP_ATTR}]`);
 
 	if (isHorizontal && !isFreeLayout) {
-		const sameRow = candidates.filter((el) =>
+		let sameRow = candidates.filter((el) =>
 			overlapsVertically(current, toRect(el)),
 		);
-		return nearestInDirection(current, sameRow, direction);
+		// グループの子要素を選択中は、左右移動を同じグループ内に限定する
+		// （グループ代表項目＝親を選択中はこの制約を適用しない、design §9.6.2 v1.33）。
+		if (!isGroupRoot && currentGroup) {
+			sameRow = sameRow.filter(
+				(el) => el.closest(`[${GROUP_ATTR}]`) === currentGroup,
+			);
+		}
+		return nearestInDirection(current, sameRow, direction, currentGroup);
 	}
-	return nearestInDirection(current, candidates, direction);
+	return nearestInDirection(current, candidates, direction, currentGroup);
 }
 
 /**
@@ -152,7 +174,9 @@ function findNext(
  * `Nav`/`NavBack`（design §9.6.2、v1.17）も画面の主要コンテンツと同じ領域に含め、
  * 十字キーで到達できるようにする（Tab 移動でも引き続き到達できる）。
  * 左右キーは「同じ行」（垂直方向に重なりのある要素）内のみを移動対象とする（`data-roving-free`
- * 祖先を持つ自由配置の領域は例外）。`data-roving-default` を付けた要素があれば既定選択に使う
+ * 祖先を持つ自由配置の領域は例外）。`data-roving-group` でまとめた項目群は「親（`data-roving-group-root`）／
+ * 子」の 2 階層になり、子を選択中は左右移動が同じグループ内に限定される（親を選択中は他グループの親へも
+ * 移動できる。design §9.6.2 v1.33）。`data-roving-default` を付けた要素があれば既定選択に使う
  * （無ければ DOM 順の先頭）。テキスト入力欄フォーカス中は上下キーで `blur` して抜けられる（design §9.6.2 v1.18）。
  * 逆に仮想カーソルが十字キー移動でテキスト入力欄に到達した場合は実 DOM フォーカスを渡す（再び入力を
  * 再開できるようにするため）。テキスト入力欄は `data-roving-selected` の対象にせず、実 DOM フォーカスの
