@@ -24,14 +24,14 @@ export function MobileStackBar({ history }: MobileStackBarProps) {
 				<button
 					type="button"
 					onClick={goBack}
-					className="font-mon text-xs text-arch-cyan"
+					className="font-mon text-arch-xs text-arch-cyan"
 				>
 					← 戻る
 				</button>
 				<button
 					type="button"
 					onClick={() => setDrawerOpen((v) => !v)}
-					className="ml-auto font-mon text-[9px] text-arch-muted"
+					className="ml-auto font-mon text-[calc(9px*var(--font-scale))] text-arch-muted"
 				>
 					HISTORY ▼
 				</button>
@@ -52,7 +52,7 @@ export function MobileStackBar({ history }: MobileStackBarProps) {
 								open(entry.slug);
 								setDrawerOpen(false);
 							}}
-							className="block w-full border-b border-arch-border-faint px-3.5 py-1.5 text-left font-mon text-[10px] text-arch-cyan"
+							className="block w-full border-b border-arch-border-faint px-3.5 py-1.5 text-left font-mon text-[calc(10px*var(--font-scale))] text-arch-cyan"
 							style={{ fontFamily: font.mon }}
 						>
 							{entry.file}

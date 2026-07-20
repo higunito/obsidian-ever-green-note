@@ -29,7 +29,7 @@ function EssayRelatedNotes({ notes }: { notes: readonly RelatedNote[] }) {
 	if (notes.length === 0) return null;
 	return (
 		<div className="mt-6 border-t border-arch-border-faint pt-4">
-			<div className="mb-2 font-mon text-[9px] tracking-[0.1em] text-arch-muted">
+			<div className="mb-2 font-mon text-[calc(9px*var(--font-scale))] tracking-[0.1em] text-arch-muted">
 				BACKLINKS ／ 関連ノート
 			</div>
 			<ul className="flex flex-col gap-1">
@@ -37,7 +37,7 @@ function EssayRelatedNotes({ notes }: { notes: readonly RelatedNote[] }) {
 					<li key={note.slug}>
 						<Link
 							href={internalHref({ slug: note.slug, layer: note.layer })}
-							className="flex items-center gap-1.5 border-b border-arch-border-faint py-1 font-dot text-[11px] text-arch-cyan transition-colors hover:text-arch-text"
+							className="flex items-center gap-1.5 border-b border-arch-border-faint py-1 font-dot text-[calc(11px*var(--font-scale))] text-arch-cyan transition-colors hover:text-arch-text"
 						>
 							<span className="font-mon opacity-50">↑</span>
 							{note.title}
@@ -83,20 +83,23 @@ export default async function EssayDetailPage({
 					<NavBack label="◀ ARTICLE" href="/essays" />
 
 					<header className="flex flex-col gap-2">
-						<h1 className="font-dot text-base leading-relaxed text-arch-text sm:text-lg">
+						<h1 className="font-dot text-arch-base leading-relaxed text-arch-text sm:text-arch-lg">
 							{essay.title}
 						</h1>
 						<div className="flex flex-wrap items-center gap-1.5">
 							{essay.topics.map((topic) => (
 								<Tag key={topic} label={topic} />
 							))}
-							<span className="ml-auto font-mon text-[9px] text-arch-muted">
+							<span className="ml-auto font-mon text-[calc(9px*var(--font-scale))] text-arch-muted">
 								updated {essay.updated}
 							</span>
 						</div>
 					</header>
 
-					<NoteBody html={essay.bodyHtml} className="text-[15px]" />
+					<NoteBody
+						html={essay.bodyHtml}
+						className="text-[calc(15px*var(--font-scale))]"
+					/>
 					<EssayRelatedNotes notes={relatedNotes} />
 				</SpatialNavRegion>
 			</main>

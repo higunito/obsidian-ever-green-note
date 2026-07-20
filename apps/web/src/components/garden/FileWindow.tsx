@@ -1,7 +1,7 @@
 "use client";
 
 import { Badge, NoteBody, Tag } from "@web/components/notes";
-import { C, font } from "@web/styles/tokens";
+import { C, font, fs } from "@web/styles/tokens";
 import type { Article, ArticleLayer } from "@web/types/content";
 import type { MouseEvent } from "react";
 import { LocalMap, type LocalMapNeighbor } from "./LocalMap";
@@ -66,12 +66,12 @@ export function FileWindow({
 			{/* タイトルバー */}
 			<div
 				className="sticky top-0 z-10 flex items-center gap-2 border-b border-arch-border bg-arch-panel-dark px-2.5 py-1"
-				style={{ fontFamily: font.mon, fontSize: "11px", color: C.cyan }}
+				style={{ fontFamily: font.mon, fontSize: fs(11), color: C.cyan }}
 			>
 				<span style={{ opacity: 0.35 }}>▪</span>
 				<span>{file}</span>
 				<span className="text-arch-border-faint">│</span>
-				<span className="overflow-hidden text-ellipsis whitespace-nowrap font-dot text-[10px] text-arch-muted">
+				<span className="overflow-hidden text-ellipsis whitespace-nowrap font-dot text-[calc(10px*var(--font-scale))] text-arch-muted">
 					{article.title}
 				</span>
 			</div>
@@ -82,7 +82,7 @@ export function FileWindow({
 					{article.topics.map((topic) => (
 						<Tag key={topic} label={topic} />
 					))}
-					<span className="ml-auto font-mon text-[9px] text-arch-muted">
+					<span className="ml-auto font-mon text-[calc(9px*var(--font-scale))] text-arch-muted">
 						updated {article.updated}
 					</span>
 				</div>
@@ -99,7 +99,7 @@ export function FileWindow({
 			{/* Backlinks */}
 			{backlinks.length > 0 ? (
 				<div className="border-t border-arch-border-faint px-3.5 py-2.5">
-					<div className="mb-1.5 font-mon text-[9px] tracking-[0.1em] text-arch-muted">
+					<div className="mb-1.5 font-mon text-[calc(9px*var(--font-scale))] tracking-[0.1em] text-arch-muted">
 						BACKLINKS
 					</div>
 					{backlinks.map((bl) => (
@@ -110,7 +110,7 @@ export function FileWindow({
 								e.stopPropagation();
 								open(bl.slug);
 							}}
-							className="flex w-full items-center gap-1.5 border-b border-arch-border-faint py-1 text-left font-dot text-[11px] text-arch-cyan"
+							className="flex w-full items-center gap-1.5 border-b border-arch-border-faint py-1 text-left font-dot text-[calc(11px*var(--font-scale))] text-arch-cyan"
 						>
 							<span className="font-mon opacity-50">↑</span>
 							{bl.title}
@@ -120,7 +120,7 @@ export function FileWindow({
 			) : null}
 			{/* Local Map */}
 			<div className="border-t border-arch-border-faint px-3.5 py-2.5 pb-4">
-				<div className="mb-2 font-mon text-[9px] tracking-[0.1em] text-arch-muted">
+				<div className="mb-2 font-mon text-[calc(9px*var(--font-scale))] tracking-[0.1em] text-arch-muted">
 					LOCAL MAP
 				</div>
 				<LocalMap currentFile={file} neighbors={localMapNeighbors} />

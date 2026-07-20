@@ -57,7 +57,7 @@ export function SearchPanel({ items, initialQuery }: SearchPanelProps) {
 		// 十字キーの対象（親の SpatialNavRegion に含まれる。spec SC-010 §10.4）：検索結果一覧・
 		// 人気トピック。入力欄フォーカス中は矢印キーの横取りをしない（design §9.6.2）。
 		<div className="flex flex-col gap-4">
-			<label className="flex items-center gap-2 border border-arch-border bg-arch-panel px-3 py-2 font-mon text-sm text-arch-text focus-within:border-arch-cyan">
+			<label className="flex items-center gap-2 border border-arch-border bg-arch-panel px-3 py-2 font-mon text-arch-sm text-arch-text focus-within:border-arch-cyan">
 				<span className="text-arch-cyan">SEARCH &gt;_</span>
 				<input
 					type="text"
@@ -67,18 +67,18 @@ export function SearchPanel({ items, initialQuery }: SearchPanelProps) {
 					// biome-ignore lint/a11y/noAutofocus: 検索専用ページの主要な入力欄のため自動フォーカスする
 					autoFocus
 					data-roving-default="true"
-					className="flex-1 bg-transparent font-mon text-sm text-arch-text outline-none placeholder:text-arch-muted"
+					className="flex-1 bg-transparent font-mon text-arch-sm text-arch-text outline-none placeholder:text-arch-muted"
 				/>
 			</label>
 
 			{query.trim() === "" ? (
 				<div className="flex flex-col gap-2">
-					<p className="font-min text-[13px] text-arch-muted">
+					<p className="font-min text-[calc(13px*var(--font-scale))] text-arch-muted">
 						title / summary / topics / 本文から検索します。
 					</p>
 					{topics.length > 0 ? (
 						<div className="flex flex-wrap items-center gap-1.5">
-							<span className="font-mon text-[9px] text-arch-muted">
+							<span className="font-mon text-[calc(9px*var(--font-scale))] text-arch-muted">
 								人気トピック:
 							</span>
 							{topics.map((topic) => (
@@ -86,7 +86,7 @@ export function SearchPanel({ items, initialQuery }: SearchPanelProps) {
 									key={topic}
 									type="button"
 									onClick={() => setQuery(topic)}
-									className="border border-arch-border-faint bg-arch-cyan-faint px-[5px] py-px font-dot text-[10px] text-arch-muted transition-colors hover:text-arch-cyan"
+									className="border border-arch-border-faint bg-arch-cyan-faint px-[5px] py-px font-dot text-[calc(10px*var(--font-scale))] text-arch-muted transition-colors hover:text-arch-cyan"
 								>
 									{topic}
 								</button>
@@ -95,7 +95,7 @@ export function SearchPanel({ items, initialQuery }: SearchPanelProps) {
 					) : null}
 				</div>
 			) : results.length === 0 ? (
-				<p className="p-8 text-center font-min text-[13px] text-arch-muted">
+				<p className="p-8 text-center font-min text-[calc(13px*var(--font-scale))] text-arch-muted">
 					該当する記録が見つかりません
 				</p>
 			) : (
@@ -120,14 +120,14 @@ export function SearchPanel({ items, initialQuery }: SearchPanelProps) {
 									}}
 								>
 									<div className="mb-1.5 flex items-center gap-2">
-										<span className="border border-arch-border-faint px-1 py-px font-mon text-[9px] text-arch-muted">
+										<span className="border border-arch-border-faint px-1 py-px font-mon text-[calc(9px*var(--font-scale))] text-arch-muted">
 											{layerLabel(result.layer)}
 										</span>
-										<span className="font-dot text-xs text-arch-text">
+										<span className="font-dot text-arch-xs text-arch-text">
 											{result.title}
 										</span>
 									</div>
-									<p className="mb-2 font-min text-[12px] leading-relaxed text-arch-muted">
+									<p className="mb-2 font-min text-[calc(12px*var(--font-scale))] leading-relaxed text-arch-muted">
 										{result.excerpt.before}
 										{result.excerpt.match ? (
 											<mark className="bg-arch-cyan-faint text-arch-cyan">

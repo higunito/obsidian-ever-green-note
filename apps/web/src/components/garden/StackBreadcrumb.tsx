@@ -35,7 +35,7 @@ export function StackBreadcrumb({
 					<button
 						type="button"
 						onClick={() => open(entry.slug)}
-						className="font-mon text-[10px] text-arch-muted opacity-50 transition-opacity hover:text-arch-cyan hover:opacity-100"
+						className="font-mon text-[calc(10px*var(--font-scale))] text-arch-muted opacity-50 transition-opacity hover:text-arch-cyan hover:opacity-100"
 					>
 						{entry.file}
 					</button>
@@ -47,7 +47,7 @@ export function StackBreadcrumb({
 					<button
 						type="button"
 						onClick={() => open(entry.slug)}
-						className="font-mon text-[10px]"
+						className="font-mon text-[calc(10px*var(--font-scale))]"
 						style={{
 							color:
 								entry.slug === active

@@ -33,6 +33,12 @@ export const font = {
 	mon: "var(--font-mon)", // 英字ラベル・数値（等幅）
 } as const;
 
+// 文字サイズ設定（Config「文字サイズ」小/大、spec SC-011 / design §10.2 v1.20）。
+// px 直書きの fontSize は必ずこの fs() 経由にし、globals.css の --font-scale で一括スケールする。
+export function fs(px: number): string {
+	return `calc(${px}px * var(--font-scale))`;
+}
+
 // status（seed/growing/evergreen）→ 色（§10.5）。
 export function statusColor(status: NoteStatus): string {
 	switch (status) {

@@ -162,6 +162,23 @@
 	--font-min: var(--font-noto-serif), "Noto Serif JP", Georgia, serif;
 	--font-mon:
 		var(--font-share-tech), "Share Tech Mono", "Courier New", monospace;
+
+	/* 文字サイズ設定（Config「文字サイズ」小/大、spec SC-011 / design §10.2 v1.20）が使う
+	   Tailwind text-arch-* ユーティリティ。値は Tailwind 既定の xs/sm/base/lg に --font-scale を掛けたもの。 */
+	--text-arch-xs: calc(0.75rem * var(--font-scale));
+	--text-arch-sm: calc(0.875rem * var(--font-scale));
+	--text-arch-base: calc(1rem * var(--font-scale));
+	--text-arch-lg: calc(1.125rem * var(--font-scale));
+}
+
+/* 文字サイズ：Config の「文字サイズ」（<html data-font-size="small">）を反映する（spec SC-011, §10.2 v1.20）。
+   既定値（大 = 1.2 倍）は属性なしの状態で SSR 時から適用されるため、初回表示のちらつきは発生しない
+   （§11.3 のトグルは data-font-size="small" を明示的に立てる操作のみを行う）。 */
+:root {
+	--font-scale: 1.2;
+}
+:root[data-font-size="small"] {
+	--font-scale: 1;
 }
 
 /* ── NoteBody 内部リンク装飾（spec SC-004）─────────────────────────────────────

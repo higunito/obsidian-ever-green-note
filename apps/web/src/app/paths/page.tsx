@@ -24,12 +24,14 @@ export default async function PathsPage() {
 				<SpatialNavRegion className="flex flex-1 flex-col gap-4">
 					<div className="flex flex-wrap items-center gap-3">
 						<NavBack label="◀ HOME" href="/home" />
-						<h1 className="font-dot text-sm text-arch-text">ROUTE / Paths</h1>
+						<h1 className="font-dot text-arch-sm text-arch-text">
+							ROUTE / Paths
+						</h1>
 					</div>
 					<Nav />
 
 					{paths.length === 0 ? (
-						<div className="p-8 text-center font-min text-[13px] text-arch-muted">
+						<div className="p-8 text-center font-min text-[calc(13px*var(--font-scale))] text-arch-muted">
 							まだルートがありません
 						</div>
 					) : (

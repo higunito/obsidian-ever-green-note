@@ -33,10 +33,10 @@ export function EssayCard({ essay, defaultFocus }: EssayCardProps) {
 			className={`block border border-arch-border bg-[rgba(11,26,43,0.7)] p-3 transition-all hover:border-arch-cyan hover:bg-[rgba(20,50,58,0.95)] ${flashing ? "arch-animated" : ""}`}
 			style={{ animation: flashing ? "navFlash 0.3s steps(1) 1" : "none" }}
 		>
-			<div className="mb-1.5 font-dot text-xs leading-relaxed text-arch-text">
+			<div className="mb-1.5 font-dot text-arch-xs leading-relaxed text-arch-text">
 				{essay.title}
 			</div>
-			<div className="mb-2 font-min text-[11px] leading-relaxed text-arch-muted">
+			<div className="mb-2 font-min text-[calc(11px*var(--font-scale))] leading-relaxed text-arch-muted">
 				{essay.summary}
 			</div>
 			<div className="mb-2 flex flex-wrap gap-1">
@@ -44,7 +44,7 @@ export function EssayCard({ essay, defaultFocus }: EssayCardProps) {
 					<Tag key={topic} label={topic} />
 				))}
 			</div>
-			<div className="font-mon text-[9px] text-arch-muted">
+			<div className="font-mon text-[calc(9px*var(--font-scale))] text-arch-muted">
 				updated {essay.updated}
 			</div>
 		</Link>

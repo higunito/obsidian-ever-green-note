@@ -1,6 +1,6 @@
 "use client";
 
-import { C, font } from "@web/styles/tokens";
+import { C, font, fs } from "@web/styles/tokens";
 import { useStackNavigation } from "./StackNavigationProvider";
 
 export interface LocalMapNeighbor {
@@ -42,7 +42,7 @@ export function LocalMap({ currentFile, neighbors }: LocalMapProps) {
 				x={CENTER_X}
 				y={CENTER_Y - 12}
 				textAnchor="middle"
-				style={{ fontFamily: font.dot, fontSize: "8px" }}
+				style={{ fontFamily: font.dot, fontSize: fs(8) }}
 				fill={C.cyan}
 			>
 				{currentFile}
@@ -89,7 +89,7 @@ export function LocalMap({ currentFile, neighbors }: LocalMapProps) {
 							x={x}
 							y={y + 13}
 							textAnchor="middle"
-							style={{ fontFamily: font.mon, fontSize: "7px" }}
+							style={{ fontFamily: font.mon, fontSize: fs(7) }}
 							fill={C.muted}
 						>
 							{neighbor.file}

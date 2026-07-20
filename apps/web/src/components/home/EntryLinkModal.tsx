@@ -27,7 +27,7 @@ export function EntryLinkModal({ label, href }: EntryLinkModalProps) {
 				e.preventDefault();
 				navigate(href, href);
 			}}
-			className={`block px-5 py-3 font-dot text-xs whitespace-nowrap text-arch-cyan transition-colors hover:text-arch-text ${flashing ? "arch-animated" : ""}`}
+			className={`block px-5 py-3 font-dot text-arch-xs whitespace-nowrap text-arch-cyan transition-colors hover:text-arch-text ${flashing ? "arch-animated" : ""}`}
 			style={{
 				border: `2px solid ${C.cyan}`,
 				background: C.panel,

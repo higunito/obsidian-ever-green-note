@@ -22,7 +22,7 @@ export default function ConfigPage() {
 				<SpatialNavRegion className="flex flex-1 flex-col gap-4">
 					<div className="flex flex-wrap items-center gap-3">
 						<NavBack label="◀ HOME" href="/home" />
-						<h1 className="font-dot text-sm text-arch-text">CONFIG</h1>
+						<h1 className="font-dot text-arch-sm text-arch-text">CONFIG</h1>
 					</div>
 					<Nav />
 

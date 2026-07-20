@@ -7,7 +7,7 @@ interface TagProps {
  */
 export function Tag({ label }: TagProps) {
 	return (
-		<span className="border border-arch-border-faint bg-arch-cyan-faint px-[5px] py-px font-dot text-[10px] text-arch-muted">
+		<span className="border border-arch-border-faint bg-arch-cyan-faint px-[5px] py-px font-dot text-[calc(10px*var(--font-scale))] text-arch-muted">
 			{label}
 		</span>
 	);

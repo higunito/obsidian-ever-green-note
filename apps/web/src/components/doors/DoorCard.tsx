@@ -37,13 +37,15 @@ export function DoorCard({ door }: DoorCardProps) {
 		>
 			<span
 				aria-hidden
-				className="mt-0.5 shrink-0 font-dot text-[11px] text-arch-cyan"
+				className="mt-0.5 shrink-0 font-dot text-[calc(11px*var(--font-scale))] text-arch-cyan"
 			>
 				▶
 			</span>
 			<div>
-				<div className="font-dot text-xs text-arch-cyan">{door.topic}へ</div>
-				<div className="mt-0.5 font-mon text-[9px] text-arch-muted">
+				<div className="font-dot text-arch-xs text-arch-cyan">
+					{door.topic}へ
+				</div>
+				<div className="mt-0.5 font-mon text-[calc(9px*var(--font-scale))] text-arch-muted">
 					{door.noteTitle}
 				</div>
 			</div>

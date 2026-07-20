@@ -13,12 +13,12 @@ import { LensFilter } from "./LensFilter";
 
 function EmptyState({ clearHref }: { clearHref?: string }) {
 	return (
-		<div className="p-8 text-center font-min text-[13px] text-arch-muted">
+		<div className="p-8 text-center font-min text-[calc(13px*var(--font-scale))] text-arch-muted">
 			<p>該当する記録がありません</p>
 			{clearHref ? (
 				<Link
 					href={clearHref}
-					className="mt-2 inline-block font-mon text-[10px] text-arch-cyan underline"
+					className="mt-2 inline-block font-mon text-[calc(10px*var(--font-scale))] text-arch-cyan underline"
 				>
 					フィルタを解除
 				</Link>
@@ -28,7 +28,7 @@ function EmptyState({ clearHref }: { clearHref?: string }) {
 }
 
 function viewTabClass(active: boolean): string {
-	return `font-mon text-[10px] tracking-[0.08em] transition-colors ${
+	return `font-mon text-[calc(10px*var(--font-scale))] tracking-[0.08em] transition-colors ${
 		active ? "text-arch-cyan" : "text-arch-muted hover:text-arch-cyan"
 	}`;
 }
@@ -83,7 +83,9 @@ export function GardenScreen({
 		>
 			<div className="flex flex-wrap items-center gap-3">
 				<NavBack label="◀ HOME" href="/home" />
-				<h1 className="font-dot text-sm text-arch-text">FRAGMENTS / Garden</h1>
+				<h1 className="font-dot text-arch-sm text-arch-text">
+					FRAGMENTS / Garden
+				</h1>
 				<div className="ml-auto flex gap-3">
 					<Link
 						href={buildGardenIndexHref({ view: "index", filters })}

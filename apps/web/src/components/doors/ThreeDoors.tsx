@@ -27,7 +27,7 @@ export function ThreeDoors({ doors, onReroll, loading }: ThreeDoorsProps) {
 						type="button"
 						onClick={onReroll}
 						disabled={loading}
-						className="font-mon text-[9px] tracking-[0.06em] text-arch-muted transition-colors hover:text-arch-cyan disabled:opacity-40"
+						className="font-mon text-[calc(9px*var(--font-scale))] tracking-[0.06em] text-arch-muted transition-colors hover:text-arch-cyan disabled:opacity-40"
 					>
 						{loading ? "引き直し中…" : "↺ 引き直す"}
 					</button>

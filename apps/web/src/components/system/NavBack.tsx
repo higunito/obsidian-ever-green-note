@@ -14,7 +14,7 @@ export function NavBack({ label, href }: NavBackProps) {
 	return (
 		<Link
 			href={href}
-			className="font-mon text-[10px] tracking-[0.08em] text-arch-muted transition-colors hover:text-arch-cyan"
+			className="font-mon text-[calc(10px*var(--font-scale))] tracking-[0.08em] text-arch-muted transition-colors hover:text-arch-cyan"
 		>
 			{label}
 		</Link>

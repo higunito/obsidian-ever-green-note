@@ -26,7 +26,9 @@ export default function AboutPage() {
 				<SpatialNavRegion className="flex flex-1 flex-col gap-4">
 					<div className="flex flex-wrap items-center gap-3">
 						<NavBack label="◀ HOME" href="/home" />
-						<h1 className="font-dot text-sm text-arch-text">ABOUT / About</h1>
+						<h1 className="font-dot text-arch-sm text-arch-text">
+							ABOUT / About
+						</h1>
 					</div>
 					<Nav markActiveAsDefault />
 
@@ -37,14 +39,14 @@ export default function AboutPage() {
 									{about.topics.map((topic) => (
 										<Tag key={topic} label={topic} />
 									))}
-									<span className="ml-auto font-mon text-[9px] text-arch-muted">
+									<span className="ml-auto font-mon text-[calc(9px*var(--font-scale))] text-arch-muted">
 										updated {about.updated}
 									</span>
 								</div>
 								<NoteBody html={about.bodyHtml} />
 							</>
 						) : (
-							<div className="p-8 text-center font-min text-[13px] text-arch-muted">
+							<div className="p-8 text-center font-min text-[calc(13px*var(--font-scale))] text-arch-muted">
 								準備中
 							</div>
 						)}

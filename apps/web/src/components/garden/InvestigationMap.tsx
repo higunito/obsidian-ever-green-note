@@ -5,7 +5,7 @@ import { SpatialNavRegion } from "@web/components/system";
 import type { GardenFilters } from "@web/lib/garden-filters";
 import { gardenFilterMatchesNode } from "@web/lib/garden-filters";
 import { useFlashNavigate } from "@web/lib/use-flash-navigate";
-import { C, font, statusColor } from "@web/styles/tokens";
+import { C, font, fs, statusColor } from "@web/styles/tokens";
 import type {
 	Article,
 	Graph,
@@ -76,7 +76,7 @@ function dedupeNoteEdges(edges: readonly GraphEdge[]): GraphEdge[] {
 // cursor-pointer は明示必須：コンテナ側が cursor:grab/grabbing を指定しており、
 // これは inherit されるためボタン側で上書きしないと指カーソルにならない。
 const zoomButtonClass =
-	"flex h-7 w-7 cursor-pointer items-center justify-center border border-arch-border bg-arch-panel-dark font-mon text-sm text-arch-cyan";
+	"flex h-7 w-7 cursor-pointer items-center justify-center border border-arch-border bg-arch-panel-dark font-mon text-arch-sm text-arch-cyan";
 
 export interface PendingNavigation {
 	href: string;
@@ -129,7 +129,7 @@ function NavigateConfirmDialog({
 							"linear-gradient(90deg, #1c3a56 0%, #112230 60%, #0c1a28 100%)",
 						borderBottom: `2px solid ${C.border}`,
 						fontFamily: font.dot,
-						fontSize: "11px",
+						fontSize: fs(11),
 						color: C.cyan,
 						letterSpacing: "0.08em",
 					}}
@@ -138,7 +138,7 @@ function NavigateConfirmDialog({
 					SYSTEM CONFIRM
 				</div>
 				<div className="p-4">
-					<p className="font-min text-[13px] text-arch-text">
+					<p className="font-min text-[calc(13px*var(--font-scale))] text-arch-text">
 						「{pending.title}」へ移動する
 					</p>
 					{/* 十字キーの対象（spec SC-003 §3.3）：モーダル表示中はこの 2 ボタンのみ。 */}
@@ -146,14 +146,14 @@ function NavigateConfirmDialog({
 						<button
 							type="button"
 							onClick={onCancel}
-							className="cursor-pointer border border-arch-border px-3 py-1.5 font-dot text-[11px] text-arch-muted"
+							className="cursor-pointer border border-arch-border px-3 py-1.5 font-dot text-[calc(11px*var(--font-scale))] text-arch-muted"
 						>
 							キャンセル
 						</button>
 						<button
 							type="button"
 							onClick={onConfirm}
-							className={`cursor-pointer border-2 px-3 py-1.5 font-dot text-[11px] text-arch-cyan ${confirmFlashing ? "arch-animated" : ""}`}
+							className={`cursor-pointer border-2 px-3 py-1.5 font-dot text-[calc(11px*var(--font-scale))] text-arch-cyan ${confirmFlashing ? "arch-animated" : ""}`}
 							style={{
 								borderColor: C.cyan,
 								boxShadow: `inset 1px 1px 0 ${C.borderHi}, inset -1px -1px 0 ${C.borderSh}`,
@@ -482,7 +482,7 @@ export function InvestigationMap({
 									fill={dimmed ? C.borderFaint : isHover ? C.text : C.muted}
 									style={{
 										fontFamily: font.dot,
-										fontSize: "11px",
+										fontSize: fs(11),
 										pointerEvents: "none",
 									}}
 								>
@@ -496,7 +496,7 @@ export function InvestigationMap({
 										opacity={0.6}
 										style={{
 											fontFamily: font.mon,
-											fontSize: "9px",
+											fontSize: fs(9),
 											pointerEvents: "none",
 										}}
 									>
@@ -562,7 +562,7 @@ export function InvestigationMap({
 									opacity={isHover ? 0.9 : 0.45}
 									style={{
 										fontFamily: font.mon,
-										fontSize: "8px",
+										fontSize: fs(8),
 										pointerEvents: "none",
 									}}
 								>
@@ -579,10 +579,10 @@ export function InvestigationMap({
 					className="pointer-events-none fixed z-[100] max-w-[220px] border-2 border-arch-border bg-arch-panel p-3"
 					style={{ left: tooltipPos.x + 14, top: tooltipPos.y - 8 }}
 				>
-					<div className="mb-1 font-mon text-[9px] text-arch-cyan">
+					<div className="mb-1 font-mon text-[calc(9px*var(--font-scale))] text-arch-cyan">
 						{hoverNode.file}
 					</div>
-					<div className="mb-1.5 font-dot text-xs text-arch-text">
+					<div className="mb-1.5 font-dot text-arch-xs text-arch-text">
 						{hoverNode.title}
 					</div>
 					{hoverNode.status ? (
@@ -590,10 +590,10 @@ export function InvestigationMap({
 							<Badge status={hoverNode.status} />
 						</div>
 					) : null}
-					<div className="font-min text-[11px] text-arch-muted leading-relaxed">
+					<div className="font-min text-[calc(11px*var(--font-scale))] text-arch-muted leading-relaxed">
 						{summaryBySlug.get(hoverNode.id) ?? ""}
 					</div>
-					<div className="mt-1.5 font-mon text-[8px] text-arch-cyan-dim tracking-wide">
+					<div className="mt-1.5 font-mon text-[calc(8px*var(--font-scale))] text-arch-cyan-dim tracking-wide">
 						クリックで詳細を開く →
 					</div>
 				</div>
@@ -602,10 +602,10 @@ export function InvestigationMap({
 					className="pointer-events-none fixed z-[100] max-w-[220px] border-2 border-arch-border bg-arch-panel p-3"
 					style={{ left: tooltipPos.x + 14, top: tooltipPos.y - 8 }}
 				>
-					<div className="mb-1 font-dot text-sm text-arch-cyan">
+					<div className="mb-1 font-dot text-arch-sm text-arch-cyan">
 						{hoverTopic.id}
 					</div>
-					<div className="font-mon text-[9px] text-arch-muted">
+					<div className="font-mon text-[calc(9px*var(--font-scale))] text-arch-muted">
 						{hoverTopic.count} notes
 					</div>
 				</div>
@@ -648,7 +648,7 @@ export function InvestigationMap({
 				</button>
 			</div>
 
-			<div className="absolute bottom-4 left-4 font-mon text-[9px] text-arch-muted tracking-wide opacity-35">
+			<div className="absolute bottom-4 left-4 font-mon text-[calc(9px*var(--font-scale))] text-arch-muted tracking-wide opacity-35">
 				ドラッグ: パン　スクロール: ズーム
 			</div>
 

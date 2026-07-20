@@ -67,9 +67,11 @@ export default async function PathDetailPage({
 				<SpatialNavRegion className="flex flex-1 flex-col gap-4">
 					<div className="flex flex-wrap items-center gap-3">
 						<NavBack label="◀ ROUTE" href="/paths" />
-						<h1 className="font-dot text-sm text-arch-text">{path.title}</h1>
+						<h1 className="font-dot text-arch-sm text-arch-text">
+							{path.title}
+						</h1>
 						{total > 0 ? (
-							<span className="ml-auto font-mon text-[10px] text-arch-cyan">
+							<span className="ml-auto font-mon text-[calc(10px*var(--font-scale))] text-arch-cyan">
 								{currentStep + 1} / {total}
 							</span>
 						) : null}
@@ -77,17 +79,17 @@ export default async function PathDetailPage({
 					<Nav />
 
 					<div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
-						<p className="font-min text-[13px] leading-relaxed text-arch-muted">
+						<p className="font-min text-[calc(13px*var(--font-scale))] leading-relaxed text-arch-muted">
 							{path.summary}
 						</p>
 
 						{total === 0 ? (
-							<div className="p-8 text-center font-min text-[13px] text-arch-muted">
+							<div className="p-8 text-center font-min text-[calc(13px*var(--font-scale))] text-arch-muted">
 								まだルートがありません
 							</div>
 						) : (
 							<>
-								<div className="flex items-center gap-4 font-mon text-[10px] tracking-[0.08em]">
+								<div className="flex items-center gap-4 font-mon text-[calc(10px*var(--font-scale))] tracking-[0.08em]">
 									{currentStep > 0 ? (
 										<Link
 											href={stepHref(path.slug, currentStep - 1)}
@@ -115,7 +117,7 @@ export default async function PathDetailPage({
 										const isCurrent = i === currentStep;
 										return (
 											<li key={article.slug}>
-												<div className="mb-1.5 font-mon text-[9px] tracking-[0.1em] text-arch-muted">
+												<div className="mb-1.5 font-mon text-[calc(9px*var(--font-scale))] tracking-[0.1em] text-arch-muted">
 													STEP {i + 1}
 												</div>
 												<div

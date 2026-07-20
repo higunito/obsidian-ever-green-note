@@ -2,7 +2,7 @@
 
 import { CommandMenu } from "@web/components/system";
 import { useFlashNavigate } from "@web/lib/use-flash-navigate";
-import { C } from "@web/styles/tokens";
+import { C, fs } from "@web/styles/tokens";
 import {
 	type ReactNode,
 	useCallback,
@@ -176,7 +176,7 @@ export function TitleMenu() {
 				<div
 					className="arch-animated mb-3 font-dot leading-tight"
 					style={{
-						fontSize: "clamp(24px, 5.5vw, 52px)",
+						fontSize: `clamp(${fs(24)}, 5.5vw, ${fs(52)})`,
 						color: C.text,
 						letterSpacing: "0.2em",
 						textShadow: `0 0 30px ${C.cyanDim}`,
@@ -188,7 +188,7 @@ export function TitleMenu() {
 				<div
 					className="font-mon"
 					style={{
-						fontSize: "clamp(10px, 1.8vw, 13px)",
+						fontSize: `clamp(${fs(10)}, 1.8vw, ${fs(13)})`,
 						color: C.cyan,
 						letterSpacing: "0.35em",
 						animation: "archGlow 3s ease-in-out infinite",
@@ -268,7 +268,7 @@ export function TitleMenu() {
 			<div
 				className="mt-5 font-mon opacity-40"
 				style={{
-					fontSize: "9px",
+					fontSize: fs(9),
 					color: C.muted,
 					letterSpacing: "0.12em",
 				}}
@@ -279,7 +279,7 @@ export function TitleMenu() {
 			<div
 				className="fixed right-4 bottom-3 font-mon opacity-45"
 				style={{
-					fontSize: "10px",
+					fontSize: fs(10),
 					color: C.muted,
 					letterSpacing: "0.08em",
 				}}

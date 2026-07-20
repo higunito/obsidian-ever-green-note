@@ -44,10 +44,10 @@ export function NoteCard({ note, defaultFocus }: NoteCardProps) {
 					<Badge status={note.status} />
 				</div>
 			) : null}
-			<div className="mb-1.5 font-dot text-xs leading-relaxed text-arch-text">
+			<div className="mb-1.5 font-dot text-arch-xs leading-relaxed text-arch-text">
 				{note.title}
 			</div>
-			<div className="mb-2 font-min text-[11px] leading-relaxed text-arch-muted">
+			<div className="mb-2 font-min text-[calc(11px*var(--font-scale))] leading-relaxed text-arch-muted">
 				{note.summary}
 			</div>
 			<div className="flex flex-wrap gap-1">

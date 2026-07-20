@@ -5,7 +5,7 @@ import {
 	SpatialNavRegion,
 	Window,
 } from "@web/components/system";
-import { C, font } from "@web/styles/tokens";
+import { C, font, fs } from "@web/styles/tokens";
 
 /**
  * SC-012 404 Not Found（design §10.6、spec SC-012）。存在しない/非公開ページ・
@@ -20,12 +20,12 @@ export default function NotFound() {
 				<Window title="SYSTEM ERROR" className="w-full">
 					<div className="flex flex-col items-center gap-3 p-6 text-center">
 						<div
-							style={{ fontFamily: font.dot, fontSize: "14px", color: C.text }}
+							style={{ fontFamily: font.dot, fontSize: fs(14), color: C.text }}
 						>
 							SYSTEM ERROR
 						</div>
 						<p
-							style={{ fontFamily: font.min, fontSize: "13px", color: C.muted }}
+							style={{ fontFamily: font.min, fontSize: fs(13), color: C.muted }}
 						>
 							記録が見つかりません。指定されたページは存在しないか、非公開です。
 						</p>

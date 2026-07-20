@@ -43,7 +43,7 @@ export default async function HomePage() {
 					))}
 				</div>
 			) : (
-				<p className="p-3 font-min text-[13px] text-arch-muted">
+				<p className="p-3 font-min text-[calc(13px*var(--font-scale))] text-arch-muted">
 					まだ記録がありません
 				</p>
 			)}
@@ -54,7 +54,7 @@ export default async function HomePage() {
 		<ThreeDoorsPanel initialDoors={initialDoors} articles={articles} />
 	) : (
 		<Window title="THREE DOORS — 3つの入口" className="h-full">
-			<p className="p-3 font-min text-[13px] text-arch-muted">
+			<p className="p-3 font-min text-[calc(13px*var(--font-scale))] text-arch-muted">
 				まだ記録がありません
 			</p>
 		</Window>
@@ -68,7 +68,7 @@ export default async function HomePage() {
 				<SpatialNavRegion className="flex flex-1 flex-col gap-4">
 					<div className="flex flex-wrap items-center gap-3">
 						<NavBack label="◀ TITLE" href="/" />
-						<h1 className="font-dot text-sm text-arch-text">
+						<h1 className="font-dot text-arch-sm text-arch-text">
 							MAIN MENU / Home
 						</h1>
 					</div>

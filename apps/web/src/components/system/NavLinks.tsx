@@ -44,14 +44,14 @@ export function NavLinks({ markActiveAsDefault = false }: NavLinksProps = {}) {
 							className="group inline-flex items-baseline gap-1.5 transition-colors"
 						>
 							<span
-								className={`font-dot text-[12px] tracking-[0.06em] group-hover:text-arch-cyan ${
+								className={`font-dot text-[calc(12px*var(--font-scale))] tracking-[0.06em] group-hover:text-arch-cyan ${
 									active ? "text-arch-cyan" : "text-arch-text"
 								}`}
 							>
 								{item.gameName}
 							</span>
 							<span
-								className={`font-mon text-[9px] tracking-[0.08em] ${
+								className={`font-mon text-[calc(9px*var(--font-scale))] tracking-[0.08em] ${
 									active ? "text-arch-cyan" : "text-arch-muted"
 								}`}
 							>

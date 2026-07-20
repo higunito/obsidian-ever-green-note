@@ -14,10 +14,10 @@ function NavFallback() {
 						href={item.href}
 						className="group inline-flex items-baseline gap-1.5 transition-colors"
 					>
-						<span className="font-dot text-[12px] tracking-[0.06em] text-arch-text group-hover:text-arch-cyan">
+						<span className="font-dot text-[calc(12px*var(--font-scale))] tracking-[0.06em] text-arch-text group-hover:text-arch-cyan">
 							{item.gameName}
 						</span>
-						<span className="font-mon text-[9px] tracking-[0.08em] text-arch-muted">
+						<span className="font-mon text-[calc(9px*var(--font-scale))] tracking-[0.08em] text-arch-muted">
 							{item.label}
 						</span>
 					</Link>

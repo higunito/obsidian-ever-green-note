@@ -14,7 +14,7 @@ export function NoteBody({ html, className }: NoteBodyProps) {
 	return (
 		<div
 			className={cn(
-				"note-body font-min text-sm leading-loose text-arch-text",
+				"note-body font-min text-arch-sm leading-loose text-arch-text",
 				className,
 			)}
 			// biome-ignore lint/security/noDangerouslySetInnerHtml: content-gen が生成した信頼済み HTML（外部/ユーザー入力ではない）

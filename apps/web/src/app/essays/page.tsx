@@ -14,7 +14,7 @@ interface EssaysPageProps {
 }
 
 function topicPillClass(active: boolean): string {
-	return `border px-1.5 py-0.5 font-dot text-[10px] transition-colors ${
+	return `border px-1.5 py-0.5 font-dot text-[calc(10px*var(--font-scale))] transition-colors ${
 		active
 			? "border-arch-cyan bg-arch-cyan-faint text-arch-cyan"
 			: "border-arch-border text-arch-muted hover:text-arch-cyan"
@@ -54,7 +54,7 @@ export default async function EssaysPage({ searchParams }: EssaysPageProps) {
 				<SpatialNavRegion className="flex flex-1 flex-col gap-4">
 					<div className="flex flex-wrap items-center gap-3">
 						<NavBack label="◀ HOME" href="/home" />
-						<h1 className="font-dot text-sm text-arch-text">
+						<h1 className="font-dot text-arch-sm text-arch-text">
 							ARTICLE / Essays
 						</h1>
 					</div>
@@ -62,7 +62,7 @@ export default async function EssaysPage({ searchParams }: EssaysPageProps) {
 
 					{allTopics.length > 0 ? (
 						<div className="flex flex-wrap items-center gap-1.5">
-							<span className="font-mon text-[9px] text-arch-muted">
+							<span className="font-mon text-[calc(9px*var(--font-scale))] text-arch-muted">
 								TOPIC:
 							</span>
 							<Link href="/essays" className={topicPillClass(!selectedTopic)}>
@@ -81,12 +81,12 @@ export default async function EssaysPage({ searchParams }: EssaysPageProps) {
 					) : null}
 
 					{filtered.length === 0 ? (
-						<div className="p-8 text-center font-min text-[13px] text-arch-muted">
+						<div className="p-8 text-center font-min text-[calc(13px*var(--font-scale))] text-arch-muted">
 							<p>まだ記事がありません</p>
 							{selectedTopic ? (
 								<Link
 									href="/essays"
-									className="mt-2 inline-block font-mon text-[10px] text-arch-cyan underline"
+									className="mt-2 inline-block font-mon text-[calc(10px*var(--font-scale))] text-arch-cyan underline"
 								>
 									フィルタを解除
 								</Link>

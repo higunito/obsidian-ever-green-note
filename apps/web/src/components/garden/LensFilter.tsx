@@ -14,7 +14,7 @@ interface LensFilterProps {
 }
 
 function pill(active: boolean): string {
-	return `border px-1.5 py-0.5 font-dot text-[10px] transition-colors ${
+	return `border px-1.5 py-0.5 font-dot text-[calc(10px*var(--font-scale))] transition-colors ${
 		active
 			? "border-arch-cyan bg-arch-cyan-faint text-arch-cyan"
 			: "border-arch-border text-arch-muted"
@@ -62,7 +62,9 @@ export function LensFilter({ topics }: LensFilterProps) {
 
 	const pills = (
 		<>
-			<span className="font-mon text-[9px] text-arch-muted">LENS:</span>
+			<span className="font-mon text-[calc(9px*var(--font-scale))] text-arch-muted">
+				LENS:
+			</span>
 			{topics.map((topic) => (
 				<button
 					type="button"
@@ -104,7 +106,7 @@ export function LensFilter({ topics }: LensFilterProps) {
 				<button
 					type="button"
 					onClick={() => router.push(pathname)}
-					className="font-mon text-[9px] text-arch-muted underline transition-colors hover:text-arch-cyan"
+					className="font-mon text-[calc(9px*var(--font-scale))] text-arch-muted underline transition-colors hover:text-arch-cyan"
 				>
 					フィルタ解除
 				</button>
@@ -121,7 +123,7 @@ export function LensFilter({ topics }: LensFilterProps) {
 				<button
 					type="button"
 					onClick={() => setSheetOpen(true)}
-					className="font-mon text-[10px] text-arch-cyan"
+					className="font-mon text-[calc(10px*var(--font-scale))] text-arch-cyan"
 				>
 					FILTER ▼{hasActiveFilter ? " •" : ""}
 				</button>
@@ -133,7 +135,7 @@ export function LensFilter({ topics }: LensFilterProps) {
 						<button
 							type="button"
 							onClick={() => setSheetOpen(false)}
-							className="font-mon text-[10px] text-arch-cyan"
+							className="font-mon text-[calc(10px*var(--font-scale))] text-arch-cyan"
 						>
 							▲ CLOSE
 						</button>

@@ -1,6 +1,6 @@
 "use client";
 
-import { C, font } from "@web/styles/tokens";
+import { C, font, fs } from "@web/styles/tokens";
 
 interface CommandMenuProps {
 	items: readonly string[];
@@ -51,7 +51,7 @@ export function CommandMenu({
 							padding: "7px 16px",
 							cursor: "pointer",
 							fontFamily: font.dot,
-							fontSize: "12px",
+							fontSize: fs(12),
 							color: on || flashing ? C.cyan : C.text,
 							textShadow: on || flashing ? `0 0 10px ${C.cyan}` : "none",
 							background: on || flashing ? C.cyanFaint : "transparent",

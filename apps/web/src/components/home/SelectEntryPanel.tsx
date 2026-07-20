@@ -16,7 +16,7 @@ const TABS = [
 const PANEL_SIZE_CLASS = "h-[360px] overflow-y-auto";
 
 function tabClass(active: boolean): string {
-	return `cursor-pointer border px-3 py-2 font-dot text-[11px] transition-colors ${
+	return `cursor-pointer border px-3 py-2 font-dot text-[calc(11px*var(--font-scale))] transition-colors ${
 		active
 			? "border-arch-cyan bg-arch-cyan-faint text-arch-cyan"
 			: "border-arch-border text-arch-muted hover:text-arch-cyan"

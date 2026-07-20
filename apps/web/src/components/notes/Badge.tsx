@@ -1,4 +1,4 @@
-import { font, STATUS_LABEL, statusColor } from "@web/styles/tokens";
+import { font, fs, STATUS_LABEL, statusColor } from "@web/styles/tokens";
 import type { NoteStatus } from "@web/types/content";
 
 interface BadgeProps {
@@ -17,7 +17,7 @@ export function Badge({ status }: BadgeProps) {
 				color,
 				padding: "1px 5px",
 				fontFamily: font.mon,
-				fontSize: "9px",
+				fontSize: fs(9),
 				letterSpacing: "0.1em",
 			}}
 		>

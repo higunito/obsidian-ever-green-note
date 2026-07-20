@@ -21,7 +21,7 @@ export function Spine({ slug, file, title }: SpineProps) {
 			className="flex h-full w-[22px] shrink-0 items-center justify-center overflow-hidden border border-arch-border bg-[rgba(11,26,43,0.7)] transition-colors hover:bg-[rgba(20,50,58,0.9)]"
 		>
 			<span
-				className="whitespace-nowrap text-arch-cyan text-[9px] tracking-[0.08em]"
+				className="whitespace-nowrap text-arch-cyan text-[calc(9px*var(--font-scale))] tracking-[0.08em]"
 				style={{ fontFamily: font.mon, transform: "rotate(-90deg)" }}
 			>
 				{file}

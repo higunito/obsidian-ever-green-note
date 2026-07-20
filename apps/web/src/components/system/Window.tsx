@@ -1,4 +1,4 @@
-import { C, font } from "@web/styles/tokens";
+import { C, font, fs } from "@web/styles/tokens";
 import type { CSSProperties, ReactNode } from "react";
 
 interface WindowProps {
@@ -56,7 +56,7 @@ export function Window({
 					alignItems: "center",
 					gap: "6px",
 					fontFamily: font.dot,
-					fontSize: "11px",
+					fontSize: fs(11),
 					color: C.cyan,
 					letterSpacing: "0.08em",
 					boxShadow: `inset 0 -1px 0 ${C.borderSh}`,

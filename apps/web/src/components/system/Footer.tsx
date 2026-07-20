@@ -14,7 +14,7 @@ interface FooterProps {
  */
 export function Footer({ links = [] }: FooterProps) {
 	return (
-		<footer className="mt-auto flex flex-wrap items-center justify-between gap-3 px-4 py-3 font-mon text-[10px] tracking-[0.08em] text-arch-muted">
+		<footer className="mt-auto flex flex-wrap items-center justify-between gap-3 px-4 py-3 font-mon text-[calc(10px*var(--font-scale))] tracking-[0.08em] text-arch-muted">
 			<span className="opacity-70">ver 1.99</span>
 			{links.length > 0 ? (
 				<ul className="flex flex-wrap gap-4">
