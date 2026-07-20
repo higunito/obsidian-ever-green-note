@@ -28,8 +28,12 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
 			{/* main の幅は他の Nav 設置ページと統一する（Nav の折り返しを避けるため）。
 			    検索パネルは読みやすさのため内側の div で従来通り max-w-3xl に絞る。 */}
 			<main className="mx-auto flex w-full max-w-6xl flex-1 flex-col gap-4 p-5">
-				{/* 十字キーの対象（spec SC-010 §10.4）：Nav/NavBack・検索結果一覧。 */}
-				<SpatialNavRegion className="flex flex-1 flex-col gap-4">
+				{/* 十字キーの対象（spec SC-010 §10.4）：Nav/NavBack・検索入力欄・検索結果一覧。
+				    検索入力欄（<input>）も十字キーの往復対象にするため itemSelector を拡張する（design §9.6.2 v1.19）。 */}
+				<SpatialNavRegion
+					className="flex flex-1 flex-col gap-4"
+					itemSelector="a,button,input"
+				>
 					<div className="flex flex-wrap items-center gap-3">
 						<NavBack label="◀ HOME" href="/home" />
 						<h1 className="font-dot text-sm text-arch-text">SEARCH / 検索</h1>

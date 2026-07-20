@@ -28,7 +28,7 @@ export default function AboutPage() {
 						<NavBack label="◀ HOME" href="/home" />
 						<h1 className="font-dot text-sm text-arch-text">ABOUT / About</h1>
 					</div>
-					<Nav />
+					<Nav markActiveAsDefault />
 
 					<div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
 						{about.bodyHtml ? (

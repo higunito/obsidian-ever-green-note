@@ -46,11 +46,12 @@ function overlapsVertically(a: Rect, b: Rect): boolean {
 	return a.top < b.bottom && a.bottom > b.top;
 }
 
+function isTextInputTag(el: HTMLElement): boolean {
+	return el.tagName === "INPUT" || el.tagName === "TEXTAREA";
+}
+
 function isTextInput(target: EventTarget | null): target is HTMLElement {
-	return (
-		target instanceof HTMLElement &&
-		(target.tagName === "INPUT" || target.tagName === "TEXTAREA")
-	);
+	return target instanceof HTMLElement && isTextInputTag(target);
 }
 
 /**
@@ -148,6 +149,9 @@ function findNext(
  * 左右キーは「同じ行」（垂直方向に重なりのある要素）内のみを移動対象とする（`data-roving-free`
  * 祖先を持つ自由配置の領域は例外）。`data-roving-default` を付けた要素があれば既定選択に使う
  * （無ければ DOM 順の先頭）。テキスト入力欄フォーカス中は上下キーで `blur` して抜けられる（design §9.6.2 v1.18）。
+ * 逆に仮想カーソルが十字キー移動でテキスト入力欄に到達した場合は実 DOM フォーカスを渡す（再び入力を
+ * 再開できるようにするため）。テキスト入力欄は `data-roving-selected` の対象にせず、実 DOM フォーカスの
+ * 見た目のみで選択状態を示す（design §9.6.2 v1.19）。
  */
 export function useSpatialNavigation<T extends HTMLElement>({
 	itemSelector = DEFAULT_ITEM_SELECTOR,
@@ -173,10 +177,13 @@ export function useSpatialNavigation<T extends HTMLElement>({
 		);
 	}, [itemSelector]);
 
+	// テキスト入力欄は実 DOM フォーカスの見た目（枠色変化等）のみで選択状態を示し、
+	// 仮想カーソルのハイライトは二重に付与しない（design §9.6.2 v1.19）。
 	const applyHighlight = useCallback(
 		(selected: HTMLElement | null) => {
 			for (const item of getItems()) {
-				if (item === selected) item.setAttribute(SELECTED_ATTR, "true");
+				if (item === selected && !isTextInputTag(item))
+					item.setAttribute(SELECTED_ATTR, "true");
 				else item.removeAttribute(SELECTED_ATTR);
 			}
 		},
@@ -257,6 +264,9 @@ export function useSpatialNavigation<T extends HTMLElement>({
 			const next = findNext(current, candidates, direction) ?? current;
 			selectedRef.current = next;
 			applyHighlight(next);
+			// 仮想カーソルがテキスト入力欄へ到達した場合は実 DOM フォーカスも渡す。
+			// 一度入力欄の外へ抜けたあとも十字キーで戻って入力を再開できるようにする（design §9.6.2 v1.19）。
+			if (isTextInput(next)) next.focus();
 		}
 
 		window.addEventListener("keydown", handleKeyDown);

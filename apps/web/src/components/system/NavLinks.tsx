@@ -19,7 +19,13 @@ function isActive(
 	return itemView === currentView;
 }
 
-export function NavLinks() {
+interface NavLinksProps {
+	/** アクティブ項目を十字キーの既定選択にする場合 true（`data-roving-default`、design §9.6.2 v1.19）。
+	 * 画面自身を指す `Nav` 項目が既定選択になる SC-009 About のみで使う。 */
+	markActiveAsDefault?: boolean;
+}
+
+export function NavLinks({ markActiveAsDefault = false }: NavLinksProps = {}) {
 	const pathname = usePathname();
 	const currentView = useSearchParams().get("view");
 
@@ -32,6 +38,9 @@ export function NavLinks() {
 						<Link
 							href={item.href}
 							aria-current={active ? "page" : undefined}
+							data-roving-default={
+								markActiveAsDefault && active ? "true" : undefined
+							}
 							className="group inline-flex items-baseline gap-1.5 transition-colors"
 						>
 							<span

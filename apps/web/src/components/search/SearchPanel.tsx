@@ -2,6 +2,7 @@
 
 import { Tag } from "@web/components/notes";
 import { buildSearchIndex, runSearch } from "@web/lib/search";
+import { useFlashNavigate } from "@web/lib/use-flash-navigate";
 import { internalHref } from "@web/lib/wikilink";
 import type { SearchItem } from "@web/types/content";
 import Link from "next/link";
@@ -45,6 +46,7 @@ export function SearchPanel({ items, initialQuery }: SearchPanelProps) {
 		() => runSearch(index, items, query),
 		[index, items, query],
 	);
+	const { flashingKey, navigate } = useFlashNavigate();
 
 	useEffect(() => {
 		const url = query ? `/search?q=${encodeURIComponent(query)}` : "/search";
@@ -64,6 +66,7 @@ export function SearchPanel({ items, initialQuery }: SearchPanelProps) {
 					placeholder="キーワードを入力"
 					// biome-ignore lint/a11y/noAutofocus: 検索専用ページの主要な入力欄のため自動フォーカスする
 					autoFocus
+					data-roving-default="true"
 					className="flex-1 bg-transparent font-mon text-sm text-arch-text outline-none placeholder:text-arch-muted"
 				/>
 			</label>
@@ -97,37 +100,51 @@ export function SearchPanel({ items, initialQuery }: SearchPanelProps) {
 				</p>
 			) : (
 				<ul className="flex flex-col gap-3">
-					{results.map((result) => (
-						<li key={result.slug}>
-							<Link
-								href={internalHref({ slug: result.slug, layer: result.layer })}
-								className="block border border-arch-border bg-[rgba(11,26,43,0.7)] p-3 transition-all hover:border-arch-cyan hover:bg-[rgba(20,50,58,0.95)]"
-							>
-								<div className="mb-1.5 flex items-center gap-2">
-									<span className="border border-arch-border-faint px-1 py-px font-mon text-[9px] text-arch-muted">
-										{layerLabel(result.layer)}
-									</span>
-									<span className="font-dot text-xs text-arch-text">
-										{result.title}
-									</span>
-								</div>
-								<p className="mb-2 font-min text-[12px] leading-relaxed text-arch-muted">
-									{result.excerpt.before}
-									{result.excerpt.match ? (
-										<mark className="bg-arch-cyan-faint text-arch-cyan">
-											{result.excerpt.match}
-										</mark>
-									) : null}
-									{result.excerpt.after}
-								</p>
-								<div className="flex flex-wrap gap-1">
-									{result.topics.map((topic) => (
-										<Tag key={topic} label={topic} />
-									))}
-								</div>
-							</Link>
-						</li>
-					))}
+					{results.map((result) => {
+						const href = internalHref({
+							slug: result.slug,
+							layer: result.layer,
+						});
+						const flashing = flashingKey === href;
+						return (
+							<li key={result.slug}>
+								<Link
+									href={href}
+									onClick={(e) => {
+										e.preventDefault();
+										navigate(href, href);
+									}}
+									className={`block border border-arch-border bg-[rgba(11,26,43,0.7)] p-3 transition-all hover:border-arch-cyan hover:bg-[rgba(20,50,58,0.95)] ${flashing ? "arch-animated" : ""}`}
+									style={{
+										animation: flashing ? "navFlash 0.3s steps(1) 1" : "none",
+									}}
+								>
+									<div className="mb-1.5 flex items-center gap-2">
+										<span className="border border-arch-border-faint px-1 py-px font-mon text-[9px] text-arch-muted">
+											{layerLabel(result.layer)}
+										</span>
+										<span className="font-dot text-xs text-arch-text">
+											{result.title}
+										</span>
+									</div>
+									<p className="mb-2 font-min text-[12px] leading-relaxed text-arch-muted">
+										{result.excerpt.before}
+										{result.excerpt.match ? (
+											<mark className="bg-arch-cyan-faint text-arch-cyan">
+												{result.excerpt.match}
+											</mark>
+										) : null}
+										{result.excerpt.after}
+									</p>
+									<div className="flex flex-wrap gap-1">
+										{result.topics.map((topic) => (
+											<Tag key={topic} label={topic} />
+										))}
+									</div>
+								</Link>
+							</li>
+						);
+					})}
 				</ul>
 			)}
 		</div>

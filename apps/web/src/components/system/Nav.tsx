@@ -27,15 +27,20 @@ function NavFallback() {
 	);
 }
 
+interface NavProps {
+	/** アクティブ項目を十字キーの既定選択にする場合 true（design §9.6.2 v1.19、SC-009 About 専用）。 */
+	markActiveAsDefault?: boolean;
+}
+
 /**
  * 画面間ナビ（§9.1）。各項目はゲーム内名称＋通常名を必ず併記する（可読性ガードレール §10.6）。
  * 対応表の単一情報源は lib/navigation.ts（design §3.3）。現在ページはハイライトで示す。
  */
-export function Nav() {
+export function Nav({ markActiveAsDefault = false }: NavProps = {}) {
 	return (
 		<nav aria-label="メインナビゲーション">
 			<Suspense fallback={<NavFallback />}>
-				<NavLinks />
+				<NavLinks markActiveAsDefault={markActiveAsDefault} />
 			</Suspense>
 		</nav>
 	);
