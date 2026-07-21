@@ -30,7 +30,10 @@ export function NavLinks({ markActiveAsDefault = false }: NavLinksProps = {}) {
 	const currentView = useSearchParams().get("view");
 
 	return (
-		<ul className="flex flex-wrap items-baseline justify-center gap-y-2">
+		<ul
+			data-roving-group="nav"
+			className="flex flex-wrap items-baseline justify-center gap-y-2"
+		>
 			{NAV_ITEMS.map((item) => {
 				const active = isActive(item, pathname, currentView);
 				return (
@@ -44,6 +47,7 @@ export function NavLinks({ markActiveAsDefault = false }: NavLinksProps = {}) {
 							data-roving-default={
 								markActiveAsDefault && active ? "true" : undefined
 							}
+							data-roving-enter-target={active ? "true" : undefined}
 							className="group inline-flex items-baseline transition-colors"
 						>
 							<span

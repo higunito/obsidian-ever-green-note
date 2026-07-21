@@ -40,6 +40,10 @@ const GROUP_ATTR = "data-roving-group";
 /** グループを代表する項目（親）に付ける。この項目を選択中は他グループの代表項目へも
  * 左右移動できるが、それ以外（子）を選択中は左右移動を同じグループ内に限定する（design §9.6.2 v1.33）。 */
 const GROUP_ROOT_ATTR = "data-roving-group-root";
+/** グループ内で、外部から初めてそのグループへ移動してきたときの着地点にしたい項目に付ける
+ * （design §9.6.2 v1.38）。例：`Nav` の現在ページに対応する項目。すでにそのグループの内側に
+ * いる場合（グループ内で項目間を移動する場合）はこの着地点への誘導を行わない。 */
+const ENTER_TARGET_ATTR = "data-roving-enter-target";
 const DEFAULT_ITEM_SELECTOR = "a,button";
 
 function toRect(el: HTMLElement): Rect {
@@ -129,6 +133,26 @@ function nearestInDirection(
 }
 
 /**
+ * 移動先が「現在地とは別のグループ」に属する場合、そのグループ内に着地点
+ * （`data-roving-enter-target`）があればそちらへ誘導する（design §9.6.2 v1.38）。
+ * 例：コンテンツ側から上キーで `Nav` へ初めて移動する際、実座標最短の項目ではなく
+ * 現在ページに対応する `Nav` 項目へ着地させる。同じグループ内で項目間を移動する場合
+ * （＝グループへ入った後の移動）は誘導しない。
+ */
+function redirectToGroupEnterTarget(
+	candidate: HTMLElement | null,
+	currentGroup: Element | null,
+): HTMLElement | null {
+	if (!candidate) return candidate;
+	const candidateGroup = candidate.closest(`[${GROUP_ATTR}]`);
+	if (!candidateGroup || candidateGroup === currentGroup) return candidate;
+	const enterTarget = candidateGroup.querySelector<HTMLElement>(
+		`[${ENTER_TARGET_ATTR}]`,
+	);
+	return enterTarget ?? candidate;
+}
+
+/**
  * 左右キーは実座標が「同じ行」（垂直方向に重なりのある要素）にある項目間のみを移動対象とし、
  * 同じ行に候補が無ければ移動しない（design §9.6.2 v1.18）。`Nav`・フィルタ・カード一覧のように
  * 縦に複数領域が積み重なる画面で、左右移動が行の境界を越えて無関係な別領域へ飛ぶ不具合を防ぐ。
@@ -157,9 +181,15 @@ function findNext(
 				(el) => el.closest(`[${GROUP_ATTR}]`) === currentGroup,
 			);
 		}
-		return nearestInDirection(current, sameRow, direction, currentGroup);
+		return redirectToGroupEnterTarget(
+			nearestInDirection(current, sameRow, direction, currentGroup),
+			currentGroup,
+		);
 	}
-	return nearestInDirection(current, candidates, direction, currentGroup);
+	return redirectToGroupEnterTarget(
+		nearestInDirection(current, candidates, direction, currentGroup),
+		currentGroup,
+	);
 }
 
 /**
