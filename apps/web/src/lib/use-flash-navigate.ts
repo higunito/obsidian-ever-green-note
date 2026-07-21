@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useState } from "react";
+import { playTransitionSound } from "@web/lib/sound-effects";
 
 /** 遷移確定ボタンのビビビ点滅演出（globals.css `navFlash`）を見せてから push するまでの待ち時間。 */
 export const FLASH_NAVIGATE_MS = 300;
@@ -19,6 +20,7 @@ export function useFlashNavigate(delayMs: number = FLASH_NAVIGATE_MS) {
 	const navigate = useCallback(
 		(key: string, href: string) => {
 			setFlashingKey(key);
+			playTransitionSound();
 			window.setTimeout(() => router.push(href), delayMs);
 		},
 		[router, delayMs],

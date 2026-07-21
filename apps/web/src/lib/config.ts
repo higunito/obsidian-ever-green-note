@@ -7,6 +7,8 @@ const FONT_SIZE_KEY = "ta_font_size";
 const FONT_SIZE_ATTR = "data-font-size";
 export type FontSize = "small" | "large";
 
+const SE_MUTED_KEY = "ta_se_muted";
+
 function isStorageAvailable(): boolean {
 	try {
 		const testKey = "__ta_storage_test__";
@@ -69,4 +71,22 @@ export function setFontSizePreference(value: FontSize): void {
 		window.localStorage.setItem(FONT_SIZE_KEY, value);
 	}
 	applyFontSizeAttribute(value);
+}
+
+/** 保存済みの「効果音」設定。未設定なら既定値の true（ミュート＝OFF）を返す（design §9.7）。
+ * DOM 属性への反映（`apply*`）は不要：効果音は再生タイミングごとに `lib/sound-effects.ts` が
+ * この関数を直接呼んで判定するだけで、SSR とのちらつき対策（他の設定にある `apply*`）が要らないため。 */
+export function getSeMutedPreference(): boolean {
+	if (typeof window === "undefined" || !isStorageAvailable()) return true;
+	const raw = window.localStorage.getItem(SE_MUTED_KEY);
+	if (raw === "true") return true;
+	if (raw === "false") return false;
+	return true;
+}
+
+/** 設定を保存する（利用不可時は次回訪問時も既定値「OFF」に戻る）。 */
+export function setSeMutedPreference(value: boolean): void {
+	if (typeof window !== "undefined" && isStorageAvailable()) {
+		window.localStorage.setItem(SE_MUTED_KEY, String(value));
+	}
 }

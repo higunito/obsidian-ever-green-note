@@ -7,14 +7,21 @@ import {
 	type FontSize,
 	getFontSizePreference,
 	getReducedMotionPreference,
+	getSeMutedPreference,
 	setFontSizePreference,
 	setReducedMotionPreference,
+	setSeMutedPreference,
 } from "@web/lib/config";
 import { C, font, fs } from "@web/styles/tokens";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const ITEMS = ["タイトルを見る", "アニメーション低減", "文字サイズ"] as const;
+const ITEMS = [
+	"タイトルを見る",
+	"アニメーション低減",
+	"文字サイズ",
+	"効果音",
+] as const;
 
 /**
  * SC-011 Config 本体（design §11.2/§11.3、spec SC-011、F-CFG-001/F-NAV-002）。
@@ -32,11 +39,13 @@ export function ConfigPanel() {
 	const [selected, setSelected] = useState(0);
 	const [reducedMotion, setReducedMotionState] = useState(false);
 	const [fontSize, setFontSizeState] = useState<FontSize>("large");
+	const [seMuted, setSeMutedState] = useState(true);
 	const [mounted, setMounted] = useState(false);
 
 	useEffect(() => {
 		setReducedMotionState(getReducedMotionPreference() ?? false);
 		setFontSizeState(getFontSizePreference());
+		setSeMutedState(getSeMutedPreference());
 		setMounted(true);
 	}, []);
 
@@ -52,14 +61,22 @@ export function ConfigPanel() {
 		setFontSizePreference(next);
 	}
 
+	function toggleSeMuted() {
+		const next = !seMuted;
+		setSeMutedState(next);
+		setSeMutedPreference(next);
+	}
+
 	function handleSelect(index: number) {
 		setSelected(index);
 		if (index === 0) {
 			router.push("/");
 		} else if (index === 1) {
 			toggleReducedMotion();
-		} else {
+		} else if (index === 2) {
 			toggleFontSize();
+		} else {
+			toggleSeMuted();
 		}
 	}
 
@@ -101,6 +118,13 @@ export function ConfigPanel() {
 						{fontSize === "large" ? "大" : "小"}
 					</span>
 					（既定は「大」。本文・見出し・ラベルを含む全体のサイズを切り替えます）。
+				</div>
+				<div>
+					効果音：現在{" "}
+					<span style={{ color: seMuted ? C.muted : C.cyan }}>
+						{seMuted ? "OFF" : "ON"}
+					</span>
+					（既定は OFF。カーソル移動・決定・戻る・画面遷移の操作音を鳴らします）。
 				</div>
 			</div>
 		</div>

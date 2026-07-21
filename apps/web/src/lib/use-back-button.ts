@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { playCancelSound } from "@web/lib/sound-effects";
 
 // このタブでアプリ内遷移が何回起きたかを数えるモジュール内カウンタ。ハード再読み込みで
 // リセットされる（＝新しい JS コンテキスト）ことを利用し、「直リンクで開いたばかりで
@@ -60,6 +61,7 @@ export function useBackButton(
 				(e.target as HTMLElement).blur();
 				return;
 			}
+			playCancelSound();
 			if (onBeforeBack?.()) return;
 
 			if (hasInternalHistory()) {

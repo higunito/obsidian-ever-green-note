@@ -1,6 +1,11 @@
 "use client";
 
 import { CommandMenu } from "@web/components/system";
+import {
+	playCancelSound,
+	playCursorSound,
+	playDecideSound,
+} from "@web/lib/sound-effects";
 import { useFlashNavigate } from "@web/lib/use-flash-navigate";
 import { C, fs } from "@web/styles/tokens";
 import {
@@ -130,33 +135,47 @@ export function TitleMenu() {
 
 	useEffect(() => {
 		function handleKeyDown(e: KeyboardEvent) {
+			const isDecide = e.key === "Enter" || e.key === "z" || e.key === "Z";
+			const isCancel = e.key === "Escape" || e.key === "x" || e.key === "X";
+
 			if (othersOpen) {
 				if (e.key === "ArrowUp") {
-					setOthersSelected((s) => Math.max(0, s - 1));
+					const next = Math.max(0, othersSelected - 1);
+					if (next !== othersSelected) playCursorSound();
+					setOthersSelected(next);
 					return;
 				}
 				if (e.key === "ArrowDown") {
-					setOthersSelected((s) => Math.min(OTHERS_ITEMS.length - 1, s + 1));
+					const next = Math.min(OTHERS_ITEMS.length - 1, othersSelected + 1);
+					if (next !== othersSelected) playCursorSound();
+					setOthersSelected(next);
 					return;
 				}
-				if (e.key === "Enter") {
+				if (isDecide) {
+					playDecideSound();
 					navigateToOther(othersSelected);
 					return;
 				}
-				if (e.key === "ArrowLeft" || e.key === "Escape") {
+				if (e.key === "ArrowLeft" || isCancel) {
+					playCancelSound();
 					setOthersOpen(false);
 				}
 				return;
 			}
 			if (e.key === "ArrowUp") {
-				setSelected((s) => Math.max(0, s - 1));
+				const next = Math.max(0, selected - 1);
+				if (next !== selected) playCursorSound();
+				setSelected(next);
 				return;
 			}
 			if (e.key === "ArrowDown") {
-				setSelected((s) => Math.min(MENU_ITEMS.length - 1, s + 1));
+				const next = Math.min(MENU_ITEMS.length - 1, selected + 1);
+				if (next !== selected) playCursorSound();
+				setSelected(next);
 				return;
 			}
-			if (e.key === "Enter") {
+			if (isDecide) {
+				playDecideSound();
 				navigateTo(selected);
 			}
 		}

@@ -1,6 +1,7 @@
 "use client";
 
 import { type RefObject, useCallback, useEffect, useRef } from "react";
+import { playCursorSound, playDecideSound } from "@web/lib/sound-effects";
 
 type Direction = "up" | "down" | "left" | "right";
 
@@ -272,6 +273,7 @@ export function useSpatialNavigation<T extends HTMLElement>({
 				e.target.blur();
 				selectedRef.current = next;
 				applyHighlight(next);
+				playCursorSound();
 				return;
 			}
 
@@ -281,7 +283,10 @@ export function useSpatialNavigation<T extends HTMLElement>({
 			if (e.key === "Enter" || e.key === "z" || e.key === "Z") {
 				e.preventDefault();
 				const target = selectedRef.current ?? items[0];
-				if (target) simulateClick(target);
+				if (target) {
+					simulateClick(target);
+					playDecideSound();
+				}
 				return;
 			}
 
@@ -296,6 +301,7 @@ export function useSpatialNavigation<T extends HTMLElement>({
 			const next = findNext(current, candidates, direction) ?? current;
 			selectedRef.current = next;
 			applyHighlight(next);
+			if (next !== current) playCursorSound();
 			// 仮想カーソルがテキスト入力欄へ到達した場合は実 DOM フォーカスも渡す。
 			// 一度入力欄の外へ抜けたあとも十字キーで戻って入力を再開できるようにする（design §9.6.2 v1.19）。
 			if (isTextInput(next)) next.focus();
