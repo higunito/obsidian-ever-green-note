@@ -221,6 +221,9 @@ export function useSpatialNavigation<T extends HTMLElement>({
 	const internalRef = useRef<T>(null);
 	const containerRef = externalRef ?? internalRef;
 	const selectedRef = useRef<HTMLElement | null>(null);
+	// 直近でスクロールした選択要素。同じ要素に対して毎レンダー scrollIntoView を
+	// 呼ばないようにするためだけの記録（選択自体の状態は selectedRef が正）。
+	const lastScrolledRef = useRef<HTMLElement | null>(null);
 
 	// containerRef は ref のため依存配列に含めなくても常に最新を参照する。
 	// biome-ignore lint/correctness/useExhaustiveDependencies: containerRef.current は ref
@@ -249,6 +252,18 @@ export function useSpatialNavigation<T extends HTMLElement>({
 					item.setAttribute(SELECTED_ATTR, "true");
 				else item.removeAttribute(SELECTED_ATTR);
 			}
+			// 選択中の要素が画面外にあっても見失わないよう、選択が変わった時だけスクロールする。
+			// ギリギリ見える位置までしか動かさない "nearest" だと弱いという指摘を受け、
+			// 画面の中央付近まで大きく動かす "center" にする（テキスト入力欄は実 DOM フォーカスの
+			// `focus()` が自前でスクロールするため対象外、design §9.6.2 v1.39/v1.40）。
+			if (
+				selected &&
+				selected !== lastScrolledRef.current &&
+				!isTextInputTag(selected)
+			) {
+				selected.scrollIntoView({ block: "center", inline: "center" });
+			}
+			lastScrolledRef.current = selected;
 		},
 		[getItems],
 	);
