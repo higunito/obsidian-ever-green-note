@@ -1,6 +1,7 @@
 "use client";
 
 import { C, font, fs } from "@web/styles/tokens";
+import type { ReactNode } from "react";
 
 interface CommandMenuProps {
 	items: readonly string[];
@@ -15,6 +16,10 @@ interface CommandMenuProps {
 	flashingIndex?: number | null;
 	/** true の場合、先頭項目（index 0）を十字キーの既定選択にする（`data-roving-default`、design §9.6.2 v1.18）。既定 false。 */
 	markDefault?: boolean;
+	/** 各項目の右端に表示する現在値（例：`ON`/`OFF`）。`items` と同じ長さの配列でインデックス対応
+	 * させる。値が無い項目（`undefined`）は右端に何も表示しない（トグルではなく実行系の項目用、
+	 * design §11.2 v1.41）。省略時はどの項目にも表示しない（Config 以外の既存メニューへの影響を避ける）。 */
+	trailing?: readonly ReactNode[];
 }
 
 /**
@@ -29,6 +34,7 @@ export function CommandMenu({
 	active = true,
 	flashingIndex = null,
 	markDefault = false,
+	trailing,
 }: CommandMenuProps) {
 	return (
 		<div>
@@ -73,7 +79,12 @@ export function CommandMenu({
 						>
 							{on || flashing ? "▶" : "　"}
 						</span>
-						{item}
+						<span style={{ flex: 1 }}>{item}</span>
+						{trailing?.[i] !== undefined ? (
+							<span style={{ flexShrink: 0, marginLeft: "12px" }}>
+								{trailing[i]}
+							</span>
+						) : null}
 					</button>
 				);
 			})}

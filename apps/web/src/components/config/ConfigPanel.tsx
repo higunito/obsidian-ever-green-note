@@ -88,6 +88,24 @@ export function ConfigPanel() {
 		applyFontSizeAttribute(fontSize);
 	}, [mounted, reducedMotion, fontSize]);
 
+	// 各項目の現在値をメニュー右端に表示する（トグル系の項目のみ、design §11.2 v1.41）。
+	// 「タイトルを見る」は実行系の項目のため値を持たない（undefined＝非表示）。
+	const trailing = [
+		undefined,
+		<span
+			key="reducedMotion"
+			style={{ color: reducedMotion ? C.cyan : C.muted }}
+		>
+			{reducedMotion ? "ON" : "OFF"}
+		</span>,
+		<span key="fontSize" style={{ color: C.cyan }}>
+			{fontSize === "large" ? "大" : "小"}
+		</span>,
+		<span key="seMuted" style={{ color: seMuted ? C.muted : C.cyan }}>
+			{seMuted ? "OFF" : "ON"}
+		</span>,
+	];
+
 	return (
 		<div className="flex flex-col gap-4">
 			<CommandMenu
@@ -96,6 +114,7 @@ export function ConfigPanel() {
 				onSelect={handleSelect}
 				onHover={setSelected}
 				markDefault
+				trailing={trailing}
 			/>
 			<div
 				style={{ fontFamily: font.mon, fontSize: fs(11), color: C.muted }}
@@ -105,26 +124,12 @@ export function ConfigPanel() {
 					タイトルを見る：TITLE 画面（
 					<span style={{ color: C.cyan }}>/</span>）へ移動します。
 				</div>
+				<div>アニメーション低減：雨・点滅・タイトル演出を停止します。</div>
 				<div>
-					アニメーション低減：現在{" "}
-					<span style={{ color: reducedMotion ? C.cyan : C.muted }}>
-						{reducedMotion ? "ON" : "OFF"}
-					</span>
-					（雨・点滅・タイトル演出を停止）。
+					文字サイズ：既定は「大」。本文・見出し・ラベルを含む全体のサイズを切り替えます。
 				</div>
 				<div>
-					文字サイズ：現在{" "}
-					<span style={{ color: C.cyan }}>
-						{fontSize === "large" ? "大" : "小"}
-					</span>
-					（既定は「大」。本文・見出し・ラベルを含む全体のサイズを切り替えます）。
-				</div>
-				<div>
-					効果音：現在{" "}
-					<span style={{ color: seMuted ? C.muted : C.cyan }}>
-						{seMuted ? "OFF" : "ON"}
-					</span>
-					（既定は OFF。カーソル移動・決定・戻る・画面遷移の操作音を鳴らします）。
+					効果音：既定は OFF。カーソル移動・決定・戻る・画面遷移の操作音を鳴らします。
 				</div>
 			</div>
 		</div>
